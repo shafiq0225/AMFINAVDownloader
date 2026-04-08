@@ -1,0 +1,46 @@
+# .gitignore content
+## Ignore Visual Studio temporary files, build results, etc.
+
+# Build results
+bin/
+obj/
+publish/
+*.user
+*.suo
+*.cache
+*.vs/
+
+# Logs
+Logs/
+*.log
+
+# Database files
+*.db
+*.mdf
+*.ldf
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.vspscc
+*.vssscc
+
+# Visual Studio cache files
+.vs/
+
+# dotnet
+*.lock.json
+
+# Coverage files
+*.coverage
+*.coveragexml
+
+# Backup files
+*~
+*.bak
+
+# IDE specific
+.idea/
+.vscode/
