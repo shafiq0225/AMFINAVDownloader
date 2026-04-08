@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AMFINAV.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "runonce"
+    }
+  }
+}
