@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AMFINAV.Domain.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace AMFINAV.Infrastructure.Services
@@ -16,13 +17,15 @@ namespace AMFINAV.Infrastructure.Services
         private readonly HttpClient _httpClient;
         private readonly IMemoryCache _cache;
         private readonly ILogger<NseHolidayFetcher> _logger;
+        private readonly IConfiguration _configuration;
         private const string CACHE_KEY = "NSE_HOLIDAYS_ALL";
 
-        public NseHolidayFetcher(HttpClient httpClient, IMemoryCache memoryCache, ILogger<NseHolidayFetcher> logger)
+        public NseHolidayFetcher(HttpClient httpClient, IMemoryCache memoryCache, ILogger<NseHolidayFetcher> logger, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _cache = memoryCache;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task<List<DateTime>> FetchHolidaysForYearAsync(int year)
@@ -42,10 +45,17 @@ namespace AMFINAV.Infrastructure.Services
 
             try
             {
-                _logger.LogInformation("Fetching holidays from NSE API...");
+                var apiUrl = _configuration["AppSettings:NseHolidayApiUrl"];
+                if (string.IsNullOrEmpty(apiUrl))
+                {
+                    _logger.LogWarning("NSE Holiday API URL not configured");
+                    return new HashSet<DateTime>();
+                }
+
+                _logger.LogInformation("Fetching holidays from NSE API: {Url}", apiUrl);
 
                 // Now fetch the holiday data
-                var holidayResponse = await _httpClient.GetAsync("https://www.nseindia.com/api/holiday-master?type=trading");
+                var holidayResponse = await _httpClient.GetAsync(apiUrl);
                 holidayResponse.EnsureSuccessStatusCode();
 
                 var json = await holidayResponse.Content.ReadAsStringAsync();
@@ -55,7 +65,7 @@ namespace AMFINAV.Infrastructure.Services
 
                 var holidays = new HashSet<DateTime>();
 
-                // Parse CM segment (Capital Market)
+                // Parse MF segment (Mutal Fund) - Main trading holidays
                 if (doc.RootElement.TryGetProperty("MF", out var cmElement))
                 {
                     var cmHolidays = ParseHolidaysFromJson(cmElement);
