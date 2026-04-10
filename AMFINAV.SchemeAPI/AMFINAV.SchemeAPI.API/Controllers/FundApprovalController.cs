@@ -14,10 +14,6 @@ namespace AMFINAV.SchemeAPI.API.Controllers
             _command = command;
         }
 
-        /// <summary>
-        /// Set approval for all schemes under a fund.
-        /// PUT /api/fundapproval/{fundCode}?isApproved=true
-        /// </summary>
         [HttpPut("{fundCode}")]
         public async Task<IActionResult> UpdateFundApproval(
             string fundCode, [FromQuery] bool isApproved)

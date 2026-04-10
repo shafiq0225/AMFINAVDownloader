@@ -23,12 +23,24 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Repositories
         public async Task AddRangeAsync(IEnumerable<DetailedScheme> schemes) =>
             await _context.DetailedSchemes.AddRangeAsync(schemes);
 
-        // ← new — bulk update IsApproved for all schemes under a fund
-        public async Task UpdateApprovalByFundCodeAsync(string fundCode, bool isApproved)
+        // ← Get all SchemeCodes under a FundCode
+        public async Task<IEnumerable<string>> GetSchemeCodesByFundCodeAsync(
+            string fundCode) =>
+            await _context.DetailedSchemes
+                .Where(d => d.FundCode == fundCode)
+                .Select(d => d.SchemeCode)
+                .Distinct()
+                .ToListAsync();
+
+        // ← Bulk update IsApproved for all DetailedScheme rows under a FundCode
+        public async Task UpdateApprovalByFundCodeAsync(
+            string fundCode, bool isApproved)
         {
             var schemes = await _context.DetailedSchemes
                 .Where(d => d.FundCode == fundCode)
                 .ToListAsync();
+
+            if (schemes.Count == 0) return;
 
             foreach (var scheme in schemes)
                 scheme.IsApproved = isApproved;

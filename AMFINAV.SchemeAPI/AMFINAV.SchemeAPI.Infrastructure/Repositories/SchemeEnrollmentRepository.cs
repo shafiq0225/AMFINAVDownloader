@@ -29,12 +29,6 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Repositories
                 .OrderBy(s => s.SchemeCode)
                 .ToListAsync();
 
-        public async Task<IEnumerable<SchemeEnrollment>> GetByFundCodeAsync(string fundCode) =>
-            await _context.SchemeEnrollments
-                .Where(s => s.FundCode == fundCode)
-                .OrderBy(s => s.SchemeCode)
-                .ToListAsync();
-
         public async Task<bool> ExistsBySchemeCodeAsync(string schemeCode) =>
             await _context.SchemeEnrollments
                 .AnyAsync(s => s.SchemeCode == schemeCode);
@@ -56,11 +50,15 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Repositories
             _context.SchemeEnrollments.Update(existing);
         }
 
-        // ← new — bulk update all schemes under a fund
-        public async Task UpdateApprovalByFundCodeAsync(string fundCode, bool isApproved)
+        // ← Bulk update IsApproved for all SchemeCodes in the list
+        public async Task UpdateApprovalBySchemeCodesAsync(
+            IEnumerable<string> schemeCodes, bool isApproved)
         {
+            var schemeList = schemeCodes.ToList();
+            if (schemeList.Count == 0) return;
+
             var schemes = await _context.SchemeEnrollments
-                .Where(s => s.FundCode == fundCode)
+                .Where(s => schemeList.Contains(s.SchemeCode))
                 .ToListAsync();
 
             foreach (var scheme in schemes)

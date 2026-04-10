@@ -1,10 +1,10 @@
 ﻿using System.Globalization;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using AMFINAV.SchemeAPI.Domain.Contracts;
 using AMFINAV.SchemeAPI.Domain.Entities;
 using AMFINAV.SchemeAPI.Domain.Helpers;
 using AMFINAV.SchemeAPI.Domain.Interfaces;
+using AMFINAV.SchemeAPI.Domain.Contracts;
 
 namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 {
@@ -30,7 +30,7 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 
             try
             {
-                // Step 1 — Fetch approved scheme codes from SchemeEnrollment table
+                // Step 1 — Fetch approved scheme codes
                 var approvedSchemes = await _unitOfWork.SchemeEnrollments
                     .GetApprovedSchemesAsync();
 
@@ -40,26 +40,46 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 
                 if (approvedCodes.Count == 0)
                 {
-                    _logger.LogWarning("No approved schemes found. Skipping DetailedScheme.");
+                    _logger.LogWarning("No approved schemes. Skipping.");
                     return;
                 }
 
                 _logger.LogInformation(
                     "Found {Count} approved scheme codes", approvedCodes.Count);
 
-                // Step 2 — Parse NAV file content
+                // Step 2 — Parse NAV file
+                // Format:
+                //   Fund Name Line        ← header (no semicolons)
+                //   [blank line]
+                //   SchemeCode;ISIN1;ISIN2;SchemeName;NAV;Date
                 var lines = message.FileContent.Split(
                     new[] { '\n', '\r' },
                     StringSplitOptions.RemoveEmptyEntries);
 
                 var toInsert = new List<DetailedScheme>();
                 var receivedAt = DateTime.Now;
+                string currentFundName = string.Empty;
+                string currentFundCode = string.Empty;
 
                 foreach (var line in lines)
                 {
-                    var parts = line.Split(';');
+                    var trimmed = line.Trim();
+                    if (string.IsNullOrWhiteSpace(trimmed)) continue;
 
-                    // Format: SchemeCode;ISIN1;ISIN2;SchemeName;NAV;Date
+                    // Detect fund name header line
+                    // Header lines have no semicolons
+                    if (!trimmed.Contains(';'))
+                    {
+                        currentFundName = trimmed;
+                        currentFundCode = FundCodeGenerator.Generate(currentFundName);
+                        _logger.LogInformation(
+                            "Fund detected: {FundName} → {FundCode}",
+                            currentFundName, currentFundCode);
+                        continue;
+                    }
+
+                    // Parse scheme line
+                    var parts = trimmed.Split(';');
                     if (parts.Length < 6) continue;
 
                     var schemeCode = parts[0].Trim();
@@ -77,20 +97,16 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
                         continue;
                     }
 
-                    // Parse NAV value
+                    // Parse NAV
                     if (!decimal.TryParse(parts[4].Trim(),
                             NumberStyles.Any,
                             CultureInfo.InvariantCulture,
                             out var nav))
                     {
                         _logger.LogWarning(
-                            "Invalid NAV value for SchemeCode={Code}", schemeCode);
+                            "Invalid NAV for SchemeCode={Code}", schemeCode);
                         continue;
                     }
-
-                    var schemeName = parts[3].Trim();
-                    var fundName = FundNameExtractor.Extract(schemeName);
-                    var fundCode = FundCodeGenerator.Generate(fundName);
 
                     // Get IsApproved from SchemeEnrollment
                     var enrollment = approvedSchemes
@@ -98,10 +114,10 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 
                     toInsert.Add(new DetailedScheme
                     {
-                        FundCode = fundCode,
-                        FundName = fundName,
+                        FundCode = currentFundCode,
+                        FundName = currentFundName,
                         SchemeCode = schemeCode,
-                        SchemeName = schemeName,
+                        SchemeName = parts[3].Trim(),
                         IsApproved = enrollment.IsApproved,
                         Nav = nav,
                         NavDate = message.NavDate.Date,
@@ -125,8 +141,8 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error processing NavFileProcessedEvent");
-                throw; // MassTransit will retry
+                _logger.LogError(ex, "Error in NavFileConsumer");
+                throw;
             }
         }
     }

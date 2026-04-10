@@ -7,5 +7,6 @@ namespace AMFINAV.SchemeAPI.Domain.Interfaces
         Task<bool> ExistsBySchemeCodeAndDateAsync(string schemeCode, DateTime navDate);
         Task AddRangeAsync(IEnumerable<DetailedScheme> schemes);
         Task UpdateApprovalByFundCodeAsync(string fundCode, bool isApproved);
+        Task<IEnumerable<string>> GetSchemeCodesByFundCodeAsync(string fundCode);
     }
 }
