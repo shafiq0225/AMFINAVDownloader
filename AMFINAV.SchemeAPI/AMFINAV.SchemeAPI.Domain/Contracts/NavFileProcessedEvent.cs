@@ -1,4 +1,4 @@
-﻿namespace AMFINAV.SchemeAPI.Domain.Contracts
+﻿namespace AMFINAV.Domain.Contracts
 {
     public record NavFileProcessedEvent
     {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using AMFINAV.SchemeAPI.Domain.Entities;
 using AMFINAV.SchemeAPI.Domain.Helpers;
 using AMFINAV.SchemeAPI.Domain.Interfaces;
-using AMFINAV.SchemeAPI.Domain.Contracts;
+using AMFINAV.Domain.Contracts;
 
 namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 {

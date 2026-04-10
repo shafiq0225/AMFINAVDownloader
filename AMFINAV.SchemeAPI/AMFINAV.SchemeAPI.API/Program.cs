@@ -35,6 +35,12 @@ builder.Services.AddMassTransit(x =>
         // Configure receive endpoint (queue)
         cfg.ReceiveEndpoint("nav-file-processed-app2", e =>
         {
+            // ← Bind to App 1's exchange explicitly
+            e.Bind("AMFINAV.Domain.Contracts:NavFileProcessedEvent", b =>
+            {
+                b.ExchangeType = "fanout";
+            });
+
             e.ConfigureConsumer<NavFileConsumer>(ctx);
         });
     });

@@ -57,7 +57,7 @@ namespace AMFINAV.Console
                 }
                 else
                 {
-                    Log.Information("Starting scheduled service - Will run daily at 5:00 AM");
+                    Log.Information("Starting scheduled service - Will run daily at 8:00 AM");
                     await host.RunAsync();
                 }
             }
@@ -133,7 +133,7 @@ namespace AMFINAV.Console
                         var jobKey = new JobKey("NavDownloadJob");
                         q.AddJob<NavDownloadJob>(opts => opts.WithIdentity(jobKey));
 
-                        var scheduleTime = configuration.GetValue<string>("AppSettings:ScheduleTime", "5:00:00");
+                        var scheduleTime = configuration.GetValue<string>("AppSettings:ScheduleTime", "8:00:00");
                         var timeParts = scheduleTime.Split(':');
                         var hour = int.Parse(timeParts[0]);
                         var minute = int.Parse(timeParts[1]);
