@@ -3,6 +3,7 @@
     public interface IUnitOfWork : IDisposable
     {
         ISchemeEnrollmentRepository SchemeEnrollments { get; }
+        IDetailedSchemeRepository DetailedSchemes { get; }
         Task<int> CompleteAsync();
     }
 }

@@ -11,9 +11,12 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Data
         {
             _context = context;
             SchemeEnrollments = new SchemeEnrollmentRepository(_context);
+            DetailedSchemes = new DetailedSchemeRepository(_context);
         }
 
         public ISchemeEnrollmentRepository SchemeEnrollments { get; }
+
+        public IDetailedSchemeRepository DetailedSchemes { get; }
 
         public async Task<int> CompleteAsync() =>
             await _context.SaveChangesAsync();

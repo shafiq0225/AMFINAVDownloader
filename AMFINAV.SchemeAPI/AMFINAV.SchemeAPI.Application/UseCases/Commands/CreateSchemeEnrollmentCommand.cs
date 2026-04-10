@@ -11,8 +11,7 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Commands
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<CreateSchemeEnrollmentCommand> _logger;
 
-        public CreateSchemeEnrollmentCommand(IUnitOfWork unitOfWork,
-            ILogger<CreateSchemeEnrollmentCommand> logger)
+        public CreateSchemeEnrollmentCommand(IUnitOfWork unitOfWork, ILogger<CreateSchemeEnrollmentCommand> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -29,6 +28,8 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Commands
 
                 var entity = new SchemeEnrollment
                 {
+                    FundCode = dto.FundCode.Trim(),
+                    FundName = dto.FundName.Trim(),
                     SchemeCode = dto.SchemeCode.Trim(),
                     SchemeName = dto.SchemeName.Trim(),
                     IsApproved = dto.IsApproved,
@@ -52,6 +53,8 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Commands
         private static SchemeEnrollmentDto MapToDto(SchemeEnrollment e) => new()
         {
             Id = e.Id,
+            FundCode = e.FundCode,
+            FundName = e.FundName,
             SchemeCode = e.SchemeCode,
             SchemeName = e.SchemeName,
             IsApproved = e.IsApproved,

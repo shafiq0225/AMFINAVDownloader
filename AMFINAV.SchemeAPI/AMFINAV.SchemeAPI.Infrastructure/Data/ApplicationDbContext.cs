@@ -11,6 +11,7 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Data
         : base(options) { }
 
         public DbSet<SchemeEnrollment> SchemeEnrollments { get; set; }
+        public DbSet<DetailedScheme> DetailedSchemes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,20 +20,31 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Data
             modelBuilder.Entity<SchemeEnrollment>(entity =>
             {
                 entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.SchemeCode).IsUnique();
+                entity.HasIndex(e => e.FundCode);
+                entity.Property(e => e.FundCode).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.FundName).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.SchemeCode).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.SchemeName).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+            });
 
-                entity.HasIndex(e => e.SchemeCode)
-                      .IsUnique();
+            modelBuilder.Entity<DetailedScheme>(entity =>
+            {
+                entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.SchemeCode)
-                      .IsRequired()
-                      .HasMaxLength(20);
+                // Prevent duplicate SchemeCode + NavDate
+                entity.HasIndex(e => new { e.SchemeCode, e.NavDate }).IsUnique();
 
-                entity.Property(e => e.SchemeName)
-                      .IsRequired()
-                      .HasMaxLength(500);
+                // Fast fund-level queries
+                entity.HasIndex(e => e.FundCode);
 
-                entity.Property(e => e.CreatedAt)
-                      .HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.FundCode).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.FundName).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.SchemeCode).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.SchemeName).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Nav).HasColumnType("decimal(18,4)");
+                entity.Property(e => e.ReceivedAt).HasDefaultValueSql("GETDATE()");
             });
         }
     }

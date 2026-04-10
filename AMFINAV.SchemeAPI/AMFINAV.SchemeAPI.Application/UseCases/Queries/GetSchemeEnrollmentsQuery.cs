@@ -11,8 +11,7 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<GetSchemeEnrollmentsQuery> _logger;
 
-        public GetSchemeEnrollmentsQuery(IUnitOfWork unitOfWork,
-            ILogger<GetSchemeEnrollmentsQuery> logger)
+        public GetSchemeEnrollmentsQuery(IUnitOfWork unitOfWork, ILogger<GetSchemeEnrollmentsQuery> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;

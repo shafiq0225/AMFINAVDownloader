@@ -10,6 +10,7 @@ namespace AMFINAV.SchemeAPI.Application
         {
             services.AddScoped<CreateSchemeEnrollmentCommand>();
             services.AddScoped<UpdateSchemeEnrollmentCommand>();
+            services.AddScoped<UpdateFundApprovalCommand>();
             services.AddScoped<GetSchemeEnrollmentsQuery>();
             return services;
         }
