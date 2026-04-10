@@ -5,6 +5,8 @@ using AMFINAV.Domain.Entities;
 using AMFINAV.Domain.Interfaces;
 using AMFINAV.Domain.Enums;
 using Microsoft.Extensions.Logging;
+using MassTransit;
+using AMFINAV.Domain.Contracts;
 
 namespace AMFINAV.Application.UseCases.Commands
 {
@@ -13,14 +15,16 @@ namespace AMFINAV.Application.UseCases.Commands
         private readonly INavDownloadService _downloadService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<DownloadAndStoreNavCommand> _logger;
-
+        private readonly IPublishEndpoint _publishEndpoint;
         public DownloadAndStoreNavCommand(
             INavDownloadService downloadService,
             IUnitOfWork unitOfWork,
+            IPublishEndpoint publishEndpoint,
             ILogger<DownloadAndStoreNavCommand> logger)
         {
             _downloadService = downloadService;
             _unitOfWork = unitOfWork;
+            _publishEndpoint = publishEndpoint;
             _logger = logger;
         }
 
@@ -67,6 +71,21 @@ namespace AMFINAV.Application.UseCases.Commands
 
                 _logger.LogInformation("Successfully stored NAV text file for {Date}. Size: {Size} bytes, Records: {Records}",
                     targetDate.ToString("yyyy-MM-dd"), navFile.FileSizeBytes, recordCount);
+
+                // ── Publish event to RabbitMQ ──────────────────────────────
+                var navEvent = new NavFileProcessedEvent
+                {
+                    NavDate = targetDate,
+                    FileContent = content,
+                    RecordCount = recordCount,
+                    PublishedAt = DateTime.UtcNow
+                };
+
+                await _publishEndpoint.Publish(navEvent);
+
+                _logger.LogInformation(
+                    "📤 Published NavFileProcessedEvent for {Date} with {Count} records",
+                    targetDate.ToString("yyyy-MM-dd"), recordCount);
 
                 return Result<bool>.Success(true);
             }

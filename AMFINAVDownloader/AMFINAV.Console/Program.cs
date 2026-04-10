@@ -9,6 +9,7 @@ using AMFINAV.Infrastructure.Helpers;
 using AMFINAV.Application.UseCases.Commands;
 using AMFINAV.Console.Jobs;
 using AMFINAV.Domain.Interfaces;
+using MassTransit;
 
 namespace AMFINAV.Console
 {
@@ -108,6 +109,22 @@ namespace AMFINAV.Console
                     // Add Infrastructure Layer
                     services.AddInfrastructure(configuration);
 
+                    // ── MassTransit + RabbitMQ ─────────────────────────────
+                    services.AddMassTransit(x =>
+                    {
+                        x.UsingRabbitMq((ctx, cfg) =>
+                        {
+                            cfg.Host(
+                                configuration["RabbitMQ:Host"] ?? "localhost",
+                                configuration["RabbitMQ:VirtualHost"] ?? "/",
+                                h =>
+                                {
+                                    h.Username(configuration["RabbitMQ:Username"] ?? "guest");
+                                    h.Password(configuration["RabbitMQ:Password"] ?? "guest");
+                                });
+                        });
+                    });
+
                     // Add Quartz Scheduling
                     services.AddQuartz(q =>
                     {
@@ -116,7 +133,7 @@ namespace AMFINAV.Console
                         var jobKey = new JobKey("NavDownloadJob");
                         q.AddJob<NavDownloadJob>(opts => opts.WithIdentity(jobKey));
 
-                        var scheduleTime = configuration.GetValue<string>("AppSettings:ScheduleTime", "10:45:00");
+                        var scheduleTime = configuration.GetValue<string>("AppSettings:ScheduleTime", "5:00:00");
                         var timeParts = scheduleTime.Split(':');
                         var hour = int.Parse(timeParts[0]);
                         var minute = int.Parse(timeParts[1]);
