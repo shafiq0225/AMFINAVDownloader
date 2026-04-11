@@ -47,5 +47,16 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Repositories
 
             _context.DetailedSchemes.UpdateRange(schemes);
         }
+
+        public async Task<IEnumerable<DetailedScheme>> GetByDateRangeAsync(
+            DateTime startDate, DateTime endDate) =>
+            await _context.DetailedSchemes
+                .Where(d => d.IsApproved
+                         && d.NavDate >= startDate.Date
+                         && d.NavDate <= endDate.Date)
+                .OrderBy(d => d.SchemeCode)
+                .ThenBy(d => d.NavDate)
+                .ToListAsync();
+
     }
 }
