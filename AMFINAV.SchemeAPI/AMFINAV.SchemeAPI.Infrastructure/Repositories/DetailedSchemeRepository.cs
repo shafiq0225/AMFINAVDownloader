@@ -48,13 +48,54 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Repositories
             _context.DetailedSchemes.UpdateRange(schemes);
         }
 
-        public async Task<IEnumerable<DetailedScheme>> GetByDateRangeAsync(DateTime startDate, DateTime endDate) => await _context.DetailedSchemes
-        .Where(d => d.IsApproved
-                 && d.NavDate >= startDate.Date
-                 && d.NavDate <= endDate.Date)
-        .OrderBy(d => d.SchemeCode)
-        .ThenBy(d => d.NavDate)
-        .ToListAsync();
+        /// <summary>
+        /// Fetches records in the date range PLUS the nearest previous record
+        /// per scheme before startDate — needed to calculate the first entry's
+        /// percentage correctly.
+        /// </summary>
+        public async Task<IEnumerable<DetailedScheme>> GetByDateRangeWithPreviousAsync(
+            DateTime startDate, DateTime endDate)
+        {
+            // Step 1 — Records within requested range
+            var inRange = await _context.DetailedSchemes
+                .Where(d => d.IsApproved
+                         && d.NavDate >= startDate.Date
+                         && d.NavDate <= endDate.Date)
+                .ToListAsync();
 
+            // Step 2 — For each scheme, find the nearest record BEFORE startDate
+            var schemeCodes = inRange.Select(d => d.SchemeCode).Distinct().ToList();
+
+            var previousRecords = new List<DetailedScheme>();
+
+            foreach (var schemeCode in schemeCodes)
+            {
+                var previous = await _context.DetailedSchemes
+                    .Where(d => d.SchemeCode == schemeCode
+                             && d.NavDate < startDate.Date)
+                    .OrderByDescending(d => d.NavDate)
+                    .FirstOrDefaultAsync();
+
+                if (previous != null)
+                    previousRecords.Add(previous);
+            }
+
+            // Step 3 — Combine and return ordered
+            return inRange
+                .Concat(previousRecords)
+                .OrderBy(d => d.SchemeCode)
+                .ThenBy(d => d.NavDate)
+                .ToList();
+        }
+
+        // ← Returns last N distinct NavDates that have actual data
+        public async Task<List<DateTime>> GetLastTradingDatesAsync(int count) =>
+            await _context.DetailedSchemes
+                .Where(d => d.IsApproved)
+                .Select(d => d.NavDate)
+                .Distinct()
+                .OrderByDescending(d => d)
+                .Take(count)
+                .ToListAsync();
     }
 }

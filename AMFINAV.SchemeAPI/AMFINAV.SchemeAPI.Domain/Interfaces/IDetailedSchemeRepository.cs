@@ -8,7 +8,7 @@ namespace AMFINAV.SchemeAPI.Domain.Interfaces
         Task AddRangeAsync(IEnumerable<DetailedScheme> schemes);
         Task UpdateApprovalByFundCodeAsync(string fundCode, bool isApproved);
         Task<IEnumerable<string>> GetSchemeCodesByFundCodeAsync(string fundCode);
-        Task<IEnumerable<DetailedScheme>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
-
+        Task<IEnumerable<DetailedScheme>> GetByDateRangeWithPreviousAsync(DateTime startDate, DateTime endDate);
+        Task<List<DateTime>> GetLastTradingDatesAsync(int count);
     }
 }

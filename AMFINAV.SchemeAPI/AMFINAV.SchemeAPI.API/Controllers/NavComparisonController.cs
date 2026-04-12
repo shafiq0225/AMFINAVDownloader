@@ -15,39 +15,38 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         }
 
         /// <summary>
-        /// Compare NAV between two dates for all approved schemes.
+        /// Custom date range comparison.
         /// GET /api/navcomparison?startDate=2026-04-08&endDate=2026-04-10
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetComparison([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetComparison(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate)
         {
             if (startDate >= endDate)
                 return BadRequest("startDate must be earlier than endDate.");
 
-            // ← Normalize to UTC date only — strip time and timezone offset
-            var normalizedStart = startDate.Date;
-            var normalizedEnd = endDate.Date;
+            var result = await _query.ExecuteAsync(
+                startDate.Date, endDate.Date);
 
-            var result = await _query.ExecuteAsync(normalizedStart, normalizedEnd);
-
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            return result.IsSuccess
+                ? Ok(result.Data)
+                : NotFound(result.ErrorMessage);
         }
 
-
         /// <summary>
-        /// Compare yesterday vs day before yesterday (default daily comparison).
+        /// Auto-detects last 2 trading days with actual data.
+        /// Handles weekends and holidays automatically.
         /// GET /api/navcomparison/daily
         /// </summary>
         [HttpGet("daily")]
         public async Task<IActionResult> GetDailyComparison()
         {
-            var today = DateTime.Today;
-            var yesterday = today.AddDays(-1);
-            var dayBefore = today.AddDays(-2);
+            var result = await _query.ExecuteDailyAsync();
 
-            var result = await _query.ExecuteAsync(dayBefore, yesterday);
-
-            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
+            return result.IsSuccess
+                ? Ok(result.Data)
+                : NotFound(result.ErrorMessage);
         }
     }
 }
