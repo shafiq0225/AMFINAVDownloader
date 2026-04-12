@@ -19,19 +19,20 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         /// GET /api/navcomparison?startDate=2026-04-08&endDate=2026-04-10
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetComparison(
-            [FromQuery] DateTime startDate,
-            [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetComparison([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             if (startDate >= endDate)
                 return BadRequest("startDate must be earlier than endDate.");
 
-            var result = await _query.ExecuteAsync(startDate, endDate);
+            // ← Normalize to UTC date only — strip time and timezone offset
+            var normalizedStart = startDate.Date;
+            var normalizedEnd = endDate.Date;
 
-            return result.IsSuccess
-                ? Ok(result.Data)
-                : NotFound(result.ErrorMessage);
+            var result = await _query.ExecuteAsync(normalizedStart, normalizedEnd);
+
+            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
+
 
         /// <summary>
         /// Compare yesterday vs day before yesterday (default daily comparison).
@@ -46,9 +47,7 @@ namespace AMFINAV.SchemeAPI.API.Controllers
 
             var result = await _query.ExecuteAsync(dayBefore, yesterday);
 
-            return result.IsSuccess
-                ? Ok(result.Data)
-                : NotFound(result.ErrorMessage);
+            return result.IsSuccess ? Ok(result.Data) : NotFound(result.ErrorMessage);
         }
     }
 }

@@ -17,8 +17,7 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
             _logger = logger;
         }
 
-        public async Task<Result<NavComparisonResponseDto>> ExecuteAsync(
-            DateTime startDate, DateTime endDate)
+        public async Task<Result<NavComparisonResponseDto>> ExecuteAsync(DateTime startDate, DateTime endDate)
         {
             try
             {
@@ -73,15 +72,27 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
                             .OrderByDescending(d => d)
                             .FirstOrDefault();
 
-                        decimal percentage = 0;
-                        bool isGrowth = false;
+                        string percentage;
+                        bool isGrowth;
 
-                        if (previousDate != default && navByDate.ContainsKey(previousDate))
+                        if (previousDate == default || !navByDate.ContainsKey(previousDate))
+                        {
+                            // ← No previous date available — return 100.00
+                            percentage = "100.00";
+                            isGrowth = true;
+                        }
+                        else
                         {
                             var previousNav = navByDate[previousDate];
-                            if (previousNav != 0)
+                            if (previousNav == 0)
                             {
-                                percentage = ((currentNav - previousNav) / previousNav) * 100;
+                                percentage = "100.00";
+                                isGrowth = true;
+                            }
+                            else
+                            {
+                                var change = ((currentNav - previousNav) / previousNav) * 100;
+                                percentage = change.ToString("F2");
                                 isGrowth = currentNav > previousNav;
                             }
                         }
@@ -90,11 +101,12 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
                         {
                             Date = date,
                             Nav = currentNav,
-                            Percentage = percentage.ToString("F2"),
+                            Percentage = percentage,
                             IsTradingHoliday = false,
                             IsGrowth = isGrowth
                         });
                     }
+
 
                     var first = group.First();
 
