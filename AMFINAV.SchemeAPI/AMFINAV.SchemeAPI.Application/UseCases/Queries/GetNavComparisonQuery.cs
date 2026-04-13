@@ -25,12 +25,10 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
         public async Task<Result<NavComparisonResponseDto>> ExecuteDailyAsync()
         {
             // ← Get last 2 dates that actually have data in DetailedSchemes
-            var tradingDates = await _unitOfWork.DetailedSchemes
-                .GetLastTradingDatesAsync(2);
+            var tradingDates = await _unitOfWork.DetailedSchemes.GetLastTradingDatesAsync(2);
 
             if (tradingDates.Count == 0)
-                return Result<NavComparisonResponseDto>.Failure(
-                    "No NAV data found in DetailedSchemes.");
+                return Result<NavComparisonResponseDto>.Failure("No NAV data found in DetailedSchemes.");
 
             if (tradingDates.Count == 1)
             {
@@ -43,10 +41,7 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
             var endDate = tradingDates[0].Date;
             var startDate = tradingDates[1].Date;
 
-            _logger.LogInformation(
-                "Daily comparison — last 2 trading dates: {Start} and {End}",
-                startDate.ToString("yyyy-MM-dd"),
-                endDate.ToString("yyyy-MM-dd"));
+            _logger.LogInformation("Daily comparison — last 2 trading dates: {Start} and {End}", startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
 
             return await ExecuteAsync(startDate, endDate);
         }
@@ -55,33 +50,24 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
         {
             try
             {
-                _logger.LogInformation(
-                    "NAV comparison: {Start} to {End}",
-                    startDate.ToString("yyyy-MM-dd"),
-                    endDate.ToString("yyyy-MM-dd"));
+                _logger.LogInformation("NAV comparison: {Start} to {End}", startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
 
                 // ← Use new method that includes previous record for calculation
-                var records = await _unitOfWork.DetailedSchemes
-                    .GetByDateRangeWithPreviousAsync(startDate, endDate);
+                var records = await _unitOfWork.DetailedSchemes.GetByDateRangeWithPreviousAsync(startDate, endDate);
 
                 var recordList = records.ToList();
 
                 if (recordList.Count == 0)
-                    return Result<NavComparisonResponseDto>.Failure(
-                        $"No NAV data found between " +
-                        $"{startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}.");
+                    return Result<NavComparisonResponseDto>.Failure($"No NAV data found between " + $"{startDate:yyyy-MM-dd} and {endDate:yyyy-MM-dd}.");
 
                 var grouped = recordList.GroupBy(r => r.SchemeCode).ToList();
                 var schemes = new List<SchemeComparisonDto>();
 
                 foreach (var group in grouped)
                 {
-                    var navByDate = group
-                        .ToDictionary(r => r.NavDate.Date, r => r.Nav);
+                    var navByDate = group.ToDictionary(r => r.NavDate.Date, r => r.Nav);
 
-                    var orderedDates = navByDate.Keys
-                        .OrderBy(d => d)
-                        .ToList();
+                    var orderedDates = navByDate.Keys.OrderBy(d => d).ToList();
 
                     var history = new List<NavHistoryDto>();
 
@@ -90,16 +76,12 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
                         var currentNav = navByDate[date];
 
                         // Find previous date NAV (may be outside requested range)
-                        var previousDate = orderedDates
-                            .Where(d => d < date)
-                            .OrderByDescending(d => d)
-                            .FirstOrDefault();
+                        var previousDate = orderedDates.Where(d => d < date).OrderByDescending(d => d).FirstOrDefault();
 
                         string percentage;
                         bool isGrowth;
 
-                        if (previousDate == default
-                            || !navByDate.ContainsKey(previousDate))
+                        if (previousDate == default || !navByDate.ContainsKey(previousDate))
                         {
                             // Truly no previous data exists anywhere
                             percentage = "100.00";
@@ -115,8 +97,7 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
                             }
                             else
                             {
-                                var change = ((currentNav - previousNav)
-                                    / previousNav) * 100;
+                                var change = ((currentNav - previousNav) / previousNav) * 100;
                                 percentage = change.ToString("F2");
                                 isGrowth = currentNav > previousNav;
                             }
@@ -137,9 +118,7 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
                         }
                     }
 
-                    var first = group
-                        .OrderBy(r => r.NavDate)
-                        .First(r => r.NavDate.Date >= startDate.Date);
+                    var first = group.OrderBy(r => r.NavDate).First(r => r.NavDate.Date >= startDate.Date);
 
                     schemes.Add(new SchemeComparisonDto
                     {
@@ -167,14 +146,13 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
                 for (int i = 0; i < ranked.Count; i++)
                     ranked[i].Rank = i + 1;
 
-                return Result<NavComparisonResponseDto>.Success(
-                    new NavComparisonResponseDto
-                    {
-                        StartDate = startDate,
-                        EndDate = endDate,
-                        Message = $"Retrieved {ranked.Count} scheme(s) successfully.",
-                        Schemes = ranked
-                    });
+                return Result<NavComparisonResponseDto>.Success(new NavComparisonResponseDto
+                {
+                    StartDate = startDate,
+                    EndDate = endDate,
+                    Message = $"Retrieved {ranked.Count} scheme(s) successfully.",
+                    Schemes = ranked
+                });
             }
             catch (Exception ex)
             {
