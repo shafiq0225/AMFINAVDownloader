@@ -5,6 +5,7 @@ using AMFINAV.SchemeAPI.Domain.Entities;
 using AMFINAV.SchemeAPI.Domain.Helpers;
 using AMFINAV.SchemeAPI.Domain.Interfaces;
 using AMFINAV.Domain.Contracts;
+using AMFINAV.SchemeAPI.Domain.Exceptions;
 
 namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 {
@@ -30,7 +31,6 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 
             try
             {
-                // Step 1 — Fetch approved scheme codes
                 var approvedSchemes = await _unitOfWork.SchemeEnrollments
                     .GetApprovedSchemesAsync();
 
@@ -40,18 +40,12 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 
                 if (approvedCodes.Count == 0)
                 {
-                    _logger.LogWarning("No approved schemes. Skipping.");
+                    _logger.LogWarning(
+                        "No approved schemes found for {Date}. Skipping.",
+                        message.NavDate.ToString("yyyy-MM-dd"));
                     return;
                 }
 
-                _logger.LogInformation(
-                    "Found {Count} approved scheme codes", approvedCodes.Count);
-
-                // Step 2 — Parse NAV file
-                // Format:
-                //   Fund Name Line        ← header (no semicolons)
-                //   [blank line]
-                //   SchemeCode;ISIN1;ISIN2;SchemeName;NAV;Date
                 var lines = message.FileContent.Split(
                     new[] { '\n', '\r' },
                     StringSplitOptions.RemoveEmptyEntries);
@@ -66,8 +60,6 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
                     var trimmed = line.Trim();
                     if (string.IsNullOrWhiteSpace(trimmed)) continue;
 
-                    // Detect fund name header line
-                    // Header lines have no semicolons
                     if (!trimmed.Contains(';'))
                     {
                         currentFundName = trimmed;
@@ -78,16 +70,12 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
                         continue;
                     }
 
-                    // Parse scheme line
                     var parts = trimmed.Split(';');
                     if (parts.Length < 6) continue;
 
                     var schemeCode = parts[0].Trim();
-
-                    // Only approved schemes
                     if (!approvedCodes.Contains(schemeCode)) continue;
 
-                    // Skip duplicates
                     if (await _unitOfWork.DetailedSchemes
                             .ExistsBySchemeCodeAndDateAsync(schemeCode, message.NavDate))
                     {
@@ -97,18 +85,17 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
                         continue;
                     }
 
-                    // Parse NAV
                     if (!decimal.TryParse(parts[4].Trim(),
-                            NumberStyles.Any,
-                            CultureInfo.InvariantCulture,
+                            System.Globalization.NumberStyles.Any,
+                            System.Globalization.CultureInfo.InvariantCulture,
                             out var nav))
                     {
                         _logger.LogWarning(
-                            "Invalid NAV for SchemeCode={Code}", schemeCode);
+                            "Invalid NAV value for SchemeCode={Code} — skipping",
+                            schemeCode);
                         continue;
                     }
 
-                    // Get IsApproved from SchemeEnrollment
                     var enrollment = approvedSchemes
                         .First(s => s.SchemeCode == schemeCode);
 
@@ -127,11 +114,12 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
 
                 if (toInsert.Count == 0)
                 {
-                    _logger.LogInformation("No new DetailedScheme records to insert.");
+                    _logger.LogInformation(
+                        "No new DetailedScheme records to insert for {Date}.",
+                        message.NavDate.ToString("yyyy-MM-dd"));
                     return;
                 }
 
-                // Step 3 — Bulk insert
                 await _unitOfWork.DetailedSchemes.AddRangeAsync(toInsert);
                 await _unitOfWork.CompleteAsync();
 
@@ -141,8 +129,17 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Consumers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in NavFileConsumer");
-                throw;
+                // ← Wrap in typed exception with context
+                _logger.LogError(ex,
+                    "❌ NavFileConsumer failed for NavDate={Date} — " +
+                    "Message will be retried by MassTransit",
+                    message.NavDate.ToString("yyyy-MM-dd"));
+
+                // Rethrow — MassTransit will retry automatically
+                throw new NavConsumerException(
+                    $"Failed to process NAV file for {message.NavDate:yyyy-MM-dd}",
+                    message.NavDate,
+                    ex);
             }
         }
     }

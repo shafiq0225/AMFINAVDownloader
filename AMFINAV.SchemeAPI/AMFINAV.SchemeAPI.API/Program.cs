@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using AMFINAV.SchemeAPI.Infrastructure.Data;
 using MassTransit;
 using AMFINAV.SchemeAPI.Infrastructure.Consumers;
+using AMFINAV.SchemeAPI.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,8 @@ builder.Services.AddMassTransit(x =>
 
 
 var app = builder.Build();
+
+app.UseGlobalExceptionHandler();
 
 // Auto-migrate on startup
 using (var scope = app.Services.CreateScope())

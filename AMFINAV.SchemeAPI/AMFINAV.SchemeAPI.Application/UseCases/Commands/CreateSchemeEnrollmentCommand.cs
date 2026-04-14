@@ -23,8 +23,7 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Commands
         {
             try
             {
-                if (await _unitOfWork.SchemeEnrollments
-                        .ExistsBySchemeCodeAsync(dto.SchemeCode))
+                if (await _unitOfWork.SchemeEnrollments.ExistsBySchemeCodeAsync(dto.SchemeCode))
                     return Result<SchemeEnrollmentDto>.Failure(
                         $"SchemeCode '{dto.SchemeCode}' is already enrolled.");
 
