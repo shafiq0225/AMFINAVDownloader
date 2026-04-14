@@ -10,8 +10,7 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<GetNavComparisonQuery> _logger;
 
-        public GetNavComparisonQuery(IUnitOfWork unitOfWork,
-            ILogger<GetNavComparisonQuery> logger)
+        public GetNavComparisonQuery(IUnitOfWork unitOfWork, ILogger<GetNavComparisonQuery> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;

@@ -10,6 +10,7 @@ using AMFINAV.Application.UseCases.Commands;
 using AMFINAV.Console.Jobs;
 using AMFINAV.Domain.Interfaces;
 using MassTransit;
+using AMFINAV.Console.Exceptions;
 
 namespace AMFINAV.Console
 {
@@ -17,6 +18,7 @@ namespace AMFINAV.Console
     {
         static async Task Main(string[] args)
         {
+            GlobalExceptionHandler.Register();
             var configuration = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)  // ← Change this
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
