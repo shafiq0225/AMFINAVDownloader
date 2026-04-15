@@ -1,4 +1,5 @@
 ﻿using AMFINAV.Domain.Interfaces;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace AMFINAV.Infrastructure.Helpers
             // Skip weekends and holidays
             while (!await IsTradingDayAsync(targetDate))
             {
+                Log.Information("No Marktet on the date " + targetDate.Date);
                 targetDate = targetDate.AddDays(-1);
             }
 
