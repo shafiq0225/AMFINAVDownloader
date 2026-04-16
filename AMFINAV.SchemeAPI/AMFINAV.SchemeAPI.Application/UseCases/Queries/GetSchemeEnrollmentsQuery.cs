@@ -1,5 +1,5 @@
 ﻿using AMFINAV.SchemeAPI.Application.DTOs;
-using AMFINAV.SchemeAPI.Domain.Common;
+using AMFINAV.SchemeAPI.Domain.Exceptions;
 using AMFINAV.SchemeAPI.Domain.Entities;
 using AMFINAV.SchemeAPI.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -11,57 +11,34 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Queries
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<GetSchemeEnrollmentsQuery> _logger;
 
-        public GetSchemeEnrollmentsQuery(IUnitOfWork unitOfWork, ILogger<GetSchemeEnrollmentsQuery> logger)
+        public GetSchemeEnrollmentsQuery(IUnitOfWork unitOfWork,
+            ILogger<GetSchemeEnrollmentsQuery> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
-        public async Task<Result<IEnumerable<SchemeEnrollmentDto>>> GetAllAsync()
+        public async Task<IEnumerable<SchemeEnrollmentDto>> GetAllAsync()
         {
-            try
-            {
-                var list = await _unitOfWork.SchemeEnrollments.GetAllAsync();
-                return Result<IEnumerable<SchemeEnrollmentDto>>.Success(list.Select(MapToDto));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving all SchemeEnrollments");
-                return Result<IEnumerable<SchemeEnrollmentDto>>.Failure(ex.Message);
-            }
+            var list = await _unitOfWork.SchemeEnrollments.GetAllAsync();
+            return list.Select(MapToDto);
         }
 
-        // ← GetByIdAsync removed, replaced with GetBySchemeCodeAsync
-        public async Task<Result<SchemeEnrollmentDto>> GetBySchemeCodeAsync(string schemeCode)
+        public async Task<SchemeEnrollmentDto> GetBySchemeCodeAsync(string schemeCode)
         {
-            try
-            {
-                var entity = await _unitOfWork.SchemeEnrollments.GetBySchemeCodeAsync(schemeCode);
-                if (entity is null)
-                    return Result<SchemeEnrollmentDto>.Failure(
-                        $"SchemeCode '{schemeCode}' not found.");
+            var entity = await _unitOfWork.SchemeEnrollments
+                .GetBySchemeCodeAsync(schemeCode);
 
-                return Result<SchemeEnrollmentDto>.Success(MapToDto(entity));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving SchemeEnrollment SchemeCode={Code}", schemeCode);
-                return Result<SchemeEnrollmentDto>.Failure(ex.Message);
-            }
+            if (entity is null)
+                throw new NotFoundException("SchemeEnrollment", schemeCode);
+
+            return MapToDto(entity);
         }
 
-        public async Task<Result<IEnumerable<SchemeEnrollmentDto>>> GetApprovedAsync()
+        public async Task<IEnumerable<SchemeEnrollmentDto>> GetApprovedAsync()
         {
-            try
-            {
-                var list = await _unitOfWork.SchemeEnrollments.GetApprovedSchemesAsync();
-                return Result<IEnumerable<SchemeEnrollmentDto>>.Success(list.Select(MapToDto));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving approved SchemeEnrollments");
-                return Result<IEnumerable<SchemeEnrollmentDto>>.Failure(ex.Message);
-            }
+            var list = await _unitOfWork.SchemeEnrollments.GetApprovedSchemesAsync();
+            return list.Select(MapToDto);
         }
 
         private static SchemeEnrollmentDto MapToDto(SchemeEnrollment e) => new()

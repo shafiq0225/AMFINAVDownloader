@@ -1,4 +1,4 @@
-﻿using AMFINAV.SchemeAPI.Domain.Common;
+﻿using AMFINAV.SchemeAPI.Domain.Exceptions;
 using AMFINAV.SchemeAPI.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -16,51 +16,32 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Commands
             _logger = logger;
         }
 
-        public async Task<Result<int>> ExecuteAsync(string fundCode, bool isApproved)
+        public async Task<int> ExecuteAsync(string fundCode, bool isApproved)
         {
-            try
-            {
-                // Step 1 — Get all SchemeCodes under this FundCode from DetailedScheme
-                var schemeCodes = await _unitOfWork.DetailedSchemes
-                    .GetSchemeCodesByFundCodeAsync(fundCode);
+            var schemeCodes = await _unitOfWork.DetailedSchemes
+                .GetSchemeCodesByFundCodeAsync(fundCode);
 
-                var schemeCodeList = schemeCodes.ToList();
+            var schemeCodeList = schemeCodes.ToList();
 
-                if (schemeCodeList.Count == 0)
-                    return Result<int>.Failure(
-                        $"No schemes found for FundCode '{fundCode}' " +
-                        $"in DetailedScheme. Make sure NAV data has been " +
-                        $"processed for this fund first.");
+            if (schemeCodeList.Count == 0)
+                throw new FundApprovalException(
+                    $"No schemes found for FundCode '{fundCode}'.",
+                    fundCode);
 
-                _logger.LogInformation(
-                    "Fund approval update — FundCode={FundCode} " +
-                    "IsApproved={IsApproved} Schemes={Count}",
-                    fundCode, isApproved, schemeCodeList.Count);
+            await _unitOfWork.DetailedSchemes
+                .UpdateApprovalByFundCodeAsync(fundCode, isApproved);
 
-                // Step 2 — Update DetailedScheme (all rows for this FundCode)
-                await _unitOfWork.DetailedSchemes
-                    .UpdateApprovalByFundCodeAsync(fundCode, isApproved);
+            await _unitOfWork.SchemeEnrollments
+                .UpdateApprovalBySchemeCodesAsync(schemeCodeList, isApproved);
 
-                // Step 3 — Update SchemeEnrollment (matching SchemeCodes)
-                await _unitOfWork.SchemeEnrollments
-                    .UpdateApprovalBySchemeCodesAsync(schemeCodeList, isApproved);
+            await _unitOfWork.CompleteAsync();
 
-                // Step 4 — Save both in one transaction
-                await _unitOfWork.CompleteAsync();
+            _logger.LogInformation(
+                "✅ Fund approval updated — FundCode={FundCode} " +
+                "IsApproved={IsApproved} SchemesAffected={Count}",
+                fundCode, isApproved, schemeCodeList.Count);
 
-                _logger.LogInformation(
-                    "✅ Fund approval updated — FundCode={FundCode} " +
-                    "IsApproved={IsApproved} SchemesAffected={Count}",
-                    fundCode, isApproved, schemeCodeList.Count);
-
-                return Result<int>.Success(schemeCodeList.Count);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex,
-                    "Error updating fund approval FundCode={FundCode}", fundCode);
-                return Result<int>.Failure(ex.Message);
-            }
+            return schemeCodeList.Count;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AMFINAV.SchemeAPI.Application.UseCases.Commands;
+using AMFINAV.SchemeAPI.Domain.Exceptions;
 
 namespace AMFINAV.SchemeAPI.API.Controllers
 {
@@ -15,23 +16,23 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         }
 
         [HttpPut("{fundCode}")]
-        public async Task<IActionResult> UpdateFundApproval(
-            string fundCode, [FromQuery] bool isApproved)
+        public async Task<IActionResult> UpdateFundApproval(string fundCode, [FromQuery] bool isApproved)
         {
             if (string.IsNullOrWhiteSpace(fundCode))
-                return BadRequest("FundCode is required.");
-
-            var result = await _command.ExecuteAsync(fundCode, isApproved);
-
-            return result.IsSuccess
-                ? Ok(new
+                throw new ValidationException(new Dictionary<string, string[]>
                 {
-                    FundCode = fundCode,
-                    IsApproved = isApproved,
-                    SchemesAffected = result.Data,
-                    Message = $"Successfully updated {result.Data} scheme(s)"
-                })
-                : NotFound(result.ErrorMessage);
+                    { "fundCode", new[] { "FundCode is required." } }
+                });
+
+            var count = await _command.ExecuteAsync(fundCode, isApproved);
+
+            return Ok(new
+            {
+                FundCode = fundCode,
+                IsApproved = isApproved,
+                SchemesAffected = count,
+                Message = $"Successfully updated {count} scheme(s)"
+            });
         }
     }
 }

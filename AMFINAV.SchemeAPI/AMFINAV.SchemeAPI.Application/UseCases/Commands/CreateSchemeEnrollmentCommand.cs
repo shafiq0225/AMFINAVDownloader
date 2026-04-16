@@ -1,6 +1,6 @@
 ﻿using AMFINAV.SchemeAPI.Application.DTOs;
-using AMFINAV.SchemeAPI.Domain.Common;
 using AMFINAV.SchemeAPI.Domain.Entities;
+using AMFINAV.SchemeAPI.Domain.Exceptions;
 using AMFINAV.SchemeAPI.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -18,37 +18,29 @@ namespace AMFINAV.SchemeAPI.Application.UseCases.Commands
             _logger = logger;
         }
 
-        public async Task<Result<SchemeEnrollmentDto>> ExecuteAsync(
+        public async Task<SchemeEnrollmentDto> ExecuteAsync(
             CreateSchemeEnrollmentDto dto)
         {
-            try
+            if (await _unitOfWork.SchemeEnrollments
+                    .ExistsBySchemeCodeAsync(dto.SchemeCode))
+                throw new DuplicateException("SchemeEnrollment", dto.SchemeCode);
+
+            var entity = new SchemeEnrollment
             {
-                if (await _unitOfWork.SchemeEnrollments.ExistsBySchemeCodeAsync(dto.SchemeCode))
-                    return Result<SchemeEnrollmentDto>.Failure(
-                        $"SchemeCode '{dto.SchemeCode}' is already enrolled.");
+                SchemeCode = dto.SchemeCode.Trim(),
+                SchemeName = dto.SchemeName.Trim(),
+                IsApproved = dto.IsApproved,
+                CreatedAt = DateTime.UtcNow
+            };
 
-                var entity = new SchemeEnrollment
-                {
-                    SchemeCode = dto.SchemeCode.Trim(),
-                    SchemeName = dto.SchemeName.Trim(),
-                    IsApproved = dto.IsApproved,
-                    CreatedAt = DateTime.UtcNow
-                };
+            await _unitOfWork.SchemeEnrollments.AddAsync(entity);
+            await _unitOfWork.CompleteAsync();
 
-                await _unitOfWork.SchemeEnrollments.AddAsync(entity);
-                await _unitOfWork.CompleteAsync();
+            _logger.LogInformation(
+                "SchemeEnrollment created — SchemeCode={Code} IsApproved={Approved}",
+                entity.SchemeCode, entity.IsApproved);
 
-                _logger.LogInformation(
-                    "SchemeEnrollment created — SchemeCode={Code} IsApproved={Approved}",
-                    entity.SchemeCode, entity.IsApproved);
-
-                return Result<SchemeEnrollmentDto>.Success(MapToDto(entity));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating SchemeEnrollment");
-                return Result<SchemeEnrollmentDto>.Failure(ex.Message);
-            }
+            return MapToDto(entity);
         }
 
         private static SchemeEnrollmentDto MapToDto(SchemeEnrollment e) => new()
