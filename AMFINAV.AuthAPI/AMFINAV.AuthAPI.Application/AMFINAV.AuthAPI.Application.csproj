@@ -12,12 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Auth\" />
-    <Folder Include="DTOs\Family\" />
-    <Folder Include="DTOs\Permission\" />
-    <Folder Include="DTOs\User\" />
-    <Folder Include="UseCases\Commands\" />
-    <Folder Include="UseCases\Queries\" />
+    <ProjectReference Include="..\AMFINAV.AuthAPI.Domain\AMFINAV.AuthAPI.Domain.csproj" />
+    <ProjectReference Include="..\AMFINAV.AuthAPI.Infrastructure\AMFINAV.AuthAPI.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
