@@ -21,4 +21,8 @@
     <Folder Include="Middleware\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AMFINAV.AuthAPI.Infrastructure\AMFINAV.AuthAPI.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
