@@ -1,0 +1,7 @@
+﻿{
+  "profiles": {
+    "https": {
+      "applicationUrl": "https://localhost:7000;http://localhost:5000"
+    }
+  }
+}
