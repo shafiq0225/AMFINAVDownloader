@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AMFINAV.SchemeAPI.Application.UseCases.Commands;
 using AMFINAV.SchemeAPI.Domain.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AMFINAV.SchemeAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "CanApproveFunds")]
     public class FundApprovalController : ControllerBase
     {
         private readonly UpdateFundApprovalCommand _command;

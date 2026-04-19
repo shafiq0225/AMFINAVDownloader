@@ -2,11 +2,13 @@
 using AMFINAV.SchemeAPI.Application.DTOs;
 using AMFINAV.SchemeAPI.Application.UseCases.Commands;
 using AMFINAV.SchemeAPI.Application.UseCases.Queries;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AMFINAV.SchemeAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class SchemeEnrollmentController : ControllerBase
     {
         private readonly CreateSchemeEnrollmentCommand _createCommand;
@@ -24,6 +26,7 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "CanReadSchemes")]
         public async Task<IActionResult> GetAll()
         {
             var result = await _query.GetAllAsync();
@@ -31,6 +34,7 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         }
 
         [HttpGet("{schemeCode}")]
+        [Authorize(Policy = "CanReadSchemes")]
         public async Task<IActionResult> GetBySchemeCode(string schemeCode)
         {
             var result = await _query.GetBySchemeCodeAsync(schemeCode);
@@ -38,6 +42,7 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         }
 
         [HttpGet("approved")]
+        [Authorize(Policy = "CanReadSchemes")]
         public async Task<IActionResult> GetApproved()
         {
             var result = await _query.GetApprovedAsync();
@@ -45,6 +50,7 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "CanCreateSchemes")]
         public async Task<IActionResult> Create([FromBody] CreateSchemeEnrollmentDto dto)
         {
             var result = await _createCommand.ExecuteAsync(dto);
@@ -53,6 +59,7 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         }
 
         [HttpPut("{schemeCode}")]
+        [Authorize(Policy = "CanUpdateSchemes")]
         public async Task<IActionResult> Update(string schemeCode,
             [FromBody] UpdateSchemeEnrollmentDto dto)
         {

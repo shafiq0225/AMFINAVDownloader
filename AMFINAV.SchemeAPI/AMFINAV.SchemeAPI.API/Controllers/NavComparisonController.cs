@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AMFINAV.SchemeAPI.Application.UseCases.Queries;
 using AMFINAV.SchemeAPI.Domain.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AMFINAV.SchemeAPI.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "CanReadNav")]
     public class NavComparisonController : ControllerBase
     {
         private readonly GetNavComparisonQuery _query;
