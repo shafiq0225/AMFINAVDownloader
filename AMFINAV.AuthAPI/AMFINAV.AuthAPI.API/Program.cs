@@ -25,38 +25,45 @@ var secretKey = jwtSection["SecretKey"]!;
 var issuer = jwtSection["Issuer"]!;
 var audience = jwtSection["Audience"]!;
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services
+    .AddAuthentication(options =>
     {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(secretKey)),
-        ValidateIssuer = true,
-        ValidIssuer = issuer,
-        ValidateAudience = true,
-        ValidAudience = audience,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
-    };
+        options.DefaultAuthenticateScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        // ← Add this line — prevents ASP.NET Core from
+        // remapping "role" to the long URI claim type
+        options.MapInboundClaims = false;
 
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = ctx =>
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            ctx.Response.Headers.Append(
-                "Token-Expired",
-                ctx.Exception is SecurityTokenExpiredException
-                    ? "true" : "false");
-            return Task.CompletedTask;
-        }
-    };
-});
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(secretKey)),
+            ValidateIssuer = true,
+            ValidIssuer = issuer,
+            ValidateAudience = true,
+            ValidAudience = audience,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = ctx =>
+            {
+                ctx.Response.Headers.Append(
+                    "Token-Expired",
+                    ctx.Exception is SecurityTokenExpiredException
+                        ? "true" : "false");
+                return Task.CompletedTask;
+            }
+        };
+    });
 
 // ── Authorization Policies ────────────────────────────────────────
 builder.Services.AddAuthorization(options =>

@@ -96,11 +96,6 @@ namespace AMFINAV.AuthAPI.API.Controllers
         }
 
         private string GetCurrentUserId() =>
-            User.FindFirstValue(
-                System.IdentityModel.Tokens.Jwt
-                    .JwtRegisteredClaimNames.Sub)
-            ?? User.FindFirstValue(
-                System.Security.Claims.ClaimTypes.NameIdentifier)
-            ?? string.Empty;
+            User.FindFirstValue("sub") ?? string.Empty;
     }
 }

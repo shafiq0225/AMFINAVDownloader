@@ -74,10 +74,7 @@ namespace AMFINAV.AuthAPI.API.Controllers
         [Authorize]
         public async Task<IActionResult> Logout([FromBody] RefreshTokenDto dto)
         {
-            var userId = User.FindFirstValue(
-                System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
-                ?? User.FindFirstValue(ClaimTypes.NameIdentifier)
-                ?? string.Empty;
+            var userId = User.FindFirstValue("sub") ?? string.Empty;
 
             await _logoutCommand.ExecuteAsync(userId, dto.RefreshToken);
             return Ok(new { message = "Logged out successfully." });
@@ -91,10 +88,7 @@ namespace AMFINAV.AuthAPI.API.Controllers
         public async Task<IActionResult> ChangePassword(
             [FromBody] ChangePasswordDto dto)
         {
-            var userId = User.FindFirstValue(
-                System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)
-                ?? User.FindFirstValue(ClaimTypes.NameIdentifier)
-                ?? string.Empty;
+            var userId = User.FindFirstValue("sub") ?? string.Empty;
 
             await _changePasswordCommand.ExecuteAsync(userId, dto);
             return Ok(new { message = "Password changed successfully." });
