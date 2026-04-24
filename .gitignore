@@ -1,14 +1,21 @@
-# .gitignore content
-## Ignore Visual Studio temporary files, build results, etc.
+# ═══════════════════════════════════════════════
+# .NET / Visual Studio
+# ═══════════════════════════════════════════════
 
 # Build results
 bin/
 obj/
 publish/
+
+# Visual Studio files
+.vs/
 *.user
 *.suo
+*.userosscache
+*.vspscc
+*.vssscc
+*.rsuser
 *.cache
-*.vs/
 
 # Logs
 Logs/
@@ -19,21 +26,11 @@ Logs/
 *.mdf
 *.ldf
 
-# User-specific files
-*.rsuser
-*.suo
-*.user
-*.userosscache
-*.vspscc
-*.vssscc
-
-# Visual Studio cache files
-.vs/
-
 # dotnet
 *.lock.json
+project.lock.json
 
-# Coverage files
+# Coverage
 *.coverage
 *.coveragexml
 
@@ -41,6 +38,57 @@ Logs/
 *~
 *.bak
 
+# Publish profiles
+PublishProfiles/
+
+# ═══════════════════════════════════════════════
+# Angular / Node.js
+# ═══════════════════════════════════════════════
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build output
+dist/
+tmp/
+out-tsc/
+bazel-out/
+
+# Angular cache
+.angular/
+.sass-cache/
+
+# Testing
+/coverage
+.nyc_output
+
+# Environment files with secrets
+src/environments/environment.prod.ts
+# ← keep environment.ts (dev) but ignore prod
+
+# Misc
+.DS_Store
+Thumbs.db
+*.class
+
 # IDE specific
 .idea/
 .vscode/
+*.swp
+*.swo
+*~
+
+# Yarn / NPM
+yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+.yarn-integrity
+package-lock.json
+
+# ═══════════════════════════════════════════════
+# RabbitMQ / Erlang (if publishing locally)
+# ═══════════════════════════════════════════════
+*.beam
+erl_crash.dump
