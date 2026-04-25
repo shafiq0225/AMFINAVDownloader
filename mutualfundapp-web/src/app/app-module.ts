@@ -6,16 +6,24 @@ import { AppRoutingModule } from './app-routing-module';
 import { HttpClientModule } from '@angular/common/http';
 import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from './app.component';
+import { NavChartComponent } from './shared/components/nav-chart/nav-chart.component';
+import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog.component';
+import { CoreModule } from './core/core.module';
+import { LayoutModule } from './layout/layout.module';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    // NavChartComponent,
+    ConfirmDialogComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    AppRoutingModule,
     HttpClientModule,
+    AppRoutingModule,
+    CoreModule,
+    LayoutModule,
     ToastrModule.forRoot({
       positionClass:    'toast-top-right',
       timeOut:          3000,

@@ -1,0 +1,64 @@
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" *ngIf="isMobileOpen" (click)="closeMobile()">
+</div>
+
+<aside class="sidebar" [class.collapsed]="isCollapsed" [class.mobile-open]="isMobileOpen">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+        <div class="logo-icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <span class="logo-text" *ngIf="!isCollapsed">AMFINAV</span>
+        <button class="collapse-btn" *ngIf="!isCollapsed" (click)="toggleCollapse()" title="Collapse sidebar">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <!-- Expand button when collapsed -->
+    <button class="expand-btn" *ngIf="isCollapsed" (click)="toggleCollapse()" title="Expand sidebar">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <!-- User info -->
+    <div class="sidebar-user" *ngIf="!isCollapsed">
+        <div class="user-avatar">{{ userInitials }}</div>
+        <div class="user-info">
+            <span class="user-name">{{ userName }}</span>
+            <span class="user-role">{{ userRole }}</span>
+        </div>
+    </div>
+    <div class="sidebar-user-collapsed" *ngIf="isCollapsed">
+        <div class="user-avatar user-avatar-sm" [title]="userName">
+            {{ userInitials }}
+        </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="sidebar-divider"></div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+        <ul>
+            <li *ngFor="let item of visibleNavItems">
+                <button class="nav-item" [class.active]="isActive(item.route)" (click)="navigate(item.route)"
+                    [title]="isCollapsed ? item.label : ''">
+                    <i class="fas {{ item.icon }} nav-icon"></i>
+                    <span class="nav-label" *ngIf="!isCollapsed">
+                        {{ item.label }}
+                    </span>
+                    <span class="active-indicator" *ngIf="isActive(item.route)"></span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Bottom: Logout -->
+    <div class="sidebar-footer">
+        <div class="sidebar-divider"></div>
+        <button class="nav-item logout-btn" (click)="logout()" [title]="isCollapsed ? 'Logout' : ''">
+            <i class="fas fa-right-from-bracket nav-icon"></i>
+            <span class="nav-label" *ngIf="!isCollapsed">Logout</span>
+        </button>
+    </div>
+</aside>

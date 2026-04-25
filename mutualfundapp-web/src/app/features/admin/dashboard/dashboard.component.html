@@ -1,0 +1,195 @@
+<!-- Loading -->
+<app-loading-spinner *ngIf="loading" message="Loading dashboard...">
+</app-loading-spinner>
+
+<div *ngIf="!loading">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2>Admin Dashboard</h2>
+        <p>Overview of the AMFINAV system</p>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stat-grid">
+        <app-stat-card title="Total Users" [value]="totalUsers" icon="fa-users" color="primary"
+            subtitle="Registered accounts">
+        </app-stat-card>
+
+        <app-stat-card title="Pending Approvals" [value]="pendingUsers" icon="fa-clock" color="warning"
+            subtitle="Awaiting review">
+        </app-stat-card>
+
+        <app-stat-card title="Active Schemes" [value]="activeSchemes" icon="fa-building-columns" color="accent"
+            subtitle="Approved for tracking">
+        </app-stat-card>
+
+        <app-stat-card title="NAV Schemes" [value]="navRecords" icon="fa-arrow-trend-up" color="primary"
+            subtitle="In today's comparison">
+        </app-stat-card>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+
+        <!-- Left column -->
+        <div class="dashboard-left">
+
+            <!-- Pending Approvals Table -->
+            <div class="card mb-24">
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-clock text-warning"></i>
+                        Pending Approvals
+                        <span class="count-badge" *ngIf="pendingUsers > 0">
+                            {{ pendingUsers }}
+                        </span>
+                    </h3>
+                    <button class="btn btn-ghost btn-sm" (click)="viewPending()">
+                        View All <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- Empty state -->
+                <div class="empty-state" *ngIf="pendingList.length === 0">
+                    <i class="fas fa-circle-check"></i>
+                    <p>No pending approvals</p>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container" *ngIf="pendingList.length > 0">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>PAN</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let user of pendingList">
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-avatar-sm">
+                                            {{ user.firstName[0] }}{{ user.lastName[0] }}
+                                        </div>
+                                        <span>{{ user.fullName }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <code class="pan-code">{{ user.panNumber }}</code>
+                                </td>
+                                <td>{{ user.createdAt | date:'dd MMM yyyy' }}</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="btn btn-accent btn-sm" (click)="approveUser(user.id)">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" (click)="rejectUser(user.id)">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- NAV Chart -->
+            <div class="card" *ngIf="navData">
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-chart-area text-primary"></i>
+                        NAV Comparison
+                    </h3>
+                    <div class="date-range">
+                        <span>{{ navData.startDate | date:'dd MMM' }}</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span>{{ navData.endDate | date:'dd MMM yyyy' }}</span>
+                    </div>
+                </div>
+                <p class="nav-message">{{ navData.message }}</p>
+                <app-nav-chart [labels]="navChartLabels" [datasets]="navChartDatasets">
+                </app-nav-chart>
+            </div>
+
+        </div>
+
+        <!-- Right column -->
+        <div class="dashboard-right">
+
+            <!-- Recent Schemes -->
+            <div class="card mb-24">
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-building-columns text-accent"></i>
+                        Recent Schemes
+                    </h3>
+                    <button class="btn btn-ghost btn-sm" (click)="viewSchemes()">
+                        All <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <div class="scheme-list">
+                    <div class="scheme-item" *ngFor="let scheme of recentSchemes">
+                        <div class="scheme-info">
+                            <span class="scheme-code">{{ scheme.schemeCode }}</span>
+                            <span class="scheme-name">{{ scheme.schemeName }}</span>
+                        </div>
+                        <span class="badge" [class.badge-success]="scheme.isApproved"
+                            [class.badge-warning]="!scheme.isApproved">
+                            {{ scheme.isApproved ? 'Active' : 'Inactive' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="empty-state" *ngIf="recentSchemes.length === 0">
+                    <i class="fas fa-building-columns"></i>
+                    <p>No schemes enrolled yet</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-bolt text-warning"></i> Quick Actions</h3>
+                </div>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" (click)="viewAllUsers()">
+                        <div class="qa-icon qa-blue">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span>Manage Users</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="quick-action-btn" (click)="viewPending()">
+                        <div class="qa-icon qa-orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <span>Pending Approvals</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="quick-action-btn" [routerLink]="['/admin/permissions']">
+                        <div class="qa-icon qa-green">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <span>Assign Permissions</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="quick-action-btn" [routerLink]="['/admin/family']">
+                        <div class="qa-icon qa-purple">
+                            <i class="fas fa-people-roof"></i>
+                        </div>
+                        <span>Family Groups</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

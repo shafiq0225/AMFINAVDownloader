@@ -1,0 +1,217 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.topbar {
+  @include flex-between;
+  height: $topbar-height;
+  padding: 0 24px;
+  background: $surface;
+  border-bottom: 1px solid $border;
+  position: sticky;
+  top: 0;
+  z-index: $z-topbar;
+  box-shadow: $shadow-sm;
+  flex-shrink: 0;
+}
+
+// ── Left ─────────────────────────────────────────────────────────
+.topbar-left {
+  @include flex-start;
+  gap: 16px;
+}
+
+.menu-btn {
+  @include flex-center;
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: $text-secondary;
+  cursor: pointer;
+  font-size: 16px;
+  transition: $transition-fast;
+
+  &:hover {
+    background: $hover-bg;
+    color: $primary;
+  }
+}
+
+.page-title {
+  font-size: $font-size-lg;
+  font-weight: 600;
+  color: $primary;
+  margin: 0;
+}
+
+// ── Right ────────────────────────────────────────────────────────
+.topbar-right {
+  @include flex-start;
+  gap: 16px;
+}
+
+// ── Role Badge ────────────────────────────────────────────────────
+.role-badge {
+  @include flex-center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: $font-size-xs;
+  font-weight: 600;
+
+  &.role-admin {
+    background: rgba($primary, 0.1);
+    color: $primary;
+  }
+  &.role-employee {
+    background: rgba($accent, 0.1);
+    color: $accent;
+  }
+  &.role-user {
+    background: rgba($primary-light, 0.1);
+    color: $primary-light;
+  }
+
+  @include mobile { display: none; }
+}
+
+// ── User Menu ────────────────────────────────────────────────────
+.user-menu {
+  position: relative;
+}
+
+.user-btn {
+  @include flex-start;
+  gap: 10px;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid $border;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    background: $hover-bg;
+    border-color: $border-dark;
+  }
+}
+
+.avatar {
+  @include flex-center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  background: $primary;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+
+  &-lg {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    font-size: 15px;
+  }
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+
+  @include mobile { display: none; }
+}
+
+.user-name {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-primary;
+  line-height: 1.3;
+}
+
+.user-email {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.chevron {
+  font-size: 11px;
+  color: $text-muted;
+  transition: transform 0.2s ease;
+
+  &.rotated { transform: rotate(180deg); }
+
+  @include mobile { display: none; }
+}
+
+// ── Dropdown ─────────────────────────────────────────────────────
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 240px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  box-shadow: $shadow-lg;
+  z-index: $z-modal;
+  overflow: hidden;
+  animation: dropIn 0.15s ease;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+  @include flex-start;
+  gap: 12px;
+  padding: 16px;
+}
+
+.dropdown-name {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.dropdown-email {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin: 2px 0 0;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: $border;
+  margin: 0;
+}
+
+.dropdown-item {
+  @include flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 16px;
+  background: transparent;
+  border: none;
+  font-size: $font-size-base;
+  font-family: $font-family;
+  color: $text-primary;
+  cursor: pointer;
+  transition: $transition-fast;
+  text-align: left;
+
+  i { width: 16px; color: $text-muted; }
+
+  &:hover { background: $hover-bg; }
+
+  &-danger {
+    color: $danger;
+    i { color: $danger; }
+    &:hover { background: $danger-light; }
+  }
+}

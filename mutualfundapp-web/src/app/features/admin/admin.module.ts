@@ -1,15 +1,17 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+import { SharedModule } from '../../shared/shared.module';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 const routes: Routes = [
-  // Admin components will be added in Step 6+
+  { path: 'dashboard', component: DashboardComponent },
+  { path: '',          redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
 @NgModule({
-  declarations: [],
+  declarations: [DashboardComponent],
   imports: [
-    CommonModule,
+    SharedModule,
     RouterModule.forChild(routes)
   ]
 })

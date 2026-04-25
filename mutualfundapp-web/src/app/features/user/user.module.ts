@@ -1,14 +1,26 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+import { SharedModule } from '../../shared/shared.module';
+import { Component } from '@angular/core';
 
-const routes: Routes = [];
+@Component({
+  template: `
+    <div class="page-header">
+      <h2>User Dashboard</h2>
+      <p>Coming soon — Step 11</p>
+    </div>
+  `,
+  standalone:false
+})
+export class UserDashboardPlaceholderComponent {}
+
+const routes: Routes = [
+  { path: 'dashboard', component: UserDashboardPlaceholderComponent },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+];
 
 @NgModule({
-  declarations: [],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(routes)
-  ]
+  declarations: [UserDashboardPlaceholderComponent],
+  imports: [SharedModule, RouterModule.forChild(routes)]
 })
 export class UserModule { }

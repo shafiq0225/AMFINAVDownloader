@@ -1,0 +1,241 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.sidebar-overlay {
+  display: none;
+  @include tablet {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: $z-sidebar - 1;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: $sidebar-width;
+  background: $sidebar-bg;
+  display: flex;
+  flex-direction: column;
+  z-index: $z-sidebar;
+  transition: width 0.25s ease;
+  @include custom-scrollbar;
+
+  &.collapsed {
+    width: $sidebar-collapsed;
+
+    .sidebar-logo {
+      justify-content: center;
+      padding: 0 8px;
+    }
+  }
+
+  @include tablet {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: $sidebar-width !important;
+
+    &.mobile-open {
+      transform: translateX(0);
+    }
+  }
+}
+
+// ── Logo ─────────────────────────────────────────────────────────
+.sidebar-logo {
+  @include flex-between;
+  padding: 0 16px;
+  height: $topbar-height;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.logo-icon {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  flex: 1;
+  margin-left: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.collapse-btn,
+.expand-btn {
+  background: transparent;
+  border: none;
+  color: $sidebar-text;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: $transition-fast;
+  @include flex-center;
+
+  &:hover {
+    background: $sidebar-hover;
+    color: #fff;
+  }
+}
+
+.expand-btn {
+  margin: 12px auto;
+  width: 36px;
+  height: 36px;
+}
+
+// ── User ─────────────────────────────────────────────────────────
+.sidebar-user {
+  @include flex-start;
+  gap: 10px;
+  padding: 16px;
+  flex-shrink: 0;
+}
+
+.sidebar-user-collapsed {
+  @include flex-center;
+  padding: 12px 0;
+}
+
+.user-avatar {
+  @include flex-center;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+
+  &-sm {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    font-size: 12px;
+  }
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  @include truncate;
+}
+
+.user-role {
+  font-size: 11px;
+  color: $sidebar-text;
+  margin-top: 1px;
+}
+
+// ── Divider ──────────────────────────────────────────────────────
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 4px 16px;
+  flex-shrink: 0;
+}
+
+// ── Nav ──────────────────────────────────────────────────────────
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+  @include custom-scrollbar;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    padding: 2px 10px;
+  }
+}
+
+.nav-item {
+  @include flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: $sidebar-text;
+  cursor: pointer;
+  font-size: $font-size-base;
+  font-family: $font-family;
+  transition: $transition-fast;
+  position: relative;
+  text-align: left;
+
+  &:hover {
+    background: $sidebar-hover;
+    color: #fff;
+  }
+
+  &.active {
+    background: $sidebar-active;
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+.nav-icon {
+  font-size: 15px;
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.nav-label {
+  flex: 1;
+}
+
+.active-indicator {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: #fff;
+  border-radius: 2px 0 0 2px;
+}
+
+// ── Footer ───────────────────────────────────────────────────────
+.sidebar-footer {
+  flex-shrink: 0;
+  padding-bottom: 8px;
+
+  .logout-btn {
+    margin: 4px 10px;
+    color: rgba(255, 255, 255, 0.5);
+
+    &:hover {
+      color: #ff6b6b;
+      background: rgba(231, 76, 60, 0.1);
+    }
+  }
+}

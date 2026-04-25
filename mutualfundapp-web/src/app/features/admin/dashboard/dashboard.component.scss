@@ -1,0 +1,204 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+// ── User cell ─────────────────────────────────────────────────────
+.user-cell {
+  @include flex-start;
+  gap: 10px;
+}
+
+.user-avatar-sm {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+// ── PAN code ──────────────────────────────────────────────────────
+.pan-code {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  background: $page-bg;
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: $text-secondary;
+  letter-spacing: 1px;
+}
+
+// ── Actions ───────────────────────────────────────────────────────
+.action-btns {
+  @include flex-start;
+  gap: 8px;
+}
+
+// ── Count badge ───────────────────────────────────────────────────
+.count-badge {
+  @include flex-center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  background: $warning;
+  color: #fff;
+  border-radius: 11px;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+// ── Empty state ───────────────────────────────────────────────────
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: $text-muted;
+
+  i {
+    font-size: 36px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+    display: block;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}
+
+// ── NAV section ───────────────────────────────────────────────────
+.nav-message {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin: 0 0 16px;
+}
+
+.date-range {
+  @include flex-start;
+  gap: 8px;
+  font-size: $font-size-sm;
+  color: $text-muted;
+
+  i {
+    font-size: 10px;
+  }
+}
+
+// ── Dashboard layout ──────────────────────────────────────────────
+.dashboard-left {
+  min-width: 0;
+}
+.dashboard-right {
+  min-width: 0;
+}
+
+// ── Scheme list ───────────────────────────────────────────────────
+.scheme-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scheme-item {
+  @include flex-between;
+  padding: 12px 0;
+  border-bottom: 1px solid $border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.scheme-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.scheme-code {
+  font-size: $font-size-xs;
+  font-weight: 700;
+  color: $primary-light;
+  font-family: "Courier New", monospace;
+}
+
+.scheme-name {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  @include truncate;
+}
+
+// ── Quick Actions ─────────────────────────────────────────────────
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quick-action-btn {
+  @include flex-between;
+  width: 100%;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: $transition-fast;
+  font-size: $font-size-base;
+  font-family: $font-family;
+  color: $text-primary;
+
+  &:hover {
+    background: $hover-bg;
+
+    > i.fa-chevron-right {
+      opacity: 1;
+      transform: translateX(2px);
+    }
+  }
+
+  > i.fa-chevron-right {
+    font-size: 11px;
+    color: $text-muted;
+    opacity: 0;
+    transition: $transition-fast;
+  }
+
+  > span {
+    flex: 1;
+    text-align: left;
+    margin-left: 12px;
+    font-weight: 500;
+  }
+}
+
+.qa-icon {
+  @include flex-center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  font-size: 15px;
+
+  &.qa-blue {
+    background: rgba($primary, 0.1);
+    color: $primary;
+  }
+  &.qa-orange {
+    background: rgba($warning, 0.1);
+    color: $warning-dark;
+  }
+  &.qa-green {
+    background: rgba($accent, 0.1);
+    color: $accent;
+  }
+  &.qa-purple {
+    background: rgba(155, 89, 182, 0.1);
+    color: #8e44ad;
+  }
+}

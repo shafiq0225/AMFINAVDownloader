@@ -1,0 +1,174 @@
+<div class="auth-page">
+    <!-- Left Panel (same branding) -->
+    <div class="auth-left">
+        <div class="auth-left__content">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h1 class="brand-name">AMFINAV</h1>
+            </div>
+
+            <div class="auth-left__hero">
+                <h2>Join the Platform</h2>
+                <p>Register your account to start managing mutual fund
+                    investments for your family. Admin approval required
+                    before access is granted.</p>
+            </div>
+
+            <div class="info-box">
+                <i class="fas fa-circle-info"></i>
+                <div>
+                    <h4>How it works</h4>
+                    <ol>
+                        <li>Register with your PAN number</li>
+                        <li>Wait for Admin approval</li>
+                        <li>Login once approved</li>
+                        <li>Access based on assigned permissions</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="auth-right">
+        <div class="auth-card">
+
+            <!-- Success state -->
+            <div class="success-state" *ngIf="successMessage">
+                <div class="success-icon">
+                    <i class="fas fa-circle-check"></i>
+                </div>
+                <h3>Registration Successful!</h3>
+                <p>{{ successMessage }}</p>
+                <button class="btn btn-primary btn-lg mt-24" routerLink="/auth/login">
+                    <i class="fas fa-right-to-bracket"></i>
+                    Go to Login
+                </button>
+            </div>
+
+            <!-- Form -->
+            <ng-container *ngIf="!successMessage">
+                <div class="auth-card__header">
+                    <h2>Create Account</h2>
+                    <p>Fill in your details to register</p>
+                </div>
+
+                <div class="alert alert-danger" *ngIf="errorMessage">
+                    <i class="fas fa-circle-exclamation"></i>
+                    {{ errorMessage }}
+                </div>
+
+                <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+                    <!-- Name row -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control"
+                                [class.is-invalid]="f['firstName'].invalid && f['firstName'].touched"
+                                formControlName="firstName" placeholder="John">
+                            <div class="form-error" *ngIf="f['firstName'].invalid && f['firstName'].touched">
+                                <span *ngIf="f['firstName'].errors?.['required']">Required.</span>
+                                <span *ngIf="f['firstName'].errors?.['minlength']">Min 2 chars.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control"
+                                [class.is-invalid]="f['lastName'].invalid && f['lastName'].touched"
+                                formControlName="lastName" placeholder="Doe">
+                            <div class="form-error" *ngIf="f['lastName'].invalid && f['lastName'].touched">
+                                <span *ngIf="f['lastName'].errors?.['required']">Required.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" class="form-control"
+                                [class.is-invalid]="f['email'].invalid && f['email'].touched" formControlName="email"
+                                placeholder="john@example.com">
+                        </div>
+                        <div class="form-error" *ngIf="f['email'].invalid && f['email'].touched">
+                            <span *ngIf="f['email'].errors?.['required']">Email is required.</span>
+                            <span *ngIf="f['email'].errors?.['email']">Enter a valid email.</span>
+                        </div>
+                    </div>
+
+                    <!-- PAN -->
+                    <div class="form-group">
+                        <label class="form-label">PAN Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-id-card input-icon"></i>
+                            <input type="text" class="form-control"
+                                [class.is-invalid]="f['panNumber'].invalid && f['panNumber'].touched"
+                                formControlName="panNumber" placeholder="ABCDE1234F" maxlength="10"
+                                style="text-transform: uppercase">
+                        </div>
+                        <div class="form-hint">
+                            Format: 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)
+                        </div>
+                        <div class="form-error" *ngIf="f['panNumber'].invalid && f['panNumber'].touched">
+                            <span *ngIf="f['panNumber'].errors?.['required']">PAN is required.</span>
+                            <span *ngIf="f['panNumber'].errors?.['invalidPan']">Invalid PAN format.</span>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input [type]="showPassword ? 'text' : 'password'" class="form-control"
+                                [class.is-invalid]="f['password'].invalid && f['password'].touched"
+                                formControlName="password" placeholder="Min 8 characters">
+                            <button type="button" class="input-suffix" (click)="showPassword = !showPassword">
+                                <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+                            </button>
+                        </div>
+                        <div class="form-error" *ngIf="f['password'].invalid && f['password'].touched">
+                            <span *ngIf="f['password'].errors?.['required']">Password required.</span>
+                            <span *ngIf="f['password'].errors?.['minlength']">Min 8 characters.</span>
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input [type]="showConfirm ? 'text' : 'password'" class="form-control" [class.is-invalid]="(f['confirmPassword'].touched || f['password'].touched)
+                                          && form.errors?.['passwordMismatch']" formControlName="confirmPassword"
+                                placeholder="Re-enter password">
+                            <button type="button" class="input-suffix" (click)="showConfirm = !showConfirm">
+                                <i class="fas" [class.fa-eye]="!showConfirm" [class.fa-eye-slash]="showConfirm"></i>
+                            </button>
+                        </div>
+                        <div class="form-error" *ngIf="form.errors?.['passwordMismatch']
+                        && f['confirmPassword'].touched">
+                            Passwords do not match.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading">
+                        <i class="fas fa-circle-notch fa-spin" *ngIf="loading"></i>
+                        <i class="fas fa-user-plus" *ngIf="!loading"></i>
+                        {{ loading ? 'Creating Account...' : 'Create Account' }}
+                    </button>
+                </form>
+
+                <div class="auth-card__footer">
+                    <p>Already have an account?
+                        <a routerLink="/auth/login">Sign in</a>
+                    </p>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</div>
