@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { UserService } from '../../../core/services/user.service';
 import { SchemeService } from '../../../core/services/scheme.service';
 import { NavService } from '../../../core/services/nav.service';
@@ -18,13 +18,11 @@ import { forkJoin } from 'rxjs';
 export class DashboardComponent implements OnInit {
   loading = true;
 
-  // Stats
   totalUsers = 0;
   pendingUsers = 0;
   activeSchemes = 0;
   navRecords = 0;
 
-  // Data
   pendingList: UserDto[] = [];
   navData: NavComparisonResponseDto | null = null;
   recentSchemes: SchemeEnrollmentDto[] = [];
@@ -34,7 +32,8 @@ export class DashboardComponent implements OnInit {
     private schemeService: SchemeService,
     private navService: NavService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef  // ← add this
   ) { }
 
   ngOnInit(): void {
@@ -59,9 +58,11 @@ export class DashboardComponent implements OnInit {
         this.navData = nav;
         this.recentSchemes = schemes.slice(0, 5);
         this.loading = false;
+        this.cdr.detectChanges();  // ← tell Angular to re-check now
       },
       error: () => {
         this.loading = false;
+        this.cdr.detectChanges();  // ← same here
         this.toastr.error('Failed to load dashboard data.');
       }
     });
@@ -74,6 +75,7 @@ export class DashboardComponent implements OnInit {
         this.pendingList = this.pendingList.filter(u => u.id !== userId);
         this.pendingUsers = Math.max(0, this.pendingUsers - 1);
         this.totalUsers++;
+        this.cdr.detectChanges();
       },
       error: () => this.toastr.error('Failed to approve user.')
     });
@@ -85,6 +87,7 @@ export class DashboardComponent implements OnInit {
         this.toastr.warning('User rejected.');
         this.pendingList = this.pendingList.filter(u => u.id !== userId);
         this.pendingUsers = Math.max(0, this.pendingUsers - 1);
+        this.cdr.detectChanges();
       },
       error: () => this.toastr.error('Failed to reject user.')
     });
@@ -93,19 +96,27 @@ export class DashboardComponent implements OnInit {
   get navChartLabels(): string[] {
     if (!this.navData?.schemes?.length) return [];
     return this.navData.schemes[0].history.map(h =>
-      new Date(h.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
+      new Date(h.date).toLocaleDateString('en-IN', {
+        day: '2-digit', month: 'short'
+      })
     );
   }
 
   get navChartDatasets(): any[] {
     if (!this.navData?.schemes) return [];
+    const colors = ['#1F4E79', '#16A085', '#F39C12'];
+    const bgColors = [
+      'rgba(31,78,121,0.08)',
+      'rgba(22,160,133,0.08)',
+      'rgba(243,156,18,0.08)'
+    ];
     return this.navData.schemes.slice(0, 3).map((s, i) => ({
       label: s.schemeName.length > 30
         ? s.schemeName.substring(0, 30) + '...'
         : s.schemeName,
       data: s.history.map(h => h.nav),
-      borderColor: ['#1F4E79', '#16A085', '#F39C12'][i],
-      backgroundColor: ['rgba(31,78,121,0.08)', 'rgba(22,160,133,0.08)', 'rgba(243,156,18,0.08)'][i],
+      borderColor: colors[i],
+      backgroundColor: bgColors[i],
       borderWidth: 2,
       fill: true,
       tension: 0.4,
