@@ -1,0 +1,248 @@
+@use "../../../../../styles/variables" as *;
+@use "../../../../../styles/mixins" as *;
+
+.page-header {
+  @include flex-between;
+  margin-bottom: 24px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  h2 {
+    @include flex-start;
+    gap: 12px;
+    font-size: $font-size-xl;
+    color: $primary;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+.pending-count {
+  @include flex-center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 8px;
+  background: $warning;
+  color: #fff;
+  border-radius: 13px;
+  font-size: $font-size-sm;
+  font-weight: 700;
+}
+
+.header-actions {
+  @include flex-start;
+  gap: 12px;
+}
+
+// ── All Clear ─────────────────────────────────────────────────────
+.all-clear {
+  text-align: center;
+  padding: 80px 20px;
+
+  h3 {
+    font-size: $font-size-2xl;
+    color: $primary;
+    margin-bottom: 12px;
+  }
+  p {
+    font-size: $font-size-base;
+    color: $text-muted;
+  }
+}
+
+.all-clear-icon {
+  @include flex-center;
+  width: 80px;
+  height: 80px;
+  background: $success-light;
+  border-radius: 50%;
+  margin: 0 auto 24px;
+  font-size: 36px;
+  color: $success;
+}
+
+// ── Pending Grid ──────────────────────────────────────────────────
+.pending-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.pending-card {
+  @include card;
+  overflow: hidden;
+  transition: $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.pending-card__header {
+  @include flex-start;
+  gap: 12px;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid $border;
+
+  .badge {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+}
+
+.avatar {
+  @include flex-center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.user-details {
+  overflow: hidden;
+
+  h4 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 2px;
+    @include truncate;
+  }
+
+  p {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    margin: 0;
+    @include truncate;
+  }
+}
+
+.pending-card__body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-row {
+  @include flex-between;
+  font-size: $font-size-sm;
+}
+
+.detail-label {
+  @include flex-start;
+  gap: 8px;
+  color: $text-muted;
+  font-weight: 500;
+
+  i {
+    width: 14px;
+    color: $text-muted;
+  }
+}
+
+.pan-code {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  background: $page-bg;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  color: $primary;
+  font-weight: 600;
+}
+
+.pending-card__footer {
+  @include flex-start;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid $border;
+  background: $page-bg;
+}
+
+// ── Modal (reuse from users) ──────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: $z-modal;
+  @include flex-center;
+  padding: 20px;
+}
+
+.modal {
+  background: $surface;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+}
+
+.modal-header {
+  @include flex-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid $border;
+
+  h3 {
+    @include flex-start;
+    gap: 10px;
+    margin: 0;
+    font-size: $font-size-lg;
+    color: $primary;
+  }
+}
+
+.modal-close {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  background: $hover-bg;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: $text-muted;
+  &:hover {
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  @include flex-between;
+  padding: 16px 24px;
+  border-top: 1px solid $border;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.reject-warning {
+  font-size: $font-size-base;
+  color: $text-secondary;
+  padding: 12px 16px;
+  background: $warning-light;
+  border-radius: 8px;
+  border-left: 3px solid $warning;
+  margin: 0;
+}
+
+textarea.form-control {
+  height: auto;
+  padding: 12px 14px;
+  resize: vertical;
+}

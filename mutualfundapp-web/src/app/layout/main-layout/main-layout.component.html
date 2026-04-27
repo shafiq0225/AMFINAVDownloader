@@ -1,19 +1,17 @@
 <div class="app-layout">
-  <!-- Sidebar -->
-  <app-sidebar
-    (collapsedChange)="onSidebarCollapse($event)">
+
+  <!-- Sidebar must be here -->
+  <app-sidebar (collapsedChange)="onSidebarCollapse($event)">
   </app-sidebar>
 
-  <!-- Main content area -->
-  <div class="main-content"
-       [class.sidebar-collapsed]="isSidebarCollapsed">
+  <!-- Main content -->
+  <div class="main-content" [class.sidebar-collapsed]="isSidebarCollapsed">
 
-    <!-- Topbar -->
     <app-topbar (menuToggle)="onMenuToggle()"></app-topbar>
 
-    <!-- Page content -->
     <div class="page-container">
       <router-outlet></router-outlet>
     </div>
+
   </div>
 </div>

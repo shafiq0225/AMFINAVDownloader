@@ -1,0 +1,298 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.no-perm-page {
+  @include flex-center;
+  flex-direction: column;
+  text-align: center;
+  padding: 80px 20px;
+  gap: 12px;
+
+  i {
+    font-size: 56px;
+    color: $border-dark;
+  }
+  h3 {
+    font-size: $font-size-xl;
+    color: $primary;
+    margin: 0;
+  }
+  p {
+    font-size: $font-size-base;
+    color: $text-muted;
+    margin: 0;
+    code {
+      background: $page-bg;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: $primary-light;
+      font-size: $font-size-sm;
+    }
+  }
+}
+
+.page-header {
+  @include flex-between;
+  margin-bottom: 24px;
+
+  h2 {
+    font-size: $font-size-xl;
+    color: $primary;
+    margin: 0 0 4px;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+.view-toggle {
+  @include flex-start;
+  background: $page-bg;
+  border-radius: 8px;
+  padding: 4px;
+  gap: 2px;
+
+  button {
+    @include flex-center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: $font-size-sm;
+    font-family: $font-family;
+    color: $text-muted;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &.active {
+      background: $surface;
+      color: $primary;
+      font-weight: 600;
+      box-shadow: $shadow-sm;
+    }
+  }
+}
+
+.date-filters {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.date-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .form-control {
+    height: 44px;
+    width: 160px;
+  }
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  margin-top: auto;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  font-size: 13px;
+}
+
+.search-input {
+  padding-left: 40px !important;
+}
+
+.schemes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 20px;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scheme-chart-card {
+  overflow: hidden;
+}
+
+.scheme-chart-header {
+  @include flex-between;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.scheme-meta {
+  flex: 1;
+  overflow: hidden;
+
+  h4 {
+    font-size: $font-size-base;
+    color: $text-primary;
+    margin: 0;
+    @include truncate;
+  }
+}
+
+.fund-name {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.scheme-stats {
+  @include flex-start;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.stat-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 10px;
+  background: $page-bg;
+  border-radius: 8px;
+  min-width: 70px;
+
+  &-up {
+    background: $success-light;
+  }
+  &-down {
+    background: $danger-light;
+  }
+}
+
+.stat-pill__label {
+  font-size: 10px;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.stat-pill__value {
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $text-primary;
+  margin-top: 2px;
+
+  .stat-pill-up & {
+    color: $success;
+  }
+  .stat-pill-down & {
+    color: $danger;
+  }
+}
+
+.rank-chip {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  border-radius: 8px;
+  font-size: $font-size-sm;
+  font-weight: 700;
+}
+
+.rank-badge {
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  background: $page-bg;
+  color: $text-muted;
+
+  &.rank-1 {
+    background: rgba(255, 215, 0, 0.15);
+    color: #b8860b;
+  }
+  &.rank-2 {
+    background: rgba(192, 192, 192, 0.15);
+    color: #696969;
+  }
+  &.rank-3 {
+    background: rgba(205, 127, 50, 0.15);
+    color: #8b4513;
+  }
+}
+
+.scheme-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  span {
+    font-size: $font-size-sm;
+    color: $text-primary;
+  }
+  code {
+    font-size: 11px;
+    color: $primary-light;
+    background: rgba($primary, 0.06);
+    padding: 1px 5px;
+    border-radius: 3px;
+    width: fit-content;
+  }
+}
+
+.nav-cell {
+  font-family: "Courier New", monospace;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.pct-badge {
+  @include flex-center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: $font-size-xs;
+  font-weight: 700;
+
+  &.pct-up {
+    background: $success-light;
+    color: $success;
+  }
+  &.pct-down {
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+
+  i {
+    font-size: 48px;
+    color: $border-dark;
+    margin-bottom: 16px;
+    display: block;
+  }
+  h3 {
+    color: $text-secondary;
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+  }
+}

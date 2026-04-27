@@ -1,0 +1,163 @@
+<app-loading-spinner *ngIf="loading" message="Loading schemes...">
+</app-loading-spinner>
+
+<div *ngIf="!loading">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h2>Scheme Enrollment</h2>
+      <p>
+        View and manage scheme enrollments
+        <span class="perm-note" *ngIf="canUpdate">
+          — You can update scheme names
+        </span>
+        <span class="perm-note perm-readonly" *ngIf="!canUpdate">
+          — Read only access
+        </span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stat-grid mb-24">
+    <app-stat-card
+      title="Total Schemes"
+      [value]="totalCount"
+      icon="fa-building-columns"
+      color="primary">
+    </app-stat-card>
+    <app-stat-card
+      title="Active"
+      [value]="activeCount"
+      icon="fa-circle-check"
+      color="accent">
+    </app-stat-card>
+    <app-stat-card
+      title="Inactive"
+      [value]="inactiveCount"
+      icon="fa-circle-xmark"
+      color="danger">
+    </app-stat-card>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-24">
+    <div class="filters">
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text"
+               class="form-control search-input"
+               placeholder="Search scheme code or name..."
+               [formControl]="searchCtrl">
+      </div>
+
+      <select class="form-control filter-select"
+              [formControl]="statusFilter">
+        <option value="all">All Status</option>
+        <option value="active">Active Only</option>
+        <option value="inactive">Inactive Only</option>
+      </select>
+
+      <button class="btn btn-ghost btn-sm" (click)="clearFilters()">
+        <i class="fas fa-times"></i> Clear
+      </button>
+
+      <span class="results-count">
+        {{ filtered.length }} of {{ totalCount }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+
+    <div class="empty-state" *ngIf="filtered.length === 0">
+      <i class="fas fa-building-columns"></i>
+      <h3>No schemes found</h3>
+      <p>Try adjusting your search or filter</p>
+    </div>
+
+    <table class="table" *ngIf="filtered.length > 0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Code</th>
+          <th>Scheme Name</th>
+          <th>Status</th>
+          <th>Enrolled</th>
+          <th *ngIf="canUpdate">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let scheme of filtered; let i = index">
+          <td class="text-muted text-sm">{{ i + 1 }}</td>
+
+          <!-- Code -->
+          <td>
+            <code class="scheme-code">{{ scheme.schemeCode }}</code>
+          </td>
+
+          <!-- Name — inline edit if canUpdate -->
+          <td class="name-cell">
+            <ng-container *ngIf="editingCode !== scheme.schemeCode">
+              <div class="scheme-name-row">
+                <i class="fas fa-building-columns scheme-icon"></i>
+                <span>{{ scheme.schemeName }}</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="editingCode === scheme.schemeCode">
+              <div class="inline-edit">
+                <input type="text"
+                       class="form-control form-control-sm"
+                       [formControl]="editingName"
+                       (keydown.enter)="saveEdit(scheme)"
+                       (keydown.escape)="cancelEdit()"
+                       autofocus>
+                <button class="action-btn action-btn-success"
+                        (click)="saveEdit(scheme)"
+                        title="Save">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="action-btn action-btn-danger"
+                        (click)="cancelEdit()"
+                        title="Cancel">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </ng-container>
+          </td>
+
+          <!-- Status -->
+          <td>
+            <span class="badge"
+                  [class.badge-success]="scheme.isApproved"
+                  [class.badge-danger]="!scheme.isApproved">
+              <i class="fas"
+                 [class.fa-circle-check]="scheme.isApproved"
+                 [class.fa-circle-xmark]="!scheme.isApproved">
+              </i>
+              {{ scheme.isApproved ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
+          <!-- Enrolled -->
+          <td class="text-sm text-muted">
+            {{ scheme.createdAt | date:'dd MMM yyyy' }}
+          </td>
+
+          <!-- Edit action -->
+          <td *ngIf="canUpdate">
+            <button class="action-btn action-btn-primary"
+                    *ngIf="editingCode !== scheme.schemeCode"
+                    (click)="startEdit(scheme)"
+                    title="Edit name">
+              <i class="fas fa-pen"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

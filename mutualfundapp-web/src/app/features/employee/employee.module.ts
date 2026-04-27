@@ -1,29 +1,24 @@
-import { NgModule, Component } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
-import { CommonModule } from '@angular/common';
 
-@Component({
-  template: `
-    <div class="page-header">
-      <h2>Employee Dashboard</h2>
-      <p>Coming soon — Step 10</p>
-    </div>
-  `,
-  standalone:false
-})
-export class DashboardPlaceholderComponent {} // ✅ FIXED
+import { EmployeeDashboardComponent } from './dashboard/dashboard.component';
+import { EmployeeSchemesComponent }   from './schemes/schemes.component';
 
 const routes: Routes = [
-  {
-    path: 'dashboard',
-    component: DashboardPlaceholderComponent
-  },
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+  { path: 'dashboard', component: EmployeeDashboardComponent },
+  { path: 'schemes',   component: EmployeeSchemesComponent },
+  { path: '',          redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
 @NgModule({
-  declarations: [DashboardPlaceholderComponent],
-  imports: [CommonModule, SharedModule, RouterModule.forChild(routes)]
+  declarations: [
+    EmployeeDashboardComponent,
+    EmployeeSchemesComponent
+  ],
+  imports: [
+    SharedModule,
+    RouterModule.forChild(routes)
+  ]
 })
-export class EmployeeModule {}
+export class EmployeeModule { }

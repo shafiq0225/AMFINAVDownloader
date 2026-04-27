@@ -1,0 +1,596 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+// ── Layout ────────────────────────────────────────────────────────
+.family-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  height: calc(100vh - $topbar-height - 48px);
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+// ── Groups Panel (Left) ───────────────────────────────────────────
+.groups-panel {
+  @include card;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-header {
+  @include flex-between;
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: $font-size-lg;
+    color: $primary;
+    margin: 0 0 2px;
+  }
+
+  p {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+// ── Search ────────────────────────────────────────────────────────
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  font-size: 13px;
+  z-index: 1;
+}
+
+.search-input {
+  padding-left: 40px !important;
+}
+
+// ── Group List ────────────────────────────────────────────────────
+.group-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  @include custom-scrollbar;
+}
+
+.group-card {
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: $transition-fast;
+  flex-shrink: 0;
+
+  &:hover {
+    border-color: $primary-light;
+    background: rgba($primary, 0.02);
+  }
+
+  &.active {
+    border-color: $primary;
+    background: rgba($primary, 0.04);
+    box-shadow: 0 0 0 3px rgba($primary, 0.08);
+  }
+}
+
+.group-card__top {
+  @include flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.group-avatar {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: $primary;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+
+  &-lg {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    font-size: 17px;
+    border-radius: 14px;
+  }
+}
+
+.group-info {
+  flex: 1;
+  overflow: hidden;
+
+  h4 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 3px;
+    @include truncate;
+  }
+
+  p {
+    @include flex-start;
+    gap: 5px;
+    font-size: $font-size-xs;
+    color: $text-muted;
+    margin: 0;
+    @include truncate;
+
+    i {
+      font-size: 10px;
+      color: $warning-dark;
+    }
+  }
+}
+
+.member-count {
+  @include flex-center;
+  gap: 5px;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  color: $primary-light;
+  background: rgba($primary, 0.08);
+  padding: 4px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+
+  i {
+    font-size: 10px;
+  }
+}
+
+.group-card__bottom {
+  @include flex-between;
+  padding-top: 10px;
+  border-top: 1px solid $border;
+}
+
+.pan-badge {
+  @include flex-start;
+  gap: 6px;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  font-family: "Courier New", monospace;
+  letter-spacing: 0.5px;
+
+  i {
+    color: $text-muted;
+    font-size: 10px;
+  }
+}
+
+.created-date {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+// ── Detail Panel (Right) ──────────────────────────────────────────
+.detail-panel {
+  @include card;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  @include tablet {
+    display: none;
+    &.visible {
+      display: flex;
+    }
+  }
+}
+
+.detail-placeholder {
+  @include flex-center;
+  flex-direction: column;
+  height: 100%;
+  text-align: center;
+  padding: 40px;
+  color: $text-muted;
+
+  i {
+    font-size: 56px;
+    margin-bottom: 20px;
+    opacity: 0.2;
+  }
+  h3 {
+    font-size: $font-size-xl;
+    color: $text-secondary;
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: $font-size-sm;
+  }
+}
+
+.detail-header {
+  @include flex-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid $border;
+  background: $page-bg;
+}
+
+.detail-title {
+  @include flex-start;
+  gap: 14px;
+
+  h3 {
+    font-size: $font-size-lg;
+    color: $primary;
+    margin: 0 0 3px;
+  }
+
+  p {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+// ── Sections ─────────────────────────────────────────────────────
+.section {
+  padding: 20px 24px;
+}
+
+.section-title {
+  @include flex-start;
+  gap: 8px;
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 16px;
+
+  i {
+    color: $primary-light;
+  }
+}
+
+.section-header {
+  @include flex-between;
+  margin-bottom: 16px;
+
+  .section-title {
+    margin: 0;
+  }
+}
+
+.section-divider {
+  height: 1px;
+  background: $border;
+  margin: 0 24px;
+}
+
+// ── Member Row ────────────────────────────────────────────────────
+.member-row {
+  @include flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: $transition-fast;
+
+  &:hover {
+    background: $hover-bg;
+  }
+}
+
+.head-row {
+  border-color: rgba($warning, 0.3);
+  background: rgba($warning, 0.03);
+}
+
+.member-avatar {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.head-avatar {
+  background: rgba($warning, 0.15);
+  color: $warning-dark;
+}
+
+.member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.member-name {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-primary;
+  @include truncate;
+}
+
+.member-email {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  @include truncate;
+}
+
+.pan-code {
+  font-size: $font-size-xs;
+  font-family: "Courier New", monospace;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+  letter-spacing: 0.5px;
+}
+
+.member-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.added-date {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.remove-btn {
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  background: $danger-light;
+  border: none;
+  border-radius: 6px;
+  color: $danger;
+  cursor: pointer;
+  font-size: 12px;
+  transition: $transition-fast;
+
+  &:hover {
+    background: $danger;
+    color: #fff;
+  }
+}
+
+.member-badge {
+  @include flex-center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  border-radius: 10px;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+// ── Add Member Form ───────────────────────────────────────────────
+.add-member-form {
+  background: $page-bg;
+  border: 1.5px dashed $border-dark;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.select-with-icon {
+  padding-left: 42px !important;
+  cursor: pointer;
+}
+
+// ── Empty members ─────────────────────────────────────────────────
+.empty-members {
+  text-align: center;
+  padding: 32px 16px;
+  color: $text-muted;
+
+  i {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.3;
+    display: block;
+  }
+  p {
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}
+
+// ── Members list scrollable ───────────────────────────────────────
+.members-list {
+  max-height: 340px;
+  overflow-y: auto;
+  @include custom-scrollbar;
+}
+
+// ── Modal ─────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: $z-modal;
+  @include flex-center;
+  padding: 20px;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: $surface;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  @include flex-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid $border;
+
+  h3 {
+    @include flex-start;
+    gap: 10px;
+    margin: 0;
+    font-size: $font-size-lg;
+    color: $primary;
+  }
+}
+
+.modal-close {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  background: $hover-bg;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: $text-muted;
+  transition: $transition-fast;
+
+  &:hover {
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+.modal-body {
+  padding: 24px;
+  max-height: 65vh;
+  overflow-y: auto;
+  @include custom-scrollbar;
+}
+
+.modal-footer {
+  @include flex-between;
+  padding: 16px 24px;
+  border-top: 1px solid $border;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+// ── Info Box ──────────────────────────────────────────────────────
+.info-box {
+  @include flex-start;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba($primary, 0.04);
+  border: 1px solid rgba($primary, 0.12);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 16px;
+
+  > i {
+    color: $primary-light;
+    font-size: 16px;
+    margin-top: 2px;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+// ── Input with icon ───────────────────────────────────────────────
+.input-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  font-size: 13px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.form-control {
+  padding-left: 42px !important;
+}
+
+// ── Empty state ───────────────────────────────────────────────────
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: $text-muted;
+  flex: 1;
+  @include flex-center;
+  flex-direction: column;
+  gap: 12px;
+
+  i {
+    font-size: 40px;
+    opacity: 0.25;
+  }
+  p {
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}

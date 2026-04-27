@@ -1,0 +1,292 @@
+<app-loading-spinner *ngIf="loading" message="Loading dashboard...">
+</app-loading-spinner>
+
+<div *ngIf="!loading">
+
+  <!-- Profile Banner -->
+  <div class="profile-banner">
+    <div class="profile-banner__left">
+      <div class="profile-avatar">
+        {{ currentUser?.firstName?.[0] }}{{ currentUser?.lastName?.[0] }}
+      </div>
+      <div class="profile-info">
+        <h2>{{ currentUser?.fullName }}</h2>
+        <p>{{ currentUser?.email }}</p>
+        <div class="profile-tags">
+          <span class="tag tag-role">
+            <i class="fas fa-user"></i> User
+          </span>
+          <span class="tag"
+                *ngIf="isHeadOfFamily"
+                [class.tag-head]="true">
+            <i class="fas fa-crown"></i> Head of Family
+          </span>
+          <span class="tag"
+                *ngIf="isFamilyMember"
+                [class.tag-member]="true">
+            <i class="fas fa-users"></i> Family Member
+          </span>
+          <span class="tag tag-pan">
+            <i class="fas fa-id-card"></i>
+            {{ currentUser?.panNumber }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-banner__right">
+      <div class="quick-link" (click)="goToNav()" *ngIf="canReadNav">
+        <i class="fas fa-arrow-trend-up"></i>
+        <span>NAV Comparison</span>
+        <i class="fas fa-chevron-right"></i>
+      </div>
+      <div class="quick-link" (click)="goToFamily()"
+           *ngIf="familyGroup">
+        <i class="fas fa-people-roof"></i>
+        <span>My Family</span>
+        <i class="fas fa-chevron-right"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Grid -->
+  <div class="user-grid">
+
+    <!-- Left Column -->
+    <div class="user-grid__left">
+
+      <!-- NAV Chart -->
+      <div class="card" *ngIf="canReadNav && navData">
+        <div class="card-header">
+          <h3>
+            <i class="fas fa-chart-area text-primary"></i>
+            NAV Comparison
+          </h3>
+          <div class="nav-meta">
+            <span class="date-chip">
+              {{ navData.startDate | date:'dd MMM' }}
+              <i class="fas fa-arrow-right"></i>
+              {{ navData.endDate | date:'dd MMM' }}
+            </span>
+            <button class="btn btn-ghost btn-sm"
+                    (click)="goToNav()">
+              Full View
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        <p class="nav-msg">{{ navData.message }}</p>
+        <app-nav-chart
+          [labels]="navChartLabels"
+          [datasets]="navChartDatasets">
+        </app-nav-chart>
+      </div>
+
+      <!-- NAV blocked -->
+      <div class="card blocked-card" *ngIf="!canReadNav">
+        <div class="blocked-inner">
+          <i class="fas fa-chart-area"></i>
+          <h4>NAV Comparison</h4>
+          <p>You need <code>nav.read</code> permission.</p>
+          <p class="blocked-note">Contact your Admin for access.</p>
+        </div>
+      </div>
+
+      <!-- Top schemes table -->
+      <div class="card mt-24" *ngIf="canReadNav && navData">
+        <div class="card-header">
+          <h3>
+            <i class="fas fa-trophy text-warning"></i>
+            Top Performers
+          </h3>
+          <span class="text-muted text-sm">
+            Ranked by latest % change
+          </span>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Scheme</th>
+              <th>NAV</th>
+              <th>Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let scheme of navData.schemes.slice(0, 5)">
+              <td>
+                <div class="rank-badge"
+                     [class.rank-1]="scheme.rank === 1"
+                     [class.rank-2]="scheme.rank === 2"
+                     [class.rank-3]="scheme.rank === 3">
+                  {{ scheme.rank }}
+                </div>
+              </td>
+              <td>
+                <div class="scheme-info">
+                  <span class="scheme-name">{{ scheme.schemeName }}</span>
+                  <code class="scheme-code-sm">{{ scheme.schemeCode }}</code>
+                </div>
+              </td>
+              <td>
+                <span class="nav-value">
+                  ₹{{ scheme.history[scheme.history.length - 1]?.nav
+                      | number:'1.4-4' }}
+                </span>
+              </td>
+              <td>
+                <span class="pct-badge"
+                      [class.pct-up]="scheme.history[scheme.history.length-1]?.isGrowth"
+                      [class.pct-down]="!scheme.history[scheme.history.length-1]?.isGrowth">
+                  <i class="fas"
+                     [class.fa-arrow-up]="scheme.history[scheme.history.length-1]?.isGrowth"
+                     [class.fa-arrow-down]="!scheme.history[scheme.history.length-1]?.isGrowth">
+                  </i>
+                  {{ scheme.history[scheme.history.length - 1]?.percentage }}%
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="user-grid__right">
+
+      <!-- Family Group Card -->
+      <div class="card family-card" *ngIf="familyGroup">
+        <div class="family-card__header">
+          <div class="family-avatar">
+            {{ familyGroup.groupName[0] }}
+          </div>
+          <div>
+            <h3>{{ familyGroup.groupName }}</h3>
+            <p>Family Group</p>
+          </div>
+          <button class="btn btn-ghost btn-sm ml-auto"
+                  (click)="goToFamily()">
+            Details <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Head -->
+        <div class="family-section">
+          <p class="family-section__label">
+            <i class="fas fa-crown"></i> Head of Family
+          </p>
+          <div class="member-row"
+               [class.member-row-highlight]="familyGroup.headUserId
+                  === authService.currentUser?.id">
+            <div class="member-avatar head">
+              {{ familyGroup.headUserName[0] }}
+            </div>
+            <div class="member-info">
+              <span class="member-name">
+                {{ familyGroup.headUserName }}
+                <span class="you-badge"
+                      *ngIf="familyGroup.headUserId
+                             === authService.currentUser?.id">
+                  You
+                </span>
+              </span>
+              <code class="pan-sm">{{ familyGroup.headPanNumber }}</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Members -->
+        <div class="family-section" *ngIf="familyGroup.members.length > 0">
+          <p class="family-section__label">
+            <i class="fas fa-users"></i>
+            Members ({{ familyGroup.memberCount }})
+          </p>
+          <div class="member-row"
+               *ngFor="let member of familyGroup.members"
+               [class.member-row-highlight]="member.userId
+                  === authService.currentUser?.id">
+            <div class="member-avatar">
+              {{ member.fullName[0] }}
+            </div>
+            <div class="member-info">
+              <span class="member-name">
+                {{ member.fullName }}
+                <span class="you-badge"
+                      *ngIf="member.userId
+                             === authService.currentUser?.id">
+                  You
+                </span>
+              </span>
+              <code class="pan-sm">{{ member.panNumber }}</code>
+            </div>
+          </div>
+        </div>
+
+        <div class="family-section" *ngIf="familyGroup.members.length === 0">
+          <p class="no-members">No other members yet.</p>
+        </div>
+      </div>
+
+      <!-- No family group -->
+      <div class="card blocked-card" *ngIf="!familyGroup">
+        <div class="blocked-inner">
+          <i class="fas fa-people-roof"></i>
+          <h4>Family Group</h4>
+          <p>You are not assigned to a family group yet.</p>
+          <p class="blocked-note">Contact your Admin to be added.</p>
+        </div>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="card mt-24">
+        <div class="card-header">
+          <h3>
+            <i class="fas fa-user text-primary"></i>
+            My Profile
+          </h3>
+        </div>
+        <div class="profile-rows">
+          <div class="profile-row">
+            <span class="profile-row__label">Full Name</span>
+            <span class="profile-row__value">
+              {{ currentUser?.fullName }}
+            </span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row__label">Email</span>
+            <span class="profile-row__value">
+              {{ currentUser?.email }}
+            </span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row__label">PAN Number</span>
+            <code class="pan-display">{{ currentUser?.panNumber }}</code>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row__label">Account Type</span>
+            <span class="badge badge-primary">
+              {{ currentUser?.userTypeName !== 'None'
+                 ? currentUser?.userTypeName
+                 : 'Standard User' }}
+            </span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row__label">Member Since</span>
+            <span class="profile-row__value">
+              {{ currentUser?.createdAt | date:'dd MMM yyyy' }}
+            </span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-row__label">Last Login</span>
+            <span class="profile-row__value">
+              {{ currentUser?.lastLoginAt
+                 ? (currentUser?.lastLoginAt | date:'dd MMM yyyy, HH:mm')
+                 : 'N/A' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

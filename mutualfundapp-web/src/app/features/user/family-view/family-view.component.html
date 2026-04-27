@@ -1,0 +1,182 @@
+<app-loading-spinner *ngIf="loading" message="Loading family group...">
+</app-loading-spinner>
+
+<div *ngIf="!loading">
+
+    <!-- No Family Group -->
+    <div class="no-family" *ngIf="!familyGroup">
+        <div class="no-family-icon">
+            <i class="fas fa-people-roof"></i>
+        </div>
+        <h3>No Family Group</h3>
+        <p>You are not assigned to any family group yet.
+            Please contact your Admin to be added to a group.</p>
+    </div>
+
+    <!-- Family Group Detail -->
+    <div *ngIf="familyGroup">
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h2>{{ familyGroup.groupName }}</h2>
+                <p>Created {{ familyGroup.createdAt | date:'dd MMM yyyy' }}</p>
+            </div>
+            <span class="role-chip" [class.role-chip-head]="isHead" [class.role-chip-member]="!isHead">
+                <i class="fas" [class.fa-crown]="isHead" [class.fa-users]="!isHead">
+                </i>
+                {{ isHead ? 'Head of Family' : 'Family Member' }}
+            </span>
+        </div>
+
+        <!-- Stats row -->
+        <div class="family-stats">
+            <div class="fstat-card">
+                <div class="fstat-icon fstat-primary">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <p class="fstat-value">{{ familyGroup.memberCount + 1 }}</p>
+                    <p class="fstat-label">Total Members</p>
+                </div>
+            </div>
+            <div class="fstat-card">
+                <div class="fstat-icon fstat-warning">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <div>
+                    <p class="fstat-value">1</p>
+                    <p class="fstat-label">Head of Family</p>
+                </div>
+            </div>
+            <div class="fstat-card">
+                <div class="fstat-icon fstat-accent">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <div>
+                    <p class="fstat-value">{{ familyGroup.memberCount }}</p>
+                    <p class="fstat-label">Members</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Group Content -->
+        <div class="family-grid">
+
+            <!-- Members List -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-users text-primary"></i>
+                        Family Members
+                    </h3>
+                    <span class="member-total-badge">
+                        {{ familyGroup.memberCount + 1 }} total
+                    </span>
+                </div>
+
+                <!-- Head -->
+                <div class="member-card member-card-head">
+                    <div class="member-card__avatar head-avatar">
+                        {{ getUserInitials(familyGroup.headUserName) }}
+                    </div>
+                    <div class="member-card__info">
+                        <div class="member-name-row">
+                            <h4>{{ familyGroup.headUserName }}</h4>
+                            <span class="head-badge">
+                                <i class="fas fa-crown"></i> Head
+                            </span>
+                            <span class="you-tag" *ngIf="isCurrentUser(familyGroup.headUserId)">
+                                You
+                            </span>
+                        </div>
+                        <p>{{ familyGroup.headUserEmail }}</p>
+                        <code>{{ familyGroup.headPanNumber }}</code>
+                    </div>
+                </div>
+
+                <!-- Members -->
+                <div class="members-divider">
+                    <span>Members ({{ familyGroup.memberCount }})</span>
+                </div>
+
+                <div *ngIf="familyGroup.members.length === 0" class="no-members">
+                    <i class="fas fa-user-slash"></i>
+                    <p>No other members in this group yet.</p>
+                </div>
+
+                <div class="member-card" *ngFor="let member of familyGroup.members"
+                    [class.member-card-highlight]="isCurrentUser(member.userId)">
+                    <div class="member-card__avatar">
+                        {{ getUserInitials(member.fullName) }}
+                    </div>
+                    <div class="member-card__info">
+                        <div class="member-name-row">
+                            <h4>{{ member.fullName }}</h4>
+                            <span class="you-tag" *ngIf="isCurrentUser(member.userId)">
+                                You
+                            </span>
+                        </div>
+                        <p>{{ member.email }}</p>
+                        <code>{{ member.panNumber }}</code>
+                    </div>
+                    <span class="added-on">
+                        Added {{ member.addedAt | date:'dd MMM' }}
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- Group Info Card -->
+            <div class="info-side">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-circle-info text-primary"></i>
+                            Group Info
+                        </h3>
+                    </div>
+                    <div class="info-rows">
+                        <div class="info-row">
+                            <span class="info-label">Group Name</span>
+                            <span class="info-value">{{ familyGroup.groupName }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Created</span>
+                            <span class="info-value">
+                                {{ familyGroup.createdAt | date:'dd MMM yyyy' }}
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Your Role</span>
+                            <span class="info-value">
+                                <span class="badge" [class.badge-warning]="isHead" [class.badge-primary]="!isHead">
+                                    {{ isHead ? 'Head of Family' : 'Member' }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status</span>
+                            <span class="info-value">
+                                <span class="badge badge-success">Active</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Note card -->
+                <div class="card mt-24 note-card">
+                    <i class="fas fa-circle-info note-icon"></i>
+                    <div>
+                        <h4>About Family Groups</h4>
+                        <p>Family groups allow multiple members to be associated
+                            under one investment entity. The Head of Family can view
+                            and manage the group's investment overview.</p>
+                        <p class="mt-8">To add or remove members, contact
+                            your Admin.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

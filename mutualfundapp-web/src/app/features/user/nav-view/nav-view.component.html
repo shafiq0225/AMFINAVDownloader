@@ -1,0 +1,147 @@
+<!-- No Permission -->
+<div class="no-perm-page" *ngIf="!canReadNav">
+    <div class="no-perm-icon"><i class="fas fa-chart-area"></i></div>
+    <h3>NAV Comparison</h3>
+    <p>You need <code>nav.read</code> permission. Contact your Admin.</p>
+</div>
+
+<div *ngIf="canReadNav">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h2>NAV Comparison</h2>
+            <p *ngIf="navData">{{ navData.message }}</p>
+        </div>
+
+        <!-- View toggle -->
+        <div class="view-toggle">
+            <button [class.active]="viewMode.value === 'chart'" (click)="viewMode.setValue('chart')">
+                <i class="fas fa-chart-area"></i> Chart
+            </button>
+            <button [class.active]="viewMode.value === 'table'" (click)="viewMode.setValue('table')">
+                <i class="fas fa-table"></i> Table
+            </button>
+        </div>
+    </div>
+
+    <!-- Date Range Picker -->
+    <div class="card mb-24">
+        <div class="date-filters">
+            <div class="date-group">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-control" [formControl]="startDate">
+            </div>
+            <div class="date-group">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-control" [formControl]="endDate">
+            </div>
+            <button class="btn btn-primary" (click)="loadByDateRange()">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <button class="btn btn-ghost" (click)="loadDaily()">
+                <i class="fas fa-rotate"></i> Today
+            </button>
+            <div class="search-box" *ngIf="navData">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control search-input" placeholder="Filter schemes..."
+                    [formControl]="searchCtrl">
+            </div>
+        </div>
+    </div>
+
+    <app-loading-spinner *ngIf="loading" message="Loading NAV data...">
+    </app-loading-spinner>
+
+    <!-- No data -->
+    <div class="empty-state card" *ngIf="!loading && !navData">
+        <i class="fas fa-chart-area"></i>
+        <h3>No NAV Data</h3>
+        <p>Select a date range and click Search.</p>
+    </div>
+
+    <!-- Chart View -->
+    <div *ngIf="!loading && navData && viewMode.value === 'chart'">
+        <div class="schemes-grid">
+            <div class="card scheme-chart-card" *ngFor="let scheme of filtered">
+                <div class="scheme-chart-header">
+                    <div class="scheme-meta">
+                        <span class="fund-name">{{ scheme.fundName }}</span>
+                        <h4>{{ scheme.schemeName }}</h4>
+                    </div>
+                    <div class="scheme-stats">
+                        <div class="stat-pill">
+                            <span class="stat-pill__label">Latest NAV</span>
+                            <span class="stat-pill__value">
+                                ₹{{ getLatestNav(scheme) | number:'1.4-4' }}
+                            </span>
+                        </div>
+                        <div class="stat-pill" [class.stat-pill-up]="isGrowth(scheme)"
+                            [class.stat-pill-down]="!isGrowth(scheme)">
+                            <span class="stat-pill__label">Change</span>
+                            <span class="stat-pill__value">
+                                <i class="fas" [class.fa-arrow-up]="isGrowth(scheme)"
+                                    [class.fa-arrow-down]="!isGrowth(scheme)">
+                                </i>
+                                {{ getLatestPct(scheme) }}%
+                            </span>
+                        </div>
+                        <div class="rank-chip">
+                            #{{ scheme.rank }}
+                        </div>
+                    </div>
+                </div>
+                <app-nav-chart [labels]="getChartLabels(scheme)" [datasets]="getChartDatasets(scheme)">
+                </app-nav-chart>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table View -->
+    <div *ngIf="!loading && navData && viewMode.value === 'table'">
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Fund</th>
+                        <th>Scheme</th>
+                        <th *ngFor="let h of filtered[0]?.history">
+                            {{ h.date | date:'dd MMM' }}
+                        </th>
+                        <th>Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let scheme of filtered">
+                        <td>
+                            <div class="rank-badge" [class.rank-1]="scheme.rank === 1"
+                                [class.rank-2]="scheme.rank === 2" [class.rank-3]="scheme.rank === 3">
+                                {{ scheme.rank }}
+                            </div>
+                        </td>
+                        <td class="text-sm text-muted">{{ scheme.fundName }}</td>
+                        <td>
+                            <div class="scheme-info-cell">
+                                <span>{{ scheme.schemeName }}</span>
+                                <code>{{ scheme.schemeCode }}</code>
+                            </div>
+                        </td>
+                        <td *ngFor="let h of scheme.history">
+                            <span class="nav-cell">₹{{ h.nav | number:'1.2-2' }}</span>
+                        </td>
+                        <td>
+                            <span class="pct-badge" [class.pct-up]="isGrowth(scheme)"
+                                [class.pct-down]="!isGrowth(scheme)">
+                                <i class="fas" [class.fa-arrow-up]="isGrowth(scheme)"
+                                    [class.fa-arrow-down]="!isGrowth(scheme)">
+                                </i>
+                                {{ getLatestPct(scheme) }}%
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

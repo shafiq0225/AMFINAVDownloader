@@ -1,0 +1,287 @@
+<app-loading-spinner *ngIf="loading" message="Loading users...">
+</app-loading-spinner>
+
+<div *ngIf="!loading">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h2>User Management</h2>
+            <p>Manage all registered users, roles and permissions</p>
+        </div>
+        <a routerLink="/admin/users/pending" class="btn btn-primary">
+            <i class="fas fa-clock"></i>
+            Pending
+            <span class="btn-badge" *ngIf="pendingCount > 0">
+                {{ pendingCount }}
+            </span>
+        </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stat-grid mb-24">
+        <app-stat-card title="Total Users" [value]="totalCount" icon="fa-users" color="primary">
+        </app-stat-card>
+        <app-stat-card title="Approved" [value]="approvedCount" icon="fa-circle-check" color="accent">
+        </app-stat-card>
+        <app-stat-card title="Pending" [value]="pendingCount" icon="fa-clock" color="warning">
+        </app-stat-card>
+        <app-stat-card title="Rejected" [value]="rejectedCount" icon="fa-circle-xmark" color="danger">
+        </app-stat-card>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-24">
+        <div class="filters">
+            <!-- Search -->
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control search-input" placeholder="Search by name, email or PAN..."
+                    [formControl]="searchCtrl">
+            </div>
+
+            <!-- Role filter -->
+            <select class="form-control filter-select" [formControl]="roleFilter">
+                <option value="all">All Roles</option>
+                <option value="Admin">Admin</option>
+                <option value="Employee">Employee</option>
+                <option value="User">User</option>
+            </select>
+
+            <!-- Status filter -->
+            <select class="form-control filter-select" [formControl]="statusFilter">
+                <option value="all">All Status</option>
+                <option value="Approved">Approved</option>
+                <option value="Pending">Pending</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+
+            <!-- Clear -->
+            <button class="btn btn-ghost btn-sm" (click)="clearFilters()">
+                <i class="fas fa-times"></i> Clear
+            </button>
+
+            <!-- Results count -->
+            <span class="results-count">
+                {{ filtered.length }} of {{ totalCount }} users
+            </span>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-container">
+        <!-- Empty state -->
+        <div class="empty-state" *ngIf="filtered.length === 0">
+            <i class="fas fa-users-slash"></i>
+            <h3>No users found</h3>
+            <p>Try adjusting your search or filters</p>
+            <button class="btn btn-ghost btn-sm" (click)="clearFilters()">
+                Clear filters
+            </button>
+        </div>
+
+        <!-- Table -->
+        <table class="table" *ngIf="filtered.length > 0">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>PAN Number</th>
+                    <th>Role</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Registered</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let user of filtered">
+                    <!-- User -->
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar-sm">
+                                {{ user.firstName[0] }}{{ user.lastName[0] }}
+                            </div>
+                            <div class="user-info">
+                                <span class="user-name">{{ user.fullName }}</span>
+                                <span class="user-email">{{ user.email }}</span>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- PAN -->
+                    <td>
+                        <code class="pan-code">{{ user.panNumber }}</code>
+                    </td>
+
+                    <!-- Role -->
+                    <td>
+                        <span class="badge" [class]="getRoleBadgeClass(user.roleName)">
+                            {{ user.roleName }}
+                        </span>
+                    </td>
+
+                    <!-- User Type -->
+                    <td>
+                        <span class="text-muted text-sm" *ngIf="user.userTypeName !== 'None'">
+                            {{ user.userTypeName }}
+                        </span>
+                        <span class="text-muted text-sm" *ngIf="user.userTypeName === 'None'">—</span>
+                    </td>
+
+                    <!-- Status -->
+                    <td>
+                        <span class="badge" [class]="getStatusBadgeClass(user.statusName)">
+                            <i class="fas" [class]="getStatusIcon(user.statusName)"></i>
+                            {{ user.statusName }}
+                        </span>
+                    </td>
+
+                    <!-- Registered -->
+                    <td class="text-sm text-muted">
+                        {{ user.createdAt | date:'dd MMM yyyy' }}
+                    </td>
+
+                    <!-- Last Login -->
+                    <td class="text-sm text-muted">
+                        <span *ngIf="user.lastLoginAt">
+                            {{ user.lastLoginAt | date:'dd MMM, HH:mm' }}
+                        </span>
+                        <span *ngIf="!user.lastLoginAt">Never</span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <div class="action-menu">
+                            <!-- Approve (only Pending) -->
+                            <button class="action-btn action-btn-success" *ngIf="user.statusName === 'Pending'"
+                                (click)="approveUser(user)" title="Approve">
+                                <i class="fas fa-check"></i>
+                            </button>
+
+                            <!-- Reject (only Pending) -->
+                            <button class="action-btn action-btn-danger" *ngIf="user.statusName === 'Pending'"
+                                (click)="rejectUser(user)" title="Reject">
+                                <i class="fas fa-times"></i>
+                            </button>
+
+                            <!-- Change Role -->
+                            <button class="action-btn action-btn-primary" *ngIf="user.roleName !== 'Admin'"
+                                (click)="openRoleModal(user)" title="Change Role">
+                                <i class="fas fa-user-gear"></i>
+                            </button>
+
+                            <!-- Permissions -->
+                            <button class="action-btn action-btn-info" *ngIf="user.statusName === 'Approved'"
+                                (click)="openPermModal(user)" title="Manage Permissions">
+                                <i class="fas fa-key"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ── Role Modal ─────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showRoleModal" (click)="closeRoleModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-gear"></i> Change Role</h3>
+            <button class="modal-close" (click)="closeRoleModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" *ngIf="selectedUser">
+            <div class="modal-user-info">
+                <div class="avatar-md">
+                    {{ selectedUser.firstName[0] }}{{ selectedUser.lastName[0] }}
+                </div>
+                <div>
+                    <p class="modal-user-name">{{ selectedUser.fullName }}</p>
+                    <p class="modal-user-email">{{ selectedUser.email }}</p>
+                </div>
+            </div>
+
+            <div class="form-group mt-16">
+                <label class="form-label">Select New Role</label>
+                <div class="role-options">
+                    <label class="role-option" [class.selected]="selectedRole === 2">
+                        <input type="radio" [(ngModel)]="selectedRole" [value]="2">
+                        <div class="role-option-content">
+                            <i class="fas fa-briefcase"></i>
+                            <span class="role-name">Employee</span>
+                            <span class="role-desc">Read/Update based on permissions</span>
+                        </div>
+                    </label>
+                    <label class="role-option" [class.selected]="selectedRole === 3">
+                        <input type="radio" [(ngModel)]="selectedRole" [value]="3">
+                        <div class="role-option-content">
+                            <i class="fas fa-user"></i>
+                            <span class="role-name">User</span>
+                            <span class="role-desc">Family member or Head of Family</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" (click)="closeRoleModal()">
+                Cancel
+            </button>
+            <button class="btn btn-primary" (click)="saveRole()">
+                <i class="fas fa-save"></i> Save Role
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Permission Modal ───────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showPermModal" (click)="closePermModal()">
+    <div class="modal modal-lg" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3><i class="fas fa-key"></i> Manage Permissions</h3>
+            <button class="modal-close" (click)="closePermModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" *ngIf="selectedUser">
+            <div class="modal-user-info">
+                <div class="avatar-md">
+                    {{ selectedUser.firstName[0] }}{{ selectedUser.lastName[0] }}
+                </div>
+                <div>
+                    <p class="modal-user-name">{{ selectedUser.fullName }}</p>
+                    <p class="modal-user-email">{{ selectedUser.email }}</p>
+                </div>
+            </div>
+
+            <p class="perm-hint mt-16">
+                <i class="fas fa-circle-info"></i>
+                Toggle permissions on/off. Changes apply immediately.
+            </p>
+
+            <div class="perm-grid mt-16">
+                <div class="perm-item" *ngFor="let perm of permissions" [class.perm-active]="hasPermission(perm.code)">
+                    <div class="perm-info">
+                        <span class="perm-name">{{ perm.name }}</span>
+                        <code class="perm-code">{{ perm.code }}</code>
+                        <span class="perm-desc">{{ perm.description }}</span>
+                    </div>
+                    <button class="toggle-btn" [class.toggle-on]="hasPermission(perm.code)"
+                        (click)="togglePermission(perm.code)">
+                        <span class="toggle-track">
+                            <span class="toggle-thumb"></span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" (click)="closePermModal()">
+                <i class="fas fa-check"></i> Done
+            </button>
+        </div>
+    </div>
+</div>

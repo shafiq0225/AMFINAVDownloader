@@ -30,6 +30,7 @@ export class SidebarComponent implements OnInit {
     { label: 'Pending Approvals', icon: 'fa-clock', route: '/admin/users/pending', roles: ['Admin'] },
     { label: 'Permissions', icon: 'fa-key', route: '/admin/permissions', roles: ['Admin'] },
     { label: 'Family Groups', icon: 'fa-people-roof', route: '/admin/family', roles: ['Admin'] },
+    { label: 'Schemes', icon: 'fa-building-columns', route: '/admin/schemes', roles: ['Admin'] }, // ← add
     { label: 'Dashboard', icon: 'fa-chart-line', route: '/employee/dashboard', roles: ['Employee'] },
     { label: 'Schemes', icon: 'fa-building-columns', route: '/employee/schemes', roles: ['Employee'] },
     { label: 'Dashboard', icon: 'fa-house', route: '/user/dashboard', roles: ['User'] },

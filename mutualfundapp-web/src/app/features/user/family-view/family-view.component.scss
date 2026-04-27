@@ -1,0 +1,346 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.no-family {
+  text-align: center;
+  padding: 100px 20px;
+
+  h3 {
+    font-size: $font-size-2xl;
+    color: $primary;
+    margin-bottom: 12px;
+  }
+  p {
+    font-size: $font-size-base;
+    color: $text-muted;
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+}
+
+.no-family-icon {
+  @include flex-center;
+  width: 80px;
+  height: 80px;
+  background: rgba($primary, 0.08);
+  border-radius: 50%;
+  margin: 0 auto 24px;
+  font-size: 32px;
+  color: $primary;
+  opacity: 0.5;
+}
+
+.page-header {
+  @include flex-between;
+  margin-bottom: 24px;
+  align-items: flex-start;
+
+  h2 {
+    font-size: $font-size-xl;
+    color: $primary;
+    margin-bottom: 4px;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+.role-chip {
+  @include flex-center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: $font-size-sm;
+  font-weight: 600;
+
+  &-head {
+    background: rgba($warning, 0.12);
+    color: $warning-dark;
+  }
+  &-member {
+    background: rgba($primary, 0.1);
+    color: $primary;
+  }
+}
+
+// ── Stats row ─────────────────────────────────────────────────────
+.family-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fstat-card {
+  @include card;
+  padding: 16px 20px;
+  @include flex-start;
+  gap: 14px;
+}
+
+.fstat-icon {
+  @include flex-center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+  font-size: 18px;
+
+  &.fstat-primary {
+    background: rgba($primary, 0.1);
+    color: $primary;
+  }
+  &.fstat-warning {
+    background: rgba($warning, 0.1);
+    color: $warning-dark;
+  }
+  &.fstat-accent {
+    background: rgba($accent, 0.1);
+    color: $accent;
+  }
+}
+
+.fstat-value {
+  font-size: $font-size-2xl;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 2px;
+}
+
+.fstat-label {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin: 0;
+}
+
+// ── Family Grid ───────────────────────────────────────────────────
+.family-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Member Card ───────────────────────────────────────────────────
+.member-card {
+  @include flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid $border;
+  transition: $transition-fast;
+
+  &:last-child {
+    border-bottom: none;
+  }
+  &:hover {
+    background: $hover-bg;
+  }
+
+  &-head {
+    background: rgba($warning, 0.03);
+  }
+  &-highlight {
+    background: rgba($primary, 0.04);
+  }
+}
+
+.member-card__avatar {
+  @include flex-center;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.head-avatar {
+  background: rgba($warning, 0.15);
+  color: $warning-dark;
+}
+
+.member-card__info {
+  flex: 1;
+  overflow: hidden;
+
+  h4 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 3px;
+  }
+
+  p {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    margin: 0 0 4px;
+    @include truncate;
+  }
+
+  code {
+    font-size: 11px;
+    font-family: "Courier New", monospace;
+    color: $primary-light;
+    background: rgba($primary, 0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+}
+
+.member-name-row {
+  @include flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.head-badge {
+  @include flex-center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba($warning, 0.15);
+  color: $warning-dark;
+  padding: 2px 7px;
+  border-radius: 10px;
+
+  i {
+    font-size: 9px;
+  }
+}
+
+.you-tag {
+  font-size: 10px;
+  font-weight: 700;
+  background: $primary;
+  color: #fff;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+.added-on {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  white-space: nowrap;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+// ── Divider ───────────────────────────────────────────────────────
+.members-divider {
+  @include flex-center;
+  padding: 10px 20px;
+  background: $page-bg;
+  border-top: 1px solid $border;
+  border-bottom: 1px solid $border;
+
+  span {
+    font-size: $font-size-xs;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+.no-members {
+  text-align: center;
+  padding: 30px 20px;
+  color: $text-muted;
+
+  i {
+    font-size: 28px;
+    opacity: 0.25;
+    margin-bottom: 8px;
+    display: block;
+  }
+  p {
+    font-size: $font-size-sm;
+    margin: 0;
+  }
+}
+
+.member-total-badge {
+  font-size: $font-size-xs;
+  font-weight: 600;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+// ── Info Side ─────────────────────────────────────────────────────
+.info-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-row {
+  @include flex-between;
+  padding: 12px 0;
+  border-bottom: 1px solid $border;
+  gap: 12px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.info-label {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  font-weight: 500;
+  text-align: right;
+}
+
+// ── Note Card ─────────────────────────────────────────────────────
+.note-card {
+  @include flex-start;
+  gap: 14px;
+  align-items: flex-start;
+  background: rgba($primary, 0.03);
+  border: 1px solid rgba($primary, 0.1);
+}
+
+.note-icon {
+  font-size: 18px;
+  color: $primary-light;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.note-card h4 {
+  font-size: $font-size-base;
+  color: $primary;
+  margin: 0 0 8px;
+}
+
+.note-card p {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  margin: 0;
+  line-height: 1.6;
+}

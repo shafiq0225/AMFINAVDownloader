@@ -24,12 +24,10 @@ import { NavChartComponent } from './components/nav-chart/nav-chart.component';
         ReactiveFormsModule
     ],
     exports: [
-        // Angular modules re-exported for convenience
         CommonModule,
         RouterModule,
         FormsModule,
         ReactiveFormsModule,
-        // Components
         SidebarComponent,
         TopbarComponent,
         StatCardComponent,

@@ -1,0 +1,156 @@
+<app-loading-spinner *ngIf="loading" message="Loading dashboard...">
+</app-loading-spinner>
+
+<div *ngIf="!loading">
+
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <div class="welcome-left">
+            <div class="welcome-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <div>
+                <h2>Welcome back, {{ userName }}!</h2>
+                <p>Here's your activity overview based on your permissions.</p>
+            </div>
+        </div>
+        <div class="welcome-right">
+            <div class="permission-chips">
+                <span class="chip" *ngFor="let perm of userPermissions" [class.chip-active]="true">
+                    <i class="fas fa-check-circle"></i>
+                    {{ perm }}
+                </span>
+                <span class="chip chip-empty" *ngIf="userPermissions.length === 0">
+                    <i class="fas fa-lock"></i>
+                    No permissions assigned yet
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Permissions State -->
+    <div class="no-permission-state" *ngIf="!canReadSchemes && !canReadNav">
+        <div class="no-perm-icon">
+            <i class="fas fa-lock"></i>
+        </div>
+        <h3>No Permissions Assigned</h3>
+        <p>Your account is active but you have not been assigned
+            any permissions yet. Please contact your Admin to
+            get access to schemes and NAV data.</p>
+    </div>
+
+    <!-- Content (shown only if has permissions) -->
+    <ng-container *ngIf="canReadSchemes || canReadNav">
+
+        <!-- Stat Cards -->
+        <div class="stat-grid">
+            <app-stat-card *ngIf="canReadSchemes" title="Total Schemes" [value]="totalSchemes"
+                icon="fa-building-columns" color="primary" subtitle="Enrolled schemes">
+            </app-stat-card>
+
+            <app-stat-card *ngIf="canReadSchemes" title="Active Schemes" [value]="activeSchemes" icon="fa-circle-check"
+                color="accent" subtitle="Approved for tracking">
+            </app-stat-card>
+
+            <app-stat-card *ngIf="canReadNav" title="NAV Schemes" [value]="navSchemes" icon="fa-arrow-trend-up"
+                color="primary" subtitle="In today's comparison">
+            </app-stat-card>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid mt-24">
+
+            <!-- NAV Comparison Chart -->
+            <div class="card" *ngIf="canReadNav && navData">
+                <div class="card-header">
+                    <h3>
+                        <i class="fas fa-chart-area text-primary"></i>
+                        NAV Comparison
+                    </h3>
+                    <div class="date-range" *ngIf="navData">
+                        <span>{{ navData.startDate | date:'dd MMM' }}</span>
+                        <i class="fas fa-arrow-right text-muted"></i>
+                        <span>{{ navData.endDate | date:'dd MMM yyyy' }}</span>
+                    </div>
+                </div>
+                <app-nav-chart [labels]="navChartLabels" [datasets]="navChartDatasets">
+                </app-nav-chart>
+            </div>
+
+            <!-- No NAV Permission -->
+            <div class="card permission-blocked" *ngIf="!canReadNav">
+                <div class="blocked-content">
+                    <i class="fas fa-chart-area"></i>
+                    <h4>NAV Comparison</h4>
+                    <p>You need <code>nav.read</code> permission to view NAV data.</p>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-col">
+
+                <!-- Recent Schemes -->
+                <div class="card" *ngIf="canReadSchemes">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-building-columns text-accent"></i>
+                            Recent Schemes
+                        </h3>
+                        <button class="btn btn-ghost btn-sm" (click)="goToSchemes()">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <div class="scheme-list">
+                        <div class="scheme-item" *ngFor="let scheme of recentSchemes">
+                            <div class="scheme-left">
+                                <code class="scheme-code">{{ scheme.schemeCode }}</code>
+                                <span class="scheme-name">{{ scheme.schemeName }}</span>
+                            </div>
+                            <span class="badge" [class.badge-success]="scheme.isApproved"
+                                [class.badge-danger]="!scheme.isApproved">
+                                {{ scheme.isApproved ? 'Active' : 'Inactive' }}
+                            </span>
+                        </div>
+
+                        <div class="empty-state-sm" *ngIf="recentSchemes.length === 0">
+                            <p>No schemes enrolled yet.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No scheme permission -->
+                <div class="card permission-blocked" *ngIf="!canReadSchemes">
+                    <div class="blocked-content">
+                        <i class="fas fa-building-columns"></i>
+                        <h4>Scheme Enrollment</h4>
+                        <p>You need <code>scheme.read</code> permission
+                            to view schemes.</p>
+                    </div>
+                </div>
+
+                <!-- My Permissions Card -->
+                <div class="card mt-24">
+                    <div class="card-header">
+                        <h3>
+                            <i class="fas fa-key text-warning"></i>
+                            My Permissions
+                        </h3>
+                    </div>
+                    <div class="perm-list">
+                        <div class="perm-row" *ngFor="let perm of allPermissions"
+                            [class.perm-granted]="hasPermission(perm.code)">
+                            <div class="perm-left">
+                                <i class="fas" [class.fa-check-circle]="hasPermission(perm.code)"
+                                    [class.fa-times-circle]="!hasPermission(perm.code)">
+                                </i>
+                                <span>{{ perm.label }}</span>
+                            </div>
+                            <code class="perm-code">{{ perm.code }}</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>

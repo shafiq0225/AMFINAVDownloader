@@ -1,0 +1,129 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.page-header {
+  margin-bottom: 24px;
+
+  h2 { font-size: $font-size-xl; color: $primary; margin-bottom: 4px; }
+  p  { font-size: $font-size-sm; color: $text-muted; margin: 0; }
+}
+
+.perm-note {
+  font-weight: 500;
+  color: $accent;
+  &.perm-readonly { color: $warning-dark; }
+}
+
+// ── Filters ───────────────────────────────────────────────────────
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  font-size: 13px;
+}
+
+.search-input { padding-left: 40px !important; }
+
+.filter-select {
+  width: 160px;
+  height: 44px;
+  cursor: pointer;
+}
+
+.results-count {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-left: auto;
+}
+
+// ── Scheme code ───────────────────────────────────────────────────
+.scheme-code {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba($primary, 0.06);
+  color: $primary;
+  padding: 3px 8px;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
+}
+
+.name-cell { min-width: 300px; }
+
+.scheme-name-row {
+  @include flex-start;
+  gap: 10px;
+}
+
+.scheme-icon {
+  font-size: 13px;
+  color: $text-muted;
+  flex-shrink: 0;
+}
+
+// ── Inline edit ───────────────────────────────────────────────────
+.inline-edit {
+  @include flex-start;
+  gap: 8px;
+
+  .form-control {
+    height: 36px;
+    padding: 0 12px !important;
+    font-size: $font-size-sm;
+  }
+}
+
+// ── Action Buttons ────────────────────────────────────────────────
+.action-btn {
+  @include flex-center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: $transition-fast;
+  flex-shrink: 0;
+
+  &-primary {
+    background: rgba($primary, 0.1);
+    color: $primary;
+    &:hover { background: $primary; color: #fff; }
+  }
+  &-success {
+    background: $success-light;
+    color: $success;
+    &:hover { background: $success; color: #fff; }
+  }
+  &-danger {
+    background: $danger-light;
+    color: $danger;
+    &:hover { background: $danger; color: #fff; }
+  }
+}
+
+// ── Empty State ───────────────────────────────────────────────────
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: $text-muted;
+
+  i  { font-size: 48px; margin-bottom: 16px; opacity: 0.25; display: block; }
+  h3 { font-size: $font-size-lg; color: $text-secondary; margin-bottom: 8px; }
+  p  { font-size: $font-size-sm; margin: 0; }
+}

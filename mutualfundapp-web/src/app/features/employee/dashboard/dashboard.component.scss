@@ -1,0 +1,251 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+// ── Welcome Banner ────────────────────────────────────────────────
+.welcome-banner {
+  @include flex-between;
+  background: linear-gradient(135deg, $primary-dark 0%, $primary 100%);
+  border-radius: $card-radius;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  gap: 20px;
+
+  @include tablet { flex-direction: column; }
+}
+
+.welcome-left {
+  @include flex-start;
+  gap: 16px;
+}
+
+.welcome-icon {
+  @include flex-center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 22px;
+}
+
+.welcome-left h2 {
+  font-size: $font-size-xl;
+  color: #fff;
+  margin: 0 0 4px;
+}
+
+.welcome-left p {
+  font-size: $font-size-sm;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+}
+
+.welcome-right { flex-shrink: 0; }
+
+// ── Permission chips ──────────────────────────────────────────────
+.permission-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+
+  @include tablet { justify-content: flex-start; }
+}
+
+.chip {
+  @include flex-center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  font-size: $font-size-xs;
+  color: #fff;
+  font-weight: 500;
+
+  i { font-size: 10px; color: #7effcb; }
+
+  &-empty {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    i { color: rgba(255,255,255,0.4); }
+  }
+}
+
+// ── No Permission State ───────────────────────────────────────────
+.no-permission-state {
+  @include card;
+  text-align: center;
+  padding: 80px 40px;
+  margin-bottom: 24px;
+}
+
+.no-perm-icon {
+  @include flex-center;
+  width: 72px;
+  height: 72px;
+  background: rgba($warning, 0.1);
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  font-size: 28px;
+  color: $warning;
+}
+
+.no-permission-state h3 {
+  font-size: $font-size-xl;
+  color: $primary;
+  margin-bottom: 12px;
+}
+
+.no-permission-state p {
+  font-size: $font-size-base;
+  color: $text-muted;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+// ── Permission Blocked Card ───────────────────────────────────────
+.permission-blocked {
+  @include flex-center;
+  min-height: 200px;
+}
+
+.blocked-content {
+  text-align: center;
+  padding: 20px;
+
+  i {
+    font-size: 36px;
+    color: $border-dark;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  h4 {
+    font-size: $font-size-base;
+    color: $text-secondary;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+
+    code {
+      background: $page-bg;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: $font-size-xs;
+      color: $primary-light;
+    }
+  }
+}
+
+// ── Dashboard grid ────────────────────────────────────────────────
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+
+  @media (max-width: 1100px) { grid-template-columns: 1fr; }
+}
+
+.right-col { display: flex; flex-direction: column; }
+
+// ── Date range ────────────────────────────────────────────────────
+.date-range {
+  @include flex-start;
+  gap: 8px;
+  font-size: $font-size-sm;
+  color: $text-muted;
+}
+
+// ── Scheme list ───────────────────────────────────────────────────
+.scheme-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.scheme-item {
+  @include flex-between;
+  padding: 12px 0;
+  border-bottom: 1px solid $border;
+
+  &:last-child { border-bottom: none; }
+}
+
+.scheme-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.scheme-code {
+  font-family: 'Courier New', monospace;
+  font-size: $font-size-xs;
+  color: $primary-light;
+  font-weight: 700;
+}
+
+.scheme-name {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  @include truncate;
+}
+
+.empty-state-sm {
+  text-align: center;
+  padding: 24px;
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+// ── Permissions list ──────────────────────────────────────────────
+.perm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.perm-row {
+  @include flex-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: $page-bg;
+  transition: $transition-fast;
+
+  &.perm-granted {
+    background: $success-light;
+
+    .fa-check-circle { color: $success; }
+    span { color: $text-primary; font-weight: 500; }
+  }
+}
+
+.perm-left {
+  @include flex-start;
+  gap: 10px;
+
+  i {
+    font-size: 14px;
+    color: $border-dark;
+    width: 16px;
+  }
+
+  span { font-size: $font-size-sm; color: $text-muted; }
+}
+
+.perm-code {
+  font-size: $font-size-xs;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+}

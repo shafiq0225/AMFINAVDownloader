@@ -1,0 +1,473 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+// ── Profile Banner ────────────────────────────────────────────────
+.profile-banner {
+  @include flex-between;
+  background: linear-gradient(
+    135deg,
+    $primary-dark,
+    $primary 60%,
+    $primary-light
+  );
+  border-radius: $card-radius;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  gap: 20px;
+
+  @include tablet {
+    flex-direction: column;
+  }
+}
+
+.profile-banner__left {
+  @include flex-start;
+  gap: 18px;
+}
+
+.profile-avatar {
+  @include flex-center;
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.profile-info {
+  h2 {
+    font-size: $font-size-xl;
+    color: #fff;
+    margin: 0 0 4px;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 12px;
+  }
+}
+
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  @include flex-center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: $font-size-xs;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+
+  &-head {
+    background: rgba($warning, 0.25);
+    border-color: rgba($warning, 0.4);
+  }
+  &-member {
+    background: rgba($accent, 0.25);
+    border-color: rgba($accent, 0.4);
+  }
+  &-pan {
+    font-family: "Courier New", monospace;
+    letter-spacing: 0.5px;
+  }
+}
+
+.profile-banner__right {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+
+  @include tablet {
+    width: 100%;
+  }
+}
+
+.quick-link {
+  @include flex-between;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #fff;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition-fast;
+  gap: 10px;
+
+  i:first-child {
+    font-size: 14px;
+  }
+  span {
+    flex: 1;
+  }
+  i:last-child {
+    font-size: 11px;
+    opacity: 0.6;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateX(2px);
+  }
+}
+
+// ── User Grid ─────────────────────────────────────────────────────
+.user-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.user-grid__left {
+  display: flex;
+  flex-direction: column;
+}
+.user-grid__right {
+  display: flex;
+  flex-direction: column;
+}
+
+// ── NAV section ───────────────────────────────────────────────────
+.nav-meta {
+  @include flex-start;
+  gap: 12px;
+}
+
+.date-chip {
+  @include flex-start;
+  gap: 6px;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  background: $page-bg;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid $border;
+}
+
+.nav-msg {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin: 0 0 16px;
+}
+
+// ── Rank badges ───────────────────────────────────────────────────
+.rank-badge {
+  @include flex-center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: $font-size-sm;
+  font-weight: 700;
+  background: $page-bg;
+  color: $text-muted;
+
+  &.rank-1 {
+    background: rgba(255, 215, 0, 0.15);
+    color: #b8860b;
+  }
+  &.rank-2 {
+    background: rgba(192, 192, 192, 0.15);
+    color: #696969;
+  }
+  &.rank-3 {
+    background: rgba(205, 127, 50, 0.15);
+    color: #8b4513;
+  }
+}
+
+.scheme-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scheme-name {
+  font-size: $font-size-sm;
+  font-weight: 500;
+  color: $text-primary;
+  max-width: 300px;
+  @include truncate;
+}
+
+.scheme-code-sm {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.nav-value {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-primary;
+  font-family: "Courier New", monospace;
+}
+
+.pct-badge {
+  @include flex-center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  width: fit-content;
+
+  &.pct-up {
+    background: $success-light;
+    color: $success;
+  }
+  &.pct-down {
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+// ── Blocked Card ──────────────────────────────────────────────────
+.blocked-card {
+  @include flex-center;
+  min-height: 200px;
+}
+
+.blocked-inner {
+  text-align: center;
+  padding: 20px;
+
+  i {
+    font-size: 40px;
+    color: $border-dark;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  h4 {
+    font-size: $font-size-base;
+    color: $text-secondary;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+
+    code {
+      background: $page-bg;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: $font-size-xs;
+      color: $primary-light;
+    }
+  }
+
+  .blocked-note {
+    font-size: $font-size-xs;
+    color: $text-muted;
+    margin-top: 6px;
+    opacity: 0.7;
+  }
+}
+
+// ── Family Card ───────────────────────────────────────────────────
+.family-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.family-card__header {
+  @include flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba($primary, 0.03);
+  border-bottom: 1px solid $border;
+}
+
+.family-avatar {
+  @include flex-center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  background: $primary;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.family-card__header h3 {
+  font-size: $font-size-base;
+  color: $primary;
+  margin: 0 0 2px;
+}
+
+.family-card__header p {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin: 0;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.family-section {
+  padding: 14px 20px;
+  border-bottom: 1px solid $border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.family-section__label {
+  @include flex-start;
+  gap: 6px;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 10px;
+
+  i {
+    color: $warning-dark;
+  }
+}
+
+.member-row {
+  @include flex-start;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  transition: $transition-fast;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+  &:hover {
+    background: $hover-bg;
+  }
+
+  &-highlight {
+    background: rgba($primary, 0.05);
+    border: 1px solid rgba($primary, 0.12);
+  }
+}
+
+.member-avatar {
+  @include flex-center;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  background: rgba($primary, 0.1);
+  color: $primary;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+
+  &.head {
+    background: rgba($warning, 0.15);
+    color: $warning-dark;
+  }
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.member-name {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-primary;
+  @include flex-start;
+  gap: 6px;
+  @include truncate;
+}
+
+.you-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: $primary;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.pan-sm {
+  font-size: 11px;
+  font-family: "Courier New", monospace;
+  color: $text-muted;
+  letter-spacing: 0.5px;
+}
+
+.no-members {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  text-align: center;
+  padding: 8px 0;
+  margin: 0;
+}
+
+// ── Profile Rows ──────────────────────────────────────────────────
+.profile-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-row {
+  @include flex-between;
+  padding: 11px 0;
+  border-bottom: 1px solid $border;
+  gap: 12px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.profile-row__label {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.profile-row__value {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  text-align: right;
+  @include truncate;
+}
+
+.pan-display {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: $primary;
+  background: rgba($primary, 0.06);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  font-weight: 700;
+}

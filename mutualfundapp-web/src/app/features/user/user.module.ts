@@ -1,26 +1,27 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { SharedModule } from '../../shared/shared.module';
-import { Component } from '@angular/core';
 
-@Component({
-  template: `
-    <div class="page-header">
-      <h2>User Dashboard</h2>
-      <p>Coming soon — Step 11</p>
-    </div>
-  `,
-  standalone:false
-})
-export class UserDashboardPlaceholderComponent {}
+import { UserDashboardComponent } from './dashboard/dashboard.component';
+import { NavViewComponent } from './nav-view/nav-view.component';
+import { FamilyViewComponent } from './family-view/family-view.component';
 
 const routes: Routes = [
-  { path: 'dashboard', component: UserDashboardPlaceholderComponent },
+  { path: 'dashboard', component: UserDashboardComponent },
+  { path: 'nav', component: NavViewComponent },
+  { path: 'family', component: FamilyViewComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
 @NgModule({
-  declarations: [UserDashboardPlaceholderComponent],
-  imports: [SharedModule, RouterModule.forChild(routes)]
+  declarations: [
+    UserDashboardComponent,
+    NavViewComponent,
+    FamilyViewComponent
+  ],
+  imports: [
+    SharedModule,
+    RouterModule.forChild(routes)
+  ]
 })
 export class UserModule { }

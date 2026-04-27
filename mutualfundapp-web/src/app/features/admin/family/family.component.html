@@ -1,0 +1,275 @@
+<app-loading-spinner *ngIf="loading" message="Loading family groups...">
+</app-loading-spinner>
+
+<div *ngIf="!loading" class="family-layout">
+
+    <!-- ── Left: Groups List ─────────────────────────────────── -->
+    <div class="groups-panel">
+
+        <!-- Header -->
+        <div class="panel-header">
+            <div>
+                <h2>Family Groups</h2>
+                <p>{{ groups.length }} group{{ groups.length !== 1 ? 's' : '' }} total</p>
+            </div>
+            <button class="btn btn-primary btn-sm" (click)="openCreateModal()">
+                <i class="fas fa-plus"></i> New Group
+            </button>
+        </div>
+
+        <!-- Search -->
+        <div class="search-box mb-16">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="form-control search-input" placeholder="Search groups..."
+                [(ngModel)]="searchTerm">
+        </div>
+
+        <!-- Empty -->
+        <div class="empty-state" *ngIf="filteredGroups.length === 0">
+            <i class="fas fa-people-roof"></i>
+            <p>No family groups found</p>
+            <button class="btn btn-primary btn-sm" (click)="openCreateModal()">
+                Create First Group
+            </button>
+        </div>
+
+        <!-- Group Cards -->
+        <div class="group-list">
+            <div class="group-card" *ngFor="let group of filteredGroups" [class.active]="selectedGroup?.id === group.id"
+                (click)="openDetail(group)">
+
+                <div class="group-card__top">
+                    <div class="group-avatar">
+                        {{ getUserInitials(group.groupName) }}
+                    </div>
+                    <div class="group-info">
+                        <h4>{{ group.groupName }}</h4>
+                        <p>
+                            <i class="fas fa-crown"></i>
+                            {{ group.headUserName }}
+                        </p>
+                    </div>
+                    <span class="member-count">
+                        <i class="fas fa-users"></i>
+                        {{ group.memberCount }}
+                    </span>
+                </div>
+
+                <div class="group-card__bottom">
+                    <span class="pan-badge">
+                        <i class="fas fa-id-card"></i>
+                        {{ group.headPanNumber }}
+                    </span>
+                    <span class="created-date">
+                        {{ group.createdAt | date:'dd MMM yyyy' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Right: Group Detail ───────────────────────────────── -->
+    <div class="detail-panel" [class.visible]="showDetailPanel">
+
+        <!-- No selection placeholder -->
+        <div class="detail-placeholder" *ngIf="!selectedGroup">
+            <i class="fas fa-people-roof"></i>
+            <h3>Select a Group</h3>
+            <p>Click a family group on the left to view details and manage members.</p>
+        </div>
+
+        <!-- Group Detail -->
+        <ng-container *ngIf="selectedGroup">
+
+            <!-- Detail Header -->
+            <div class="detail-header">
+                <div class="detail-title">
+                    <div class="group-avatar group-avatar-lg">
+                        {{ getUserInitials(selectedGroup.groupName) }}
+                    </div>
+                    <div>
+                        <h3>{{ selectedGroup.groupName }}</h3>
+                        <p>Created {{ selectedGroup.createdAt | date:'dd MMM yyyy' }}</p>
+                    </div>
+                </div>
+                <button class="btn btn-ghost btn-sm" (click)="closeDetail()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Head of Family -->
+            <div class="section">
+                <h4 class="section-title">
+                    <i class="fas fa-crown"></i> Head of Family
+                </h4>
+                <div class="member-row head-row">
+                    <div class="member-avatar head-avatar">
+                        {{ getUserInitials(selectedGroup.headUserName) }}
+                    </div>
+                    <div class="member-info">
+                        <span class="member-name">
+                            {{ selectedGroup.headUserName }}
+                        </span>
+                        <span class="member-email">
+                            {{ selectedGroup.headUserEmail }}
+                        </span>
+                        <code class="pan-code">{{ selectedGroup.headPanNumber }}</code>
+                    </div>
+                    <span class="badge badge-primary">Head</span>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+
+            <!-- Members -->
+            <div class="section">
+                <div class="section-header">
+                    <h4 class="section-title">
+                        <i class="fas fa-users"></i>
+                        Members
+                        <span class="member-badge">
+                            {{ selectedGroup.memberCount }}
+                        </span>
+                    </h4>
+                    <button class="btn btn-outline btn-sm" (click)="toggleAddMember()">
+                        <i class="fas" [class.fa-plus]="!showAddMember" [class.fa-times]="showAddMember"></i>
+                        {{ showAddMember ? 'Cancel' : 'Add Member' }}
+                    </button>
+                </div>
+
+                <!-- Add Member Form -->
+                <div class="add-member-form" *ngIf="showAddMember">
+                    <div class="form-group">
+                        <label class="form-label">Select User to Add</label>
+                        <select class="form-control" [formControl]="addMemberUserId">
+                            <option value="">-- Select a user --</option>
+                            <option *ngFor="let user of availableUsersForGroup" [value]="user.id">
+                                {{ user.fullName }} — {{ user.panNumber }}
+                            </option>
+                        </select>
+                        <p class="form-hint" *ngIf="availableUsersForGroup.length === 0">
+                            No eligible users available. Ensure users have the 'User' role
+                            and are approved.
+                        </p>
+                    </div>
+                    <button class="btn btn-accent btn-sm" (click)="submitAddMember()"
+                        [disabled]="addMemberForm.invalid">
+                        <i class="fas fa-user-plus"></i> Add to Group
+                    </button>
+                </div>
+
+                <!-- Members List -->
+                <div class="members-list">
+                    <div class="empty-members" *ngIf="selectedGroup.members.length === 0">
+                        <i class="fas fa-user-slash"></i>
+                        <p>No members yet. Add family members above.</p>
+                    </div>
+
+                    <div class="member-row" *ngFor="let member of selectedGroup.members">
+                        <div class="member-avatar">
+                            {{ getUserInitials(member.fullName) }}
+                        </div>
+                        <div class="member-info">
+                            <span class="member-name">{{ member.fullName }}</span>
+                            <span class="member-email">{{ member.email }}</span>
+                            <code class="pan-code">{{ member.panNumber }}</code>
+                        </div>
+                        <div class="member-meta">
+                            <span class="badge badge-muted">Member</span>
+                            <span class="added-date">
+                                Added {{ member.addedAt | date:'dd MMM' }}
+                            </span>
+                            <button class="remove-btn" (click)="removeMember(member)" title="Remove member">
+                                <i class="fas fa-user-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </ng-container>
+    </div>
+</div>
+
+<!-- ── Create Group Modal ─────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>
+                <i class="fas fa-people-roof"></i>
+                Create Family Group
+            </h3>
+            <button class="modal-close" (click)="closeCreateModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <form [formGroup]="createForm" novalidate>
+
+                <!-- Group Name -->
+                <div class="form-group">
+                    <label class="form-label">Group Name</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-people-roof input-icon"></i>
+                        <input type="text" class="form-control" [class.is-invalid]="f['groupName'].invalid
+                                       && f['groupName'].touched" formControlName="groupName"
+                            placeholder="e.g. Kumar Family">
+                    </div>
+                    <div class="form-error" *ngIf="f['groupName'].invalid && f['groupName'].touched">
+                        <span *ngIf="f['groupName'].errors?.['required']">
+                            Group name is required.
+                        </span>
+                        <span *ngIf="f['groupName'].errors?.['minlength']">
+                            Minimum 3 characters.
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Head of Family -->
+                <div class="form-group">
+                    <label class="form-label">Head of Family</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-crown input-icon"></i>
+                        <select class="form-control select-with-icon" [class.is-invalid]="f['headUserId'].invalid
+                                        && f['headUserId'].touched" formControlName="headUserId">
+                            <option value="">-- Select Head of Family --</option>
+                            <option *ngFor="let user of eligibleUsers" [value]="user.id">
+                                {{ user.fullName }} — {{ user.panNumber }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-error" *ngIf="f['headUserId'].invalid && f['headUserId'].touched">
+                        Head of Family is required.
+                    </div>
+                    <p class="form-hint">
+                        Only approved users with 'User' role are shown here.
+                    </p>
+                </div>
+
+            </form>
+
+            <!-- Info box -->
+            <div class="info-box">
+                <i class="fas fa-circle-info"></i>
+                <div>
+                    <p>The selected user will be assigned as
+                        <strong>Head of Family</strong> and their
+                        UserType will be updated automatically.
+                    </p>
+                    <p class="mt-8">You can add members to the group
+                        after creation.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-ghost" (click)="closeCreateModal()">
+                Cancel
+            </button>
+            <button class="btn btn-primary" (click)="submitCreate()">
+                <i class="fas fa-plus"></i> Create Group
+            </button>
+        </div>
+    </div>
+</div>
