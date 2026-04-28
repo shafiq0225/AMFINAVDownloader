@@ -9,12 +9,12 @@ import {
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector: 'app-nav-view',
-  templateUrl: './nav-view.component.html',
-  styleUrls: ['./nav-view.component.scss'],
+  selector: 'app-employee-nav',
+  templateUrl: './nav.component.html',
+  styleUrls: ['./nav.component.scss'],
   standalone: false
 })
-export class NavViewComponent implements OnInit {
+export class EmployeeNavComponent implements OnInit {
   navData: NavComparisonResponseDto | null = null;
   filtered: SchemeComparisonDto[] = [];
   loading = true;
