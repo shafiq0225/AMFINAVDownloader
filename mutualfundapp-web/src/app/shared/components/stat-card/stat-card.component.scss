@@ -108,3 +108,28 @@
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+// At bottom of existing file, add:
+
+// ── Mobile compact ────────────────────────────────────────────────
+@media (max-width: 576px) {
+  .stat-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .stat-card__icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    font-size: 17px;
+  }
+
+  .stat-card__value {
+    font-size: 24px;
+  }
+
+  .stat-card__title {
+    font-size: 11px;
+  }
+}

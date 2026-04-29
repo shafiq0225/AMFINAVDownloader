@@ -1,17 +1,26 @@
-@use "../../../../styles/variables" as *;
-@use "../../../../styles/mixins" as *;
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
 
+// ── Overlay ───────────────────────────────────────────────────────
 .sidebar-overlay {
   display: none;
-  @include tablet {
+
+  @media (max-width: 768px) {
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0,0,0,0.55);
     z-index: $z-sidebar - 1;
+    animation: fadeIn 0.2s ease;
   }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────
 .sidebar {
   position: fixed;
   top: 0;
@@ -22,8 +31,10 @@
   display: flex;
   flex-direction: column;
   z-index: $z-sidebar;
-  transition: width 0.25s ease;
-  @include custom-scrollbar;
+  transition: width 0.25s ease, transform 0.25s ease;
+  overflow: hidden;
+
+  &::-webkit-scrollbar { width: 0; }
 
   &.collapsed {
     width: $sidebar-collapsed;
@@ -34,10 +45,11 @@
     }
   }
 
-  @include tablet {
+  // ← Mobile: hidden by default, slide in when open
+  @media (max-width: 768px) {
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
     width: $sidebar-width !important;
+    box-shadow: $shadow-lg;
 
     &.mobile-open {
       transform: translateX(0);
@@ -47,18 +59,22 @@
 
 // ── Logo ─────────────────────────────────────────────────────────
 .sidebar-logo {
-  @include flex-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 16px;
   height: $topbar-height;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
 }
 
 .logo-icon {
-  @include flex-center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255,255,255,0.15);
   border-radius: 8px;
   color: #fff;
   font-size: 16px;
@@ -74,21 +90,24 @@
   letter-spacing: 0.5px;
 }
 
-.collapse-btn,
-.expand-btn {
+.collapse-btn, .expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   background: transparent;
   border: none;
   color: $sidebar-text;
   cursor: pointer;
-  padding: 6px;
   border-radius: 6px;
   transition: $transition-fast;
-  @include flex-center;
+  flex-shrink: 0;
 
-  &:hover {
-    background: $sidebar-hover;
-    color: #fff;
-  }
+  &:hover { background: $sidebar-hover; color: #fff; }
+
+  // ← Hide collapse button on mobile (no need)
+  @media (max-width: 768px) { display: none; }
 }
 
 .expand-btn {
@@ -97,36 +116,36 @@
   height: 36px;
 }
 
-// ── User ─────────────────────────────────────────────────────────
+// ── User Info ─────────────────────────────────────────────────────
 .sidebar-user {
-  @include flex-start;
+  display: flex;
+  align-items: center;
   gap: 10px;
   padding: 16px;
   flex-shrink: 0;
 }
 
 .sidebar-user-collapsed {
-  @include flex-center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 12px 0;
 }
 
 .user-avatar {
-  @include flex-center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 38px;
   height: 38px;
   min-width: 38px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255,255,255,0.2);
   border-radius: 50%;
   color: #fff;
   font-size: 13px;
   font-weight: 700;
 
-  &-sm {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    font-size: 12px;
-  }
+  &-sm { width: 34px; height: 34px; min-width: 34px; }
 }
 
 .user-info {
@@ -139,7 +158,9 @@
   font-size: 13px;
   font-weight: 600;
   color: #fff;
-  @include truncate;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-role {
@@ -148,34 +169,29 @@
   margin-top: 1px;
 }
 
-// ── Divider ──────────────────────────────────────────────────────
+// ── Divider ───────────────────────────────────────────────────────
 .sidebar-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.08);
   margin: 4px 16px;
   flex-shrink: 0;
 }
 
-// ── Nav ──────────────────────────────────────────────────────────
+// ── Nav ───────────────────────────────────────────────────────────
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
   padding: 8px 0;
-  @include custom-scrollbar;
 
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
+  &::-webkit-scrollbar { width: 0; }
 
-  li {
-    padding: 2px 10px;
-  }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { padding: 2px 10px; }
 }
 
 .nav-item {
-  @include flex-start;
+  display: flex;
+  align-items: center;
   gap: 12px;
   width: 100%;
   padding: 10px 12px;
@@ -189,6 +205,10 @@
   transition: $transition-fast;
   position: relative;
   text-align: left;
+
+  @media (max-width: 768px) {
+    padding: 12px 14px;  // ← bigger tap target on mobile
+  }
 
   &:hover {
     background: $sidebar-hover;
@@ -209,9 +229,7 @@
   flex-shrink: 0;
 }
 
-.nav-label {
-  flex: 1;
-}
+.nav-label { flex: 1; }
 
 .active-indicator {
   position: absolute;
@@ -224,18 +242,18 @@
   border-radius: 2px 0 0 2px;
 }
 
-// ── Footer ───────────────────────────────────────────────────────
+// ── Footer ────────────────────────────────────────────────────────
 .sidebar-footer {
   flex-shrink: 0;
   padding-bottom: 8px;
 
   .logout-btn {
     margin: 4px 10px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255,255,255,0.5);
 
     &:hover {
       color: #ff6b6b;
-      background: rgba(231, 76, 60, 0.1);
+      background: rgba(231,76,60,0.1);
     }
   }
 }

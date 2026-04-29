@@ -202,3 +202,31 @@
     color: #8e44ad;
   }
 }
+// ── Responsive ────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .action-btns { flex-direction: column; gap: 4px; }
+
+  .action-btns .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .user-cell { gap: 8px; }
+  .user-avatar-sm { display: none; }
+
+  .pan-code {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+
+  .quick-action-btn {
+    padding: 10px 12px;
+    span { font-size: $font-size-sm; }
+  }
+}

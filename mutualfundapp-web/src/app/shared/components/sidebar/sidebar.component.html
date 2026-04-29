@@ -1,4 +1,4 @@
-<!-- Mobile overlay -->
+<!-- Mobile overlay backdrop -->
 <div class="sidebar-overlay" *ngIf="isMobileOpen" (click)="closeMobile()">
 </div>
 
@@ -10,13 +10,13 @@
             <i class="fas fa-chart-line"></i>
         </div>
         <span class="logo-text" *ngIf="!isCollapsed">AMFINAV</span>
-        <button class="collapse-btn" *ngIf="!isCollapsed" (click)="toggleCollapse()" title="Collapse sidebar">
+        <button class="collapse-btn" *ngIf="!isCollapsed" (click)="toggleCollapse()" title="Collapse">
             <i class="fas fa-chevron-left"></i>
         </button>
     </div>
 
     <!-- Expand button when collapsed -->
-    <button class="expand-btn" *ngIf="isCollapsed" (click)="toggleCollapse()" title="Expand sidebar">
+    <button class="expand-btn" *ngIf="isCollapsed" (click)="toggleCollapse()" title="Expand">
         <i class="fas fa-chevron-right"></i>
     </button>
 
@@ -34,7 +34,6 @@
         </div>
     </div>
 
-    <!-- Divider -->
     <div class="sidebar-divider"></div>
 
     <!-- Navigation -->
@@ -47,13 +46,14 @@
                     <span class="nav-label" *ngIf="!isCollapsed">
                         {{ item.label }}
                     </span>
-                    <span class="active-indicator" *ngIf="isActive(item.route)"></span>
+                    <span class="active-indicator" *ngIf="isActive(item.route) && !isCollapsed">
+                    </span>
                 </button>
             </li>
         </ul>
     </nav>
 
-    <!-- Bottom: Logout -->
+    <!-- Footer -->
     <div class="sidebar-footer">
         <div class="sidebar-divider"></div>
         <button class="nav-item logout-btn" (click)="logout()" [title]="isCollapsed ? 'Logout' : ''">

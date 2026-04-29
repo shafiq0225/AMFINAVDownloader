@@ -4,6 +4,7 @@ import {
   Output,
   EventEmitter,
   HostListener,
+  Input,
 } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -26,7 +27,13 @@ interface NavItem {
 })
 export class SidebarComponent implements OnInit {
   @Output() collapsedChange = new EventEmitter<boolean>();
+  @Input() set mobileOpen(val: boolean) { this.isMobileOpen = val; }
+  @Output() mobileClose = new EventEmitter<void>();
 
+  closeMobile(): void {
+    this.isMobileOpen = false;
+    this.mobileClose.emit();
+  }
   isCollapsed = false;
   isMobileOpen = false;
   activeRoute = '';
@@ -170,10 +177,6 @@ export class SidebarComponent implements OnInit {
 
   toggleMobile(): void {
     this.isMobileOpen = !this.isMobileOpen;
-  }
-
-  closeMobile(): void {
-    this.isMobileOpen = false;
   }
 
   isActive(route: string): boolean {

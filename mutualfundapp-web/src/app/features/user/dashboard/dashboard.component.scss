@@ -471,3 +471,15 @@
   letter-spacing: 1px;
   font-weight: 700;
 }
+@media (max-width: 768px) {
+  .profile-banner { flex-direction: column; gap: 16px; padding: 20px; }
+  .user-grid      { grid-template-columns: 1fr; }
+  .profile-banner__right { width: 100%; }
+  .quick-link     { padding: 10px 12px; }
+}
+
+@media (max-width: 576px) {
+  .profile-avatar { width: 48px; height: 48px; font-size: 16px; }
+  .profile-info h2{ font-size: $font-size-lg; }
+  .tag            { font-size: 10px; padding: 3px 8px; }
+}

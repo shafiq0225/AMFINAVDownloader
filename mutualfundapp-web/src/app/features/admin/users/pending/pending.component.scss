@@ -246,3 +246,26 @@ textarea.form-control {
   padding: 12px 14px;
   resize: vertical;
 }
+
+@media (max-width: 576px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .header-actions {
+    width: 100%;
+    .btn { flex: 1; justify-content: center; }
+  }
+
+  .pending-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pending-card__footer {
+    flex-direction: column;
+
+    .btn { width: 100%; }
+  }
+}

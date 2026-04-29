@@ -344,3 +344,22 @@
   margin: 0;
   line-height: 1.6;
 }
+@media (max-width: 768px) {
+  .family-grid {
+    grid-template-columns: 1fr;
+  }
+  .family-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .family-stats {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .page-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

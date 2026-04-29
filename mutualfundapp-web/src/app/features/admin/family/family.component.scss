@@ -6,11 +6,33 @@
   display: grid;
   grid-template-columns: 380px 1fr;
   gap: 20px;
-  height: calc(100vh - $topbar-height - 48px);
+  height: calc(100vh - #{$topbar-height} - 48px);
 
-  @include tablet {
+  @media (max-width: 1100px) {
     grid-template-columns: 1fr;
     height: auto;
+  }
+}
+
+// On mobile — show detail as full-screen overlay
+.detail-panel {
+  @include card;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 1100px) {
+    display: none;
+
+    &.visible {
+      display: flex;
+      position: fixed;
+      inset: 0;
+      z-index: $z-modal - 1;
+      border-radius: 0;
+      overflow-y: auto;
+    }
   }
 }
 

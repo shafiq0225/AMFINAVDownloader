@@ -361,3 +361,35 @@
     margin: 0;
   }
 }
+// ── Responsive NAV Table ──────────────────────────────────────────
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .date-group .form-control { width: 100%; }
+  .filter-actions { justify-content: flex-start; }
+  .filter-divider { display: none; }
+  .search-box     { min-width: 0; }
+
+  .nav-table {
+    font-size: $font-size-xs;
+
+    th, td { padding: 10px 8px; }
+
+    .col-scheme { min-width: 160px; }
+    .col-date   { width: 80px; }
+    .col-perf   { width: 80px; }
+  }
+
+  .report-strip {
+    gap: 12px;
+    font-size: $font-size-xs;
+  }
+}
+
+@media (max-width: 576px) {
+  .fund-name  { display: none; }  // ← hide fund name, only show scheme
+  .scheme-code { display: none; }  // ← hide code on very small screens
+}

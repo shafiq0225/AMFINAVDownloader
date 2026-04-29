@@ -1,7 +1,8 @@
 <div class="app-layout">
 
-  <!-- Sidebar must be here -->
-  <app-sidebar (collapsedChange)="onSidebarCollapse($event)">
+  <!-- Sidebar — pass mobile open state -->
+  <app-sidebar [mobileOpen]="isMobileSidebarOpen" (collapsedChange)="onSidebarCollapse($event)"
+    (mobileClose)="isMobileSidebarOpen = false">
   </app-sidebar>
 
   <!-- Main content -->
