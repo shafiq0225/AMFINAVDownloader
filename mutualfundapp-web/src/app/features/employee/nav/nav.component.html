@@ -60,112 +60,115 @@
 </div>
 
 <!-- NAV Report Table -->
-<div class="table-container nav-report" *ngIf="!loading && navData">
+<div class="nav-report-wrap" *ngIf="!loading && navData">
+    <div class="table-container nav-report">
 
-    <!-- Summary strip -->
-    <div class="report-strip">
-        <div class="strip-item">
-            <i class="fas fa-calendar-day"></i>
-            <span>Period:</span>
-            <strong>{{ startDateLabel }} → {{ endDateLabel }}</strong>
+        <!-- Summary strip -->
+        <div class="report-strip">
+            <div class="strip-item">
+                <i class="fas fa-calendar-day"></i>
+                <span>Period:</span>
+                <strong>{{ startDateLabel }} → {{ endDateLabel }}</strong>
+            </div>
+            <div class="strip-item">
+                <i class="fas fa-building-columns"></i>
+                <span>Total Schemes:</span>
+                <strong>{{ filtered.length }}</strong>
+            </div>
+            <div class="strip-item">
+                <i class="fas fa-arrow-trend-up"></i>
+                <span>Growing:</span>
+                <strong class="text-success">
+                    {{ filtered | navGrowCount:true }}
+                </strong>
+            </div>
+            <div class="strip-item">
+                <i class="fas fa-arrow-trend-down"></i>
+                <span>Declining:</span>
+                <strong class="text-danger">
+                    {{ filtered | navGrowCount:false }}
+                </strong>
+            </div>
         </div>
-        <div class="strip-item">
-            <i class="fas fa-building-columns"></i>
-            <span>Total Schemes:</span>
-            <strong>{{ filtered.length }}</strong>
-        </div>
-        <div class="strip-item">
-            <i class="fas fa-arrow-trend-up"></i>
-            <span>Growing:</span>
-            <strong class="text-success">
-                {{ filtered | navGrowCount:true }}
-            </strong>
-        </div>
-        <div class="strip-item">
-            <i class="fas fa-arrow-trend-down"></i>
-            <span>Declining:</span>
-            <strong class="text-danger">
-                {{ filtered | navGrowCount:false }}
-            </strong>
-        </div>
-    </div>
 
-    <table class="table nav-table">
-        <thead>
-            <tr>
-                <th class="col-rank">Rank</th>
-                <th class="col-scheme">Scheme Name</th>
-                <th class="col-date">
-                    Start Date<br>
-                    <span class="date-sub">{{ startDateLabel }}</span>
-                </th>
-                <th class="col-date">
-                    End Date<br>
-                    <span class="date-sub">{{ endDateLabel }}</span>
-                </th>
-                <th class="col-perf">Performance</th>
-            </tr>
-        </thead>
-        <tbody>
-            <ng-container *ngFor="let group of groupedSchemes()">
-                <tr *ngFor="let scheme of group.schemes; let first = first" [class.row-top1]="group.rank === 1"
-                    [class.row-top2]="group.rank === 2" [class.row-top3]="group.rank === 3">
-
-                    <!-- Rank -->
-                    <td class="col-rank">
-                        <div class="rank-cell">
-                            <div class="rank-number" [class.r1]="group.rank === 1" [class.r2]="group.rank === 2"
-                                [class.r3]="group.rank === 3">
-                                {{ group.rank }}
-                            </div>
-                            <span class="top-label" *ngIf="first && group.rank <= 3">
-                                {{ getRankLabel(group.rank) }}
-                            </span>
-                        </div>
-                    </td>
-
-                    <!-- Scheme Name -->
-                    <td class="col-scheme">
-                        <div class="scheme-cell">
-                            <span class="scheme-name">{{ scheme.schemeName }}</span>
-                            <span class="fund-name">{{ scheme.fundName }}</span>
-                            <code class="scheme-code">{{ scheme.schemeCode }}</code>
-                        </div>
-                    </td>
-
-                    <!-- Start Date NAV -->
-                    <td class="col-date">
-                        <div class="nav-cell-data" *ngIf="getStartEntry(scheme) as start">
-                            <span class="nav-value">{{ start.nav | number:'1.2-2' }}</span>
-                            <span class="nav-pct" [class.pct-positive]="start.isGrowth"
-                                [class.pct-negative]="!start.isGrowth">
-                                {{ start.percentage }}%
-                            </span>
-                        </div>
-                    </td>
-
-                    <!-- End Date NAV -->
-                    <td class="col-date">
-                        <div class="nav-cell-data" *ngIf="getEndEntry(scheme) as end">
-                            <span class="nav-value">{{ end.nav | number:'1.2-2' }}</span>
-                            <span class="nav-pct" [class.pct-positive]="end.isGrowth"
-                                [class.pct-negative]="!end.isGrowth">
-                                {{ end.percentage }}%
-                            </span>
-                        </div>
-                    </td>
-
-                    <!-- Performance -->
-                    <td class="col-perf">
-                        <div class="perf-cell" [class.perf-up]="isGrowth(scheme)" [class.perf-down]="!isGrowth(scheme)">
-                            <i class="fas" [class.fa-arrow-up]="isGrowth(scheme)"
-                                [class.fa-arrow-down]="!isGrowth(scheme)">
-                            </i>
-                            <span>{{ getPerformance(scheme) }}%</span>
-                        </div>
-                    </td>
+        <table class="table nav-table">
+            <thead>
+                <tr>
+                    <th class="col-rank">Rank</th>
+                    <th class="col-scheme">Scheme Name</th>
+                    <th class="col-date">
+                        Start Date<br>
+                        <span class="date-sub">{{ startDateLabel }}</span>
+                    </th>
+                    <th class="col-date">
+                        End Date<br>
+                        <span class="date-sub">{{ endDateLabel }}</span>
+                    </th>
+                    <th class="col-perf">Performance</th>
                 </tr>
-            </ng-container>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let group of groupedSchemes()">
+                    <tr *ngFor="let scheme of group.schemes; let first = first" [class.row-top1]="group.rank === 1"
+                        [class.row-top2]="group.rank === 2" [class.row-top3]="group.rank === 3">
+
+                        <!-- Rank -->
+                        <td class="col-rank">
+                            <div class="rank-cell">
+                                <div class="rank-number" [class.r1]="group.rank === 1" [class.r2]="group.rank === 2"
+                                    [class.r3]="group.rank === 3">
+                                    {{ group.rank }}
+                                </div>
+                                <span class="top-label" *ngIf="first && group.rank <= 3">
+                                    {{ getRankLabel(group.rank) }}
+                                </span>
+                            </div>
+                        </td>
+
+                        <!-- Scheme Name -->
+                        <td class="col-scheme">
+                            <div class="scheme-cell">
+                                <span class="scheme-name">{{ scheme.schemeName }}</span>
+                                <span class="fund-name">{{ scheme.fundName }}</span>
+                                <code class="scheme-code">{{ scheme.schemeCode }}</code>
+                            </div>
+                        </td>
+
+                        <!-- Start Date NAV -->
+                        <td class="col-date">
+                            <div class="nav-cell-data" *ngIf="getStartEntry(scheme) as start">
+                                <span class="nav-value">{{ start.nav | number:'1.2-2' }}</span>
+                                <span class="nav-pct" [class.pct-positive]="start.isGrowth"
+                                    [class.pct-negative]="!start.isGrowth">
+                                    {{ start.percentage }}%
+                                </span>
+                            </div>
+                        </td>
+
+                        <!-- End Date NAV -->
+                        <td class="col-date">
+                            <div class="nav-cell-data" *ngIf="getEndEntry(scheme) as end">
+                                <span class="nav-value">{{ end.nav | number:'1.2-2' }}</span>
+                                <span class="nav-pct" [class.pct-positive]="end.isGrowth"
+                                    [class.pct-negative]="!end.isGrowth">
+                                    {{ end.percentage }}%
+                                </span>
+                            </div>
+                        </td>
+
+                        <!-- Performance -->
+                        <td class="col-perf">
+                            <div class="perf-cell" [class.perf-up]="isGrowth(scheme)"
+                                [class.perf-down]="!isGrowth(scheme)">
+                                <i class="fas" [class.fa-arrow-up]="isGrowth(scheme)"
+                                    [class.fa-arrow-down]="!isGrowth(scheme)">
+                                </i>
+                                <span>{{ getPerformance(scheme) }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
 </div>

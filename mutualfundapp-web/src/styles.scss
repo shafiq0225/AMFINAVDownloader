@@ -162,10 +162,13 @@ a { text-decoration: none; color: $primary-light; }
   border-radius: $card-radius;
   box-shadow: $shadow-card;
   border: 1px solid $border;
-  overflow: hidden;
+  overflow: hidden;              // ← keep for desktop
 
+  // ← Mobile: allow horizontal scroll
   @media (max-width: 768px) {
     overflow-x: auto;
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
+    border-radius: $card-radius;
   }
 }
