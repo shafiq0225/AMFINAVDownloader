@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-    CanActivate, ActivatedRouteSnapshot, Router
-} from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 
@@ -21,16 +19,8 @@ export class RoleGuard implements CanActivate {
             return true;
         }
 
-        this.toastr.error('Access denied for your role.');
-        this.router.navigate([this.getDashboardRoute(userRole)]);
+        // ← navigate to /unauthorized instead of showing a toast only
+        this.router.navigate(['/unauthorized']);
         return false;
-    }
-
-    private getDashboardRoute(role: string): string {
-        switch (role) {
-            case 'Admin': return '/admin/dashboard';
-            case 'Employee': return '/employee/dashboard';
-            default: return '/user/dashboard';
-        }
     }
 }

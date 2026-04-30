@@ -1,0 +1,61 @@
+<div class="error-page">
+    <!-- Animated background -->
+    <div class="error-bg">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
+    <div class="error-content">
+        <!-- Brand -->
+        <div class="error-brand">
+            <div class="brand-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <span>AMFINAV</span>
+        </div>
+
+        <!-- Error code -->
+        <div class="error-code">
+            <span class="digit">4</span>
+            <div class="digit-icon">
+                <i class="fas fa-file-circle-question"></i>
+            </div>
+            <span class="digit">4</span>
+        </div>
+
+        <!-- Message -->
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-message">
+            The page you're looking for doesn't exist or has been moved.
+            <br>
+            Check the URL or navigate back to safety.
+        </p>
+
+        <!-- Actions -->
+        <div class="error-actions">
+            <button class="btn-error-primary" (click)="goHome()">
+                <i class="fas fa-house"></i>
+                Go to Dashboard
+            </button>
+            <button class="btn-error-secondary" (click)="goBack()">
+                <i class="fas fa-arrow-left"></i>
+                Go Back
+            </button>
+        </div>
+
+        <!-- Help links -->
+        <div class="error-links">
+            <span>Looking for something?</span>
+            <a routerLink="/auth/login" *ngIf="!authService.isLoggedIn">
+                <i class="fas fa-right-to-bracket"></i> Login
+            </a>
+            <a [routerLink]="['/admin/dashboard']" *ngIf="authService.userRole === 'Admin'">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </a>
+            <a [routerLink]="['/admin/users']" *ngIf="authService.userRole === 'Admin'">
+                <i class="fas fa-users"></i> Users
+            </a>
+        </div>
+    </div>
+</div>

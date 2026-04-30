@@ -1,0 +1,379 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.error-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a0a3d 0%, #2d1b69 50%, #1f4e79 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+}
+
+// ── Animated circles ──────────────────────────────────────────────
+.error-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  animation: float 8s ease-in-out infinite;
+
+  &-1 {
+    width: 500px;
+    height: 500px;
+    top: -120px;
+    right: -120px;
+    animation-delay: 0s;
+  }
+  &-2 {
+    width: 300px;
+    height: 300px;
+    bottom: -80px;
+    left: -80px;
+    animation-delay: -3s;
+  }
+  &-3 {
+    width: 200px;
+    height: 200px;
+    top: 30%;
+    right: 20%;
+    animation-delay: -6s;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.04);
+  }
+}
+
+// ── Content ───────────────────────────────────────────────────────
+.error-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 560px;
+  width: 100%;
+}
+
+// ── Brand ─────────────────────────────────────────────────────────
+.error-brand {
+  @include flex-center;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.brand-icon {
+  @include flex-center;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.error-brand span {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+// ── Lock Icon ─────────────────────────────────────────────────────
+.lock-container {
+  position: relative;
+  @include flex-center;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 24px;
+}
+
+.lock-icon {
+  @include flex-center;
+  width: 80px;
+  height: 80px;
+  background: rgba(231, 76, 60, 0.2);
+  border: 2px solid rgba(231, 76, 60, 0.4);
+  border-radius: 50%;
+  font-size: 34px;
+  color: #ff6b6b;
+  position: relative;
+  z-index: 1;
+  animation: lockPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes lockPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.lock-rings {
+  position: absolute;
+  inset: 0;
+  @include flex-center;
+}
+
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(231, 76, 60, 0.2);
+  animation: ringExpand 2.5s ease-out infinite;
+
+  &-1 {
+    width: 100px;
+    height: 100px;
+    animation-delay: 0s;
+  }
+  &-2 {
+    width: 120px;
+    height: 120px;
+    animation-delay: 0.8s;
+  }
+}
+
+@keyframes ringExpand {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+// ── Error code ────────────────────────────────────────────────────
+.error-code-text {
+  font-size: 72px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.15);
+  line-height: 1;
+  margin-bottom: 8px;
+  letter-spacing: 8px;
+
+  @media (max-width: 576px) {
+    font-size: 52px;
+  }
+}
+
+// ── Text ──────────────────────────────────────────────────────────
+.error-title {
+  font-size: $font-size-2xl;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16px;
+
+  @media (max-width: 576px) {
+    font-size: $font-size-xl;
+  }
+}
+
+// ── User context ──────────────────────────────────────────────────
+.user-context {
+  @include flex-center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 30px;
+  width: fit-content;
+  margin: 0 auto 20px;
+}
+
+.context-avatar {
+  @include flex-center;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.context-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.context-name {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.context-role {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.error-message {
+  font-size: $font-size-base;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.7;
+  margin-bottom: 28px;
+
+  @media (max-width: 576px) {
+    font-size: $font-size-sm;
+  }
+}
+
+// ── Permission info box ───────────────────────────────────────────
+.permission-box {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.permission-box__header {
+  @include flex-start;
+  gap: 8px;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 12px;
+
+  i {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.permission-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    @include flex-start;
+    gap: 10px;
+    font-size: $font-size-sm;
+    color: rgba(255, 255, 255, 0.65);
+
+    strong {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .fa-circle-xmark {
+      color: rgba(231, 76, 60, 0.8);
+      flex-shrink: 0;
+    }
+    .fa-circle-check {
+      color: rgba(46, 204, 113, 0.8);
+      flex-shrink: 0;
+    }
+  }
+}
+
+// ── Actions ───────────────────────────────────────────────────────
+.error-actions {
+  @include flex-center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.btn-error-primary {
+  @include flex-center;
+  gap: 8px;
+  padding: 13px 28px;
+  background: #fff;
+  color: $primary;
+  border: none;
+  border-radius: $button-radius;
+  font-size: $font-size-base;
+  font-weight: 700;
+  font-family: $font-family;
+  cursor: pointer;
+  transition: $transition-fast;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background: $page-bg;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+}
+
+.btn-error-secondary {
+  @include flex-center;
+  gap: 8px;
+  padding: 13px 28px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: $button-radius;
+  font-size: $font-size-base;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+  transition: $transition-fast;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+}
+
+// ── Logout hint ───────────────────────────────────────────────────
+.logout-hint {
+  @include flex-center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.45);
+
+  button {
+    @include flex-center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: $font-size-sm;
+    font-family: $font-family;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: $transition-fast;
+
+    &:hover {
+      color: #ff6b6b;
+      border-color: rgba(231, 76, 60, 0.3);
+      background: rgba(231, 76, 60, 0.08);
+    }
+  }
+}

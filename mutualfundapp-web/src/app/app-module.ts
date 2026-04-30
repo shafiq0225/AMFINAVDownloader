@@ -10,12 +10,16 @@ import { NavChartComponent } from './shared/components/nav-chart/nav-chart.compo
 import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog.component';
 import { CoreModule } from './core/core.module';
 import { LayoutModule } from './layout/layout.module';
+import { NotFoundComponent } from './shared/components/not-found/not-found.component';
+import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     // NavChartComponent,
     ConfirmDialogComponent,
+    NotFoundComponent,
+    UnauthorizedComponent,
   ],
   imports: [
     BrowserModule,

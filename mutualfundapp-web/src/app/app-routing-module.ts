@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
+import { NotFoundComponent } from './shared/components/not-found/not-found.component';
 
 const routes: Routes = [
   // ── Public (no layout) ────────────────────────────────────────
@@ -11,6 +13,10 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/auth/auth.module').then(m => m.AuthModule)
   },
+
+  // ── Standalone pages (no sidebar) ─────────────────────────────
+  { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: 'not-found', component: NotFoundComponent },
 
   // ── Protected (wrapped in sidebar + topbar) ───────────────────
   {

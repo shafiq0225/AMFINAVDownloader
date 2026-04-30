@@ -1,0 +1,95 @@
+<div class="error-page error-page-403">
+    <!-- Animated background -->
+    <div class="error-bg">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+
+    <div class="error-content">
+        <!-- Brand -->
+        <div class="error-brand">
+            <div class="brand-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <span>AMFINAV</span>
+        </div>
+
+        <!-- Lock icon -->
+        <div class="lock-container">
+            <div class="lock-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="lock-rings">
+                <div class="ring ring-1"></div>
+                <div class="ring ring-2"></div>
+            </div>
+        </div>
+
+        <!-- Error code -->
+        <div class="error-code-text">403</div>
+
+        <!-- Message -->
+        <h1 class="error-title">Access Denied</h1>
+
+        <div class="user-context" *ngIf="authService.isLoggedIn">
+            <div class="context-avatar">
+                {{ userName[0] }}
+            </div>
+            <div class="context-info">
+                <span class="context-name">{{ userName }}</span>
+                <span class="context-role">{{ userRole }} account</span>
+            </div>
+        </div>
+
+        <p class="error-message">
+            You don't have permission to access this page.
+            <br>
+            Contact your Admin to request the required permissions.
+        </p>
+
+        <!-- What you need -->
+        <div class="permission-box">
+            <div class="permission-box__header">
+                <i class="fas fa-circle-info"></i>
+                Why am I seeing this?
+            </div>
+            <ul class="permission-list">
+                <li>
+                    <i class="fas fa-circle-xmark"></i>
+                    Your role (<strong>{{ userRole }}</strong>) doesn't have access
+                    to this section
+                </li>
+                <li>
+                    <i class="fas fa-circle-xmark"></i>
+                    The required permission hasn't been granted by Admin
+                </li>
+                <li>
+                    <i class="fas fa-circle-check"></i>
+                    Contact your Admin to get access
+                </li>
+            </ul>
+        </div>
+
+        <!-- Actions -->
+        <div class="error-actions">
+            <button class="btn-error-primary" (click)="goHome()">
+                <i class="fas fa-house"></i>
+                My Dashboard
+            </button>
+            <button class="btn-error-secondary" (click)="goBack()">
+                <i class="fas fa-arrow-left"></i>
+                Go Back
+            </button>
+        </div>
+
+        <!-- Logout option -->
+        <div class="logout-hint" *ngIf="authService.isLoggedIn">
+            <span>Wrong account?</span>
+            <button (click)="logout()">
+                <i class="fas fa-right-from-bracket"></i>
+                Sign out and use a different account
+            </button>
+        </div>
+    </div>
+</div>
