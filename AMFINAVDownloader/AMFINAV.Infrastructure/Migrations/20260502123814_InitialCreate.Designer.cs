@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AMFINAV.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260407022712_InitialCreate")]
+    [Migration("20260502123814_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
