@@ -8,8 +8,6 @@
         public string TraceId { get; set; } = string.Empty;
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
-        public IReadOnlyDictionary<string, string[]>?
-            ValidationErrors
-        { get; set; }
+        public IReadOnlyDictionary<string, string[]>? ValidationErrors { get; set; }
     }
 }

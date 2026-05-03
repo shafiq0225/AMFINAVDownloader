@@ -119,6 +119,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<NavFileConsumer>();
+
     x.UsingRabbitMq((ctx, cfg) =>
     {
         cfg.Host(
@@ -132,11 +133,6 @@ builder.Services.AddMassTransit(x =>
 
         cfg.ReceiveEndpoint("nav-file-processed-app2", e =>
         {
-            e.ConfigureConsumeTopology = false;
-            e.Bind("AMFINAV.Domain.Contracts:NavFileProcessedEvent", b =>
-            {
-                b.ExchangeType = "fanout";
-            });
             e.ConfigureConsumer<NavFileConsumer>(ctx);
         });
     });
