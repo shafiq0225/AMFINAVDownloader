@@ -4,9 +4,9 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Production"
       },
-      "applicationUrl": "https://localhost:7000;http://localhost:5000"
+      "applicationUrl": "https://app-amfinav-gateway.azurewebsites.net"
     }
   }
 }

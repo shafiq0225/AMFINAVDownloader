@@ -1,6 +1,38 @@
 {
   "Routes": [
     {
+      "RouteId": "root-redirect",
+      "UpstreamPathTemplate": "/",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7001
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": ""
+      }
+    },
+    {
+      "RouteId": "swagger-ui",
+      "UpstreamPathTemplate": "/swagger/{everything}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/swagger/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7001
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": ""
+      }
+    },
+    {
       "RouteId": "auth-login",
       "UpstreamPathTemplate": "/api/auth/login",
       "DownstreamPathTemplate": "/api/auth/login",
@@ -8,11 +40,13 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": ""
+      }
     },
     {
       "RouteId": "auth-register",
@@ -22,11 +56,13 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": ""
+      }
     },
     {
       "RouteId": "auth-refresh",
@@ -36,11 +72,13 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": ""
+      }
     },
     {
       "RouteId": "auth-logout",
@@ -50,11 +88,13 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     },
     {
       "RouteId": "auth-change-password",
@@ -64,11 +104,13 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     },
     {
       "RouteId": "users-all",
@@ -78,12 +120,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "users-pending",
@@ -93,12 +139,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "users-me",
@@ -108,11 +158,13 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     },
     {
       "RouteId": "users-approve",
@@ -122,12 +174,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "users-reject",
@@ -137,12 +193,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "users-role",
@@ -152,12 +212,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "users-by-id",
@@ -167,12 +231,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "permissions-all",
@@ -182,12 +250,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "permissions-assign",
@@ -197,12 +269,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "permissions-revoke",
@@ -212,12 +288,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "permissions-user",
@@ -227,12 +307,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "family-get-all",
@@ -242,12 +326,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "family-create",
@@ -257,12 +345,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "family-by-id",
@@ -272,12 +364,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "family-add-member",
@@ -287,12 +383,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "family-remove-member",
@@ -302,12 +402,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-authapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7001
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "role": "Admin" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
     },
     {
       "RouteId": "scheme-get-all",
@@ -317,12 +421,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-schemeapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7002
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "permissions": "scheme.read" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "permissions": "scheme.read"
+      }
     },
     {
       "RouteId": "scheme-create",
@@ -332,12 +440,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-schemeapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7002
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "permissions": "scheme.create" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "permissions": "scheme.create"
+      }
     },
     {
       "RouteId": "scheme-approved",
@@ -347,12 +459,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-schemeapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7002
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "permissions": "scheme.read" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "permissions": "scheme.read"
+      }
     },
     {
       "RouteId": "scheme-by-code",
@@ -362,12 +478,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-schemeapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7002
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "permissions": "scheme.read" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "permissions": "scheme.read"
+      }
     },
     {
       "RouteId": "scheme-update",
@@ -377,12 +497,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-schemeapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7002
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "permissions": "scheme.update" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "permissions": "scheme.update"
+      }
     },
     {
       "RouteId": "fund-approval",
@@ -392,12 +516,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-schemeapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7002
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "permissions": "fund.approval" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "permissions": "fund.approval"
+      }
     },
     {
       "RouteId": "nav-comparison",
@@ -407,12 +535,16 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-schemeapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7002
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "permissions": "nav.read" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "permissions": "nav.read"
+      }
     },
     {
       "RouteId": "nav-comparison-daily",
@@ -422,15 +554,19 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "app-amfinav-schemeapi.azurewebsites.net",
-          "Port": 443
+          "Host": "localhost",
+          "Port": 7002
         }
       ],
-      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
-      "RouteClaimsRequirement": { "permissions": "nav.read" }
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "permissions": "nav.read"
+      }
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://app-amfinav-gateway.azurewebsites.net"
+    "BaseUrl": "https://localhost:7000"
   }
 }

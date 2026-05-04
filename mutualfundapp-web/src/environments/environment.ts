@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://localhost:7000'  // ← Ocelot Gateway
+  apiUrl: 'https://app-amfinav-gateway.azurewebsites.net'  // ← Ocelot Gateway
 };
