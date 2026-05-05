@@ -22,6 +22,7 @@ export class AdminNavComponent implements OnInit {
   searchCtrl = new FormControl('');
   startDate = new FormControl('');
   endDate = new FormControl('');
+  expandedSchemes = new Set<string>();
 
   constructor(
     private navService: NavService,
@@ -155,4 +156,17 @@ export class AdminNavComponent implements OnInit {
     return new Date(last.date)
       .toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' });
   }
+
+  toggleScheme(schemeCode: string): void {
+    if (this.expandedSchemes.has(schemeCode)) {
+      this.expandedSchemes.delete(schemeCode);
+    } else {
+      this.expandedSchemes.add(schemeCode);
+    }
+  }
+
+  isExpanded(schemeCode: string): boolean {
+    return this.expandedSchemes.has(schemeCode);
+  }
+
 }

@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-production-gateway.com'
+  apiUrl: 'https://app-amfinav-gateway.azurewebsites.net'  // ← Azure gateway
 };
