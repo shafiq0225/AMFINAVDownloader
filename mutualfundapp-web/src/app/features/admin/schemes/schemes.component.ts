@@ -5,37 +5,38 @@ import { SchemeEnrollmentDto } from '../../../core/models/scheme.model';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-  selector:    'app-schemes',
+  selector: 'app-schemes',
   templateUrl: './schemes.component.html',
-  styleUrls:   ['./schemes.component.scss'],
-  standalone:  false
+  styleUrls: ['./schemes.component.scss'],
+  standalone: false
 })
 export class SchemesComponent implements OnInit {
   // Data
-  allSchemes:  SchemeEnrollmentDto[] = [];
-  filtered:    SchemeEnrollmentDto[] = [];
+  allSchemes: SchemeEnrollmentDto[] = [];
+  filtered: SchemeEnrollmentDto[] = [];
+  expandedCodes = new Set<string>();
 
   // UI state
-  loading         = true;
+  loading = true;
   showCreateModal = false;
-  showEditModal   = false;
-  editingScheme:  SchemeEnrollmentDto | null = null;
-  submitting      = false;
+  showEditModal = false;
+  editingScheme: SchemeEnrollmentDto | null = null;
+  submitting = false;
 
   // Filters
-  searchCtrl  = new FormControl('');
-  statusFilter= new FormControl('all');
+  searchCtrl = new FormControl('');
+  statusFilter = new FormControl('all');
 
   // Forms
   createForm!: FormGroup;
-  editForm!:   FormGroup;
+  editForm!: FormGroup;
 
   constructor(
     private schemeService: SchemeService,
-    private fb:            FormBuilder,
-    private toastr:        ToastrService,
-    private cdr:           ChangeDetectorRef
-  ) {}
+    private fb: FormBuilder,
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.initForms();
@@ -70,7 +71,7 @@ export class SchemesComponent implements OnInit {
       next: (schemes) => {
         this.allSchemes = schemes;
         this.applyFilters();
-        this.loading    = false;
+        this.loading = false;
         this.cdr.detectChanges();
       },
       error: () => {
@@ -157,8 +158,8 @@ export class SchemesComponent implements OnInit {
   }
 
   closeEditModal(): void {
-    this.showEditModal  = false;
-    this.editingScheme  = null;
+    this.showEditModal = false;
+    this.editingScheme = null;
   }
 
   submitEdit(): void {
@@ -192,7 +193,7 @@ export class SchemesComponent implements OnInit {
   // ── Toggle Approval ───────────────────────────────────────────
   toggleApproval(scheme: SchemeEnrollmentDto): void {
     const newStatus = !scheme.isApproved;
-    const action    = newStatus ? 'approve' : 'deactivate';
+    const action = newStatus ? 'approve' : 'deactivate';
 
     if (!confirm(
       `${newStatus ? 'Approve' : 'Deactivate'} scheme '${scheme.schemeName}'?`
@@ -219,7 +220,7 @@ export class SchemesComponent implements OnInit {
   get cf() { return this.createForm.controls; }
   get ef() { return this.editForm.controls; }
 
-  get totalCount():    number {
+  get totalCount(): number {
     return this.allSchemes.length;
   }
   get activeCount(): number {
@@ -227,5 +228,12 @@ export class SchemesComponent implements OnInit {
   }
   get inactiveCount(): number {
     return this.allSchemes.filter(s => !s.isApproved).length;
+  }
+
+  // Accordion (mobile)
+  toggleExpand(code: string): void {
+    this.expandedCodes.has(code)
+      ? this.expandedCodes.delete(code)
+      : this.expandedCodes.add(code);
   }
 }

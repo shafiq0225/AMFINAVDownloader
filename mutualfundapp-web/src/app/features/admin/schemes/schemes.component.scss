@@ -1,5 +1,5 @@
-@use '../../../../styles/variables' as *;
-@use '../../../../styles/mixins' as *;
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
 
 // ── Page Header ───────────────────────────────────────────────────
 .page-header {
@@ -7,8 +7,16 @@
   margin-bottom: 24px;
   align-items: flex-start;
 
-  h2 { font-size: $font-size-xl; color: $primary; margin-bottom: 4px; }
-  p  { font-size: $font-size-sm; color: $text-muted; margin: 0; }
+  h2 {
+    font-size: $font-size-xl;
+    color: $primary;
+    margin-bottom: 4px;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+  }
 }
 
 // ── Filters ───────────────────────────────────────────────────────
@@ -34,7 +42,9 @@
   font-size: 13px;
 }
 
-.search-input { padding-left: 40px !important; }
+.search-input {
+  padding-left: 40px !important;
+}
 
 .filter-select {
   width: 160px;
@@ -51,7 +61,7 @@
 
 // ── Table ─────────────────────────────────────────────────────────
 .scheme-code {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 13px;
   font-weight: 700;
   background: rgba($primary, 0.06);
@@ -97,17 +107,26 @@
   &-primary {
     background: rgba($primary, 0.1);
     color: $primary;
-    &:hover { background: $primary; color: #fff; }
+    &:hover {
+      background: $primary;
+      color: #fff;
+    }
   }
   &-success {
     background: $success-light;
     color: $success;
-    &:hover { background: $success; color: #fff; }
+    &:hover {
+      background: $success;
+      color: #fff;
+    }
   }
   &-warning {
     background: $warning-light;
     color: $warning-dark;
-    &:hover { background: $warning; color: #fff; }
+    &:hover {
+      background: $warning;
+      color: #fff;
+    }
   }
 }
 
@@ -117,9 +136,21 @@
   padding: 60px 20px;
   color: $text-muted;
 
-  i  { font-size: 48px; margin-bottom: 16px; opacity: 0.25; display: block; }
-  h3 { font-size: $font-size-lg; color: $text-secondary; margin-bottom: 8px; }
-  p  { font-size: $font-size-sm; margin: 0; }
+  i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.25;
+    display: block;
+  }
+  h3 {
+    font-size: $font-size-lg;
+    color: $text-secondary;
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: $font-size-sm;
+    margin: 0;
+  }
 }
 
 // ── Toggle Switch ─────────────────────────────────────────────────
@@ -133,7 +164,10 @@
   transition: $transition-fast;
   gap: 16px;
 
-  &:hover { border-color: $primary-light; background: rgba($primary, 0.02); }
+  &:hover {
+    border-color: $primary-light;
+    background: rgba($primary, 0.02);
+  }
 }
 
 .toggle-info {
@@ -153,7 +187,9 @@
   color: $text-muted;
 }
 
-.toggle-control { flex-shrink: 0; }
+.toggle-control {
+  flex-shrink: 0;
+}
 
 .toggle-input {
   display: none;
@@ -161,7 +197,9 @@
   &:checked + .toggle-switch {
     background: $accent;
 
-    &::after { transform: translateX(20px); }
+    &::after {
+      transform: translateX(20px);
+    }
   }
 }
 
@@ -176,7 +214,7 @@
   cursor: pointer;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 3px;
     left: 3px;
@@ -185,7 +223,7 @@
     background: #fff;
     border-radius: 50%;
     transition: $transition-fast;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -193,7 +231,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: $z-modal;
   @include flex-center;
   padding: 20px;
@@ -201,8 +239,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
@@ -216,8 +258,14 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
@@ -245,7 +293,10 @@
   color: $text-muted;
   transition: $transition-fast;
 
-  &:hover { background: $danger-light; color: $danger; }
+  &:hover {
+    background: $danger-light;
+    color: $danger;
+  }
 }
 
 .modal-body {
@@ -301,7 +352,9 @@
   pointer-events: none;
 }
 
-.form-control { padding-left: 42px !important; }
+.form-control {
+  padding-left: 42px !important;
+}
 
 // ── Info box ──────────────────────────────────────────────────────
 .info-box {
@@ -314,12 +367,181 @@
   padding: 14px 16px;
   margin-top: 16px;
 
-  > i { color: $primary-light; font-size: 16px; margin-top: 2px; }
+  > i {
+    color: $primary-light;
+    font-size: 16px;
+    margin-top: 2px;
+  }
 
   p {
     font-size: $font-size-sm;
     color: $text-secondary;
     margin: 0;
     line-height: 1.6;
+  }
+}
+
+// ── Desktop / Mobile visibility ───────────────────────────────────
+.desktop-table {
+  display: table;
+}
+.accordion-list {
+  display: none;
+}
+
+@include mobile {
+  .desktop-table {
+    display: none;
+  }
+  .accordion-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+}
+
+// ── Accordion Card ────────────────────────────────────────────────
+.accordion-card {
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: $transition-fast;
+
+  &.is-expanded {
+    border-color: $primary-light;
+    box-shadow: 0 0 0 3px rgba(46, 117, 182, 0.08);
+
+    .accordion-chevron {
+      transform: rotate(180deg);
+    }
+    .accordion-body {
+      max-height: 300px;
+      opacity: 1;
+      padding: 12px 16px 16px;
+    }
+  }
+}
+
+// ── Accordion Header ──────────────────────────────────────────────
+.accordion-header {
+  @include flex-between;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    background: $hover-bg;
+  }
+
+  &__left {
+    @include flex-start;
+    gap: 10px;
+    min-width: 0; // allow text to shrink
+    flex: 1;
+  }
+
+  &__right {
+    @include flex-start;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+}
+
+.accordion-index {
+  font-size: $font-size-xs;
+  font-weight: 600;
+  min-width: 16px;
+  flex-shrink: 0;
+}
+
+.accordion-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.accordion-name {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  font-weight: 500;
+  // Clamp to 2 lines so card stays compact when collapsed
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.accordion-chevron {
+  font-size: 12px;
+  color: $text-muted;
+  transition: transform 0.2s ease;
+}
+
+// ── Accordion Body ────────────────────────────────────────────────
+.accordion-body {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 16px;
+  transition:
+    max-height 0.25s ease,
+    opacity 0.2s ease,
+    padding 0.2s ease;
+  border-top: 1px solid $border;
+}
+
+.accordion-detail-row {
+  @include flex-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed $border;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.accordion-detail-label {
+  font-size: $font-size-xs;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.accordion-detail-value {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+// ── Accordion Action Buttons ──────────────────────────────────────
+.accordion-actions {
+  @include flex-start;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.btn-success-soft {
+  background: $success-light;
+  color: $success;
+  border: 1.5px solid rgba($success, 0.3);
+  &:hover {
+    background: $success;
+    color: #fff;
+  }
+}
+
+.btn-warning-soft {
+  background: $warning-light;
+  color: $warning-dark;
+  border: 1.5px solid rgba($warning, 0.3);
+  &:hover {
+    background: $warning;
+    color: #fff;
   }
 }
