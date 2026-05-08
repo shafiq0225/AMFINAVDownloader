@@ -10,6 +10,7 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Data
 
         public DbSet<SchemeEnrollment> SchemeEnrollments { get; set; }
         public DbSet<DetailedScheme> DetailedSchemes { get; set; }
+        public DbSet<MarketHoliday> MarketHolidays { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +36,14 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Data
                 entity.Property(e => e.SchemeName).IsRequired().HasMaxLength(500);
                 entity.Property(e => e.Nav).HasColumnType("decimal(18,4)");
                 entity.Property(e => e.ReceivedAt).HasDefaultValueSql("GETDATE()");
+            });
+
+            modelBuilder.Entity<MarketHoliday>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasIndex(e => e.HolidayDate).IsUnique();
+                entity.Property(e => e.Source).HasMaxLength(100);
+                entity.Property(e => e.ReceivedAt).HasDefaultValueSql("GETUTCDATE()");
             });
         }
     }

@@ -9,6 +9,8 @@ import { StatCardComponent } from './components/stat-card/stat-card.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { NavChartComponent } from './components/nav-chart/nav-chart.component';
 import { NavGrowCountPipe } from './pipes/nav-grow-count.pipe';
+import { HolidayModalComponent } from './components/holiday-modal/holiday-modal.component';
+import { HolidayBannerComponent } from './components/holiday-banner/holiday-banner.component';
 
 @NgModule({
     declarations: [
@@ -17,7 +19,9 @@ import { NavGrowCountPipe } from './pipes/nav-grow-count.pipe';
         StatCardComponent,
         LoadingSpinnerComponent,
         NavChartComponent,
-        NavGrowCountPipe 
+        NavGrowCountPipe,
+        HolidayModalComponent,
+        HolidayBannerComponent 
     ],
     imports: [
         CommonModule,
@@ -35,7 +39,9 @@ import { NavGrowCountPipe } from './pipes/nav-grow-count.pipe';
         StatCardComponent,
         LoadingSpinnerComponent,
         NavChartComponent,
-        NavGrowCountPipe
+        NavGrowCountPipe,
+        HolidayModalComponent,
+        HolidayBannerComponent
     ]
 })
 export class SharedModule { }

@@ -428,6 +428,20 @@
       ],
       "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
       "RouteClaimsRequirement": { "permissions": "nav.read" }
+    },
+    {
+      "RouteId": "holiday-status",
+      "UpstreamPathTemplate": "/api/holiday-status",
+      "DownstreamPathTemplate": "/api/holiday-status",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-schemeapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
     }
   ],
   "GlobalConfiguration": {

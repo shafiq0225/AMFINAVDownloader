@@ -121,3 +121,6 @@
         </div>
     </div>
 </div>
+<!-- Add at the bottom of login.component.html -->
+<app-holiday-modal *ngIf="showHolidayModal && holidayStatus" [status]="holidayStatus!" (dismissed)="onModalDismissed()">
+</app-holiday-modal>

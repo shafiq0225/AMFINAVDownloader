@@ -1,0 +1,93 @@
+// src/app/shared/components/holiday-modal/holiday-modal.component.scss
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mixins' as *;
+
+.hm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($dark, 0.55);
+  @include flex-center;
+  z-index: $z-modal;
+  animation: fadeIn 0.2s ease;
+}
+
+.hm-card {
+  background: $surface;
+  border-radius: $card-radius;
+  padding: 2.5rem 2rem;
+  max-width: 440px;
+  width: 90%;
+  text-align: center;
+  box-shadow: $shadow-lg;
+  border: 1px solid $border;
+  animation: slideUp 0.25s ease;
+
+  @include mobile {
+    padding: 2rem 1.5rem;
+    width: 95%;
+  }
+}
+
+.hm-icon {
+  font-size: 2.8rem;
+  margin-bottom: 0.75rem;
+  line-height: 1;
+}
+
+.hm-title {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: $primary;
+  margin: 0 0 1rem;
+}
+
+.hm-message {
+  font-size: $font-size-base;
+  color: $text-secondary;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+
+.hm-note {
+  @include flex-center;
+  gap: 0.5rem;
+  background: $warning-light;
+  border: 1px solid rgba($warning, 0.3);
+  border-radius: $input-radius;
+  padding: 0.65rem 1rem;
+  font-size: $font-size-sm;
+  color: $warning-dark;
+  margin-bottom: 1.75rem;
+  text-align: left;
+}
+
+.hm-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $warning;
+  flex-shrink: 0;
+}
+
+.hm-btn {
+  @include btn-base;
+  width: 100%;
+  background: $primary;
+  color: $surface;
+  font-size: $font-size-base;
+
+  &:hover:not(:disabled) {
+    background: $primary-hover;
+    box-shadow: $shadow-md;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}

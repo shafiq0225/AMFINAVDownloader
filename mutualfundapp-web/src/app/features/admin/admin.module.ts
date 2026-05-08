@@ -9,7 +9,7 @@ import { PendingComponent } from './users/pending/pending.component';
 import { FamilyComponent } from './family/family.component';
 import { SchemesComponent } from './schemes/schemes.component';
 import { AdminNavComponent } from './nav/nav.component';
-import { NavGrowCountPipe } from "../../shared/pipes/nav-grow-count.pipe";
+// ← Remove NavGrowCountPipe import — it comes from SharedModule
 
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
@@ -17,7 +17,7 @@ const routes: Routes = [
   { path: 'users/pending', component: PendingComponent },
   { path: 'family', component: FamilyComponent },
   { path: 'schemes', component: SchemesComponent },
-  { path: 'nav', component: AdminNavComponent },  // ← add
+  { path: 'nav', component: AdminNavComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
@@ -33,7 +33,7 @@ const routes: Routes = [
   imports: [
     SharedModule,
     ReactiveFormsModule,
-    RouterModule.forChild(routes),
-]
+    RouterModule.forChild(routes)
+  ]
 })
 export class AdminModule { }

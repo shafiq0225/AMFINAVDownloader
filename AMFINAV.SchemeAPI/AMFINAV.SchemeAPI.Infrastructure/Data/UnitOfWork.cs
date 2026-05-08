@@ -1,4 +1,5 @@
-﻿using AMFINAV.SchemeAPI.Domain.Interfaces;
+﻿using AMFINAV.SchemeAPI.Domain.Entities;
+using AMFINAV.SchemeAPI.Domain.Interfaces;
 using AMFINAV.SchemeAPI.Infrastructure.Repositories;
 
 namespace AMFINAV.SchemeAPI.Infrastructure.Data
@@ -12,12 +13,13 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Data
             _context = context;
             SchemeEnrollments = new SchemeEnrollmentRepository(_context);
             DetailedSchemes = new DetailedSchemeRepository(_context);
+            MarketHolidays = new MarketHolidayRepository(_context);
         }
 
         public ISchemeEnrollmentRepository SchemeEnrollments { get; }
 
         public IDetailedSchemeRepository DetailedSchemes { get; }
-
+        public IMarketHolidayRepository MarketHolidays { get; }
         public async Task<int> CompleteAsync() =>
             await _context.SaveChangesAsync();
 

@@ -5,6 +5,7 @@ using AMFINAV.Domain.Interfaces;
 using AMFINAV.Infrastructure.Data;
 using AMFINAV.Infrastructure.Repositories;
 using AMFINAV.Infrastructure.Services;
+using Azure.Messaging.ServiceBus;
 
 namespace AMFINAV.Infrastructure
 {
@@ -45,6 +46,14 @@ namespace AMFINAV.Infrastructure
                 UseCookies = true,
                 CookieContainer = new System.Net.CookieContainer()
             });
+            // ── Azure Service Bus ─────────────────────────────────────────
+            // ServiceBusClient is thread-safe and should be a singleton
+            services.AddSingleton(_ =>
+                new ServiceBusClient(
+                    configuration["AzureServiceBus:ConnectionString"]));
+
+            services.AddSingleton<IHolidayEventPublisher,
+                                  AzureServiceBusHolidayPublisher>();
 
             // Add memory cache
             services.AddMemoryCache();

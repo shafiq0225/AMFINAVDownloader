@@ -5,5 +5,6 @@
         ISchemeEnrollmentRepository SchemeEnrollments { get; }
         IDetailedSchemeRepository DetailedSchemes { get; }
         Task<int> CompleteAsync();
+        IMarketHolidayRepository MarketHolidays { get; }
     }
 }

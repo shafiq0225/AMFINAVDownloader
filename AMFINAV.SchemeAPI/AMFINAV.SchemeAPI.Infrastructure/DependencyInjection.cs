@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using AMFINAV.SchemeAPI.Domain.Interfaces;
 using AMFINAV.SchemeAPI.Infrastructure.Data;
+using AMFINAV.SchemeAPI.Infrastructure.Consumers;
 
 namespace AMFINAV.SchemeAPI.Infrastructure
 {
@@ -18,6 +19,7 @@ namespace AMFINAV.SchemeAPI.Infrastructure
                     b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddHostedService<MarketHolidayConsumer>();
 
             return services;
         }
