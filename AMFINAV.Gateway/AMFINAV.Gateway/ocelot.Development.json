@@ -564,6 +564,22 @@
       "RouteClaimsRequirement": {
         "permissions": "nav.read"
       }
+    },
+    {
+      "RouteId": "holiday-status",
+      "UpstreamPathTemplate": "/api/holiday-status",
+      "DownstreamPathTemplate": "/api/holiday-status",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7002
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
     }
   ],
   "GlobalConfiguration": {
