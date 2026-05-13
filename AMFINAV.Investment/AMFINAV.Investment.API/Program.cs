@@ -1,4 +1,8 @@
-﻿using Serilog;
+﻿using AMFINAV.Investment.Application;
+using AMFINAV.Investment.Infrastructure;
+using AMFINAV.Investment.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +14,9 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // ── Services ──────────────────────────────────────────────────────
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -21,7 +28,6 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Investment Order Management, Portfolio Tracking and Statements"
     });
 
-    // JWT support in Swagger
     c.AddSecurityDefinition("Bearer", new()
     {
         Name = "Authorization",
@@ -48,7 +54,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ── CORS ──────────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -59,15 +64,22 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// ── Auto-migrate on startup ───────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider
+        .GetRequiredService<InvestmentDbContext>();
+    db.Database.Migrate();
+    Log.Information("Investment database migration applied");
+}
+
 // ── Middleware ────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
-    {
         c.SwaggerEndpoint("/swagger/v1/swagger.json",
-            "AMFINAV Investment API v1");
-    });
+            "AMFINAV Investment API v1"));
 }
 
 app.UseCors("AllowAll");
@@ -77,5 +89,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 Log.Information("AMFINAV Investment API started on port 7003");
-
 app.Run();
