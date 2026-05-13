@@ -1,4 +1,5 @@
-﻿using AMFINAV.Investment.Domain.Common;
+﻿using AMFINAV.Investment.Application.Orders.Dtos;
+using AMFINAV.Investment.Domain.Common;
 using AMFINAV.Investment.Domain.Entities;
 using AMFINAV.Investment.Domain.Enums;
 using AMFINAV.Investment.Domain.Interfaces;
@@ -6,29 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace AMFINAV.Investment.Application.Orders.Commands
 {
-    // ── Request ───────────────────────────────────────────────────
-    public class UpdateOrderStatusRequest
-    {
-        public int OrderId { get; set; }
-        public OrderStatus NewStatus { get; set; }
-
-        // Required when moving to Submitted
-        public DateTime? SubmittedDate { get; set; }
-        public string? SubmittedByUserId { get; set; }
-
-        // Required when moving to Confirmed
-        // Admin enters these from MF company confirmation
-        public decimal? PurchaseNAV { get; set; }
-        public decimal? UnitsAllotted { get; set; }
-        public string? FolioNumber { get; set; }
-        public DateTime? ConfirmedDate { get; set; }
-
-        // Optional
-        public string? Notes { get; set; }
-        public string UpdatedByUserId { get; set; } = string.Empty;
-    }
-
-    // ── Command ───────────────────────────────────────────────────
     public class UpdateOrderStatusCommand
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -42,219 +20,206 @@ namespace AMFINAV.Investment.Application.Orders.Commands
             _logger = logger;
         }
 
-        public async Task<Result<OrderDto>> ExecuteAsync(
-            UpdateOrderStatusRequest request)
+        public async Task<Result<InvestmentOrderDto>> ExecuteAsync(
+            int orderId,
+            UpdateOrderStatusDto dto,
+            string updatedByUserId)
         {
             try
             {
-                // ── Load order ─────────────────────────────────────
-                var order = await _unitOfWork.Orders
-                    .GetByIdAsync(request.OrderId);
-
+                // ── Find order ─────────────────────────────────────
+                var order = await _unitOfWork.Orders.GetByIdAsync(orderId);
                 if (order == null)
-                    return Result<OrderDto>.Failure(
-                        $"Order {request.OrderId} not found.");
+                    return Result<InvestmentOrderDto>
+                        .Failure($"Order with Id {orderId} not found.");
+
+                // ── Parse new status ───────────────────────────────
+                if (!Enum.TryParse<OrderStatus>(
+                        dto.NewStatus, true, out var newStatus))
+                    return Result<InvestmentOrderDto>
+                        .Failure($"Invalid status: {dto.NewStatus}. " +
+                                 "Valid: Submitted, Confirmed, Active, Cancelled");
 
                 // ── Validate transition ────────────────────────────
-                var validation = ValidateTransition(
-                    order.Status, request.NewStatus, request);
-                if (!validation.IsSuccess)
-                    return Result<OrderDto>.Failure(
-                        validation.ErrorMessage!);
+                var transitionResult = ValidateTransition(
+                    order.Status, newStatus);
 
-                // ── Apply status transition ────────────────────────
-                await ApplyTransitionAsync(order, request);
+                if (!transitionResult.IsSuccess)
+                    return Result<InvestmentOrderDto>
+                        .Failure(transitionResult.ErrorMessage!);
 
-                // ── Save ───────────────────────────────────────────
+                _logger.LogInformation(
+                    "Order {OrderNumber}: {From} → {To}",
+                    order.OrderNumber, order.Status, newStatus);
+
+                // ── Apply status-specific changes ──────────────────
+                switch (newStatus)
+                {
+                    case OrderStatus.Submitted:
+                        await ApplySubmitted(order, dto, updatedByUserId);
+                        break;
+
+                    case OrderStatus.Confirmed:
+                        var confirmResult = await ApplyConfirmed(
+                            order, dto, updatedByUserId);
+                        if (!confirmResult.IsSuccess)
+                            return Result<InvestmentOrderDto>
+                                .Failure(confirmResult.ErrorMessage!);
+                        break;
+
+                    case OrderStatus.Active:
+                        await ApplyActive(order, dto);
+                        break;
+
+                    case OrderStatus.Cancelled:
+                        await ApplyCancelled(order, dto);
+                        break;
+                }
+
+                // ── Update status ──────────────────────────────────
+                order.Status = newStatus;
+                order.UpdatedAt = DateTime.UtcNow;
+
+                if (!string.IsNullOrWhiteSpace(dto.Notes))
+                    order.Notes = dto.Notes;
+
                 await _unitOfWork.Orders.UpdateAsync(order);
                 await _unitOfWork.CompleteAsync();
 
                 _logger.LogInformation(
-                    "Order {OrderNumber} status updated: " +
-                    "{OldStatus} → {NewStatus}",
-                    order.OrderNumber,
-                    order.Status,
-                    request.NewStatus);
+                    "✅ Order {OrderNumber} updated to {Status}",
+                    order.OrderNumber, newStatus);
 
-                return Result<OrderDto>.Success(MapToDto(order));
+                return Result<InvestmentOrderDto>
+                    .Success(OrderMapper.ToDto(order));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Failed to update order {OrderId} status",
-                    request.OrderId);
-                return Result<OrderDto>.Failure(
-                    $"Failed to update status: {ex.Message}");
+                    "Error updating order {OrderId} status", orderId);
+                return Result<InvestmentOrderDto>
+                    .Failure($"Failed to update order: {ex.Message}");
             }
         }
 
-        // ── Validate Status Transition ────────────────────────────
-        private Result ValidateTransition(
-            OrderStatus current,
-            OrderStatus next,
-            UpdateOrderStatusRequest request)
+        // ── Status Transition Validation ───────────────────────────
+        private static Domain.Common.Result ValidateTransition(
+            OrderStatus current, OrderStatus next)
         {
-            // Define allowed transitions
             var allowed = new Dictionary<OrderStatus, OrderStatus[]>
             {
-                { OrderStatus.Pending,
-                    new[] { OrderStatus.Submitted,
-                            OrderStatus.Cancelled } },
-
-                { OrderStatus.Submitted,
-                    new[] { OrderStatus.Confirmed,
-                            OrderStatus.Cancelled } },
-
-                { OrderStatus.Confirmed,
-                    new[] { OrderStatus.Active } },
-
-                { OrderStatus.Active,
-                    new OrderStatus[] { } },  // No transitions from Active
-
-                { OrderStatus.Cancelled,
-                    new OrderStatus[] { } }   // No transitions from Cancelled
+                { OrderStatus.Pending,   new[] { OrderStatus.Submitted,
+                                                 OrderStatus.Cancelled } },
+                { OrderStatus.Submitted, new[] { OrderStatus.Confirmed,
+                                                 OrderStatus.Cancelled } },
+                { OrderStatus.Confirmed, new[] { OrderStatus.Active } },
+                { OrderStatus.Active,    Array.Empty<OrderStatus>() },
+                { OrderStatus.Cancelled, Array.Empty<OrderStatus>() }
             };
 
-            if (!allowed.ContainsKey(current) ||
-                !allowed[current].Contains(next))
-            {
-                return Result.Failure(
-                    $"Cannot change status from " +
-                    $"{current} to {next}. " +
-                    $"Allowed: {string.Join(", ", allowed[current])}");
-            }
+            if (!allowed[current].Contains(next))
+                return Domain.Common.Result.Failure(
+                    $"Cannot move order from '{current}' to '{next}'. " +
+                    $"Allowed transitions from '{current}': " +
+                    $"{string.Join(", ", allowed[current])}");
 
-            // Submitted requires submission details
-            if (next == OrderStatus.Submitted)
-            {
-                if (request.SubmittedDate == null)
-                    return Result.Failure(
-                        "Submitted date is required.");
-
-                if (string.IsNullOrWhiteSpace(
-                    request.SubmittedByUserId))
-                    return Result.Failure(
-                        "Submitted by user is required.");
-            }
-
-            // Confirmed requires MF company details
-            if (next == OrderStatus.Confirmed)
-            {
-                if (request.PurchaseNAV == null || request.PurchaseNAV <= 0)
-                    return Result.Failure(
-                        "Purchase NAV is required for confirmation.");
-
-                if (request.UnitsAllotted == null ||
-                    request.UnitsAllotted <= 0)
-                    return Result.Failure(
-                        "Units allotted is required for confirmation.");
-
-                if (string.IsNullOrWhiteSpace(request.FolioNumber))
-                    return Result.Failure(
-                        "Folio number is required for confirmation.");
-
-                if (request.ConfirmedDate == null)
-                    return Result.Failure(
-                        "Confirmed date is required.");
-            }
-
-            return Result.Success();
+            return Domain.Common.Result.Success();
         }
 
-        // ── Apply Transition ──────────────────────────────────────
-        private async Task ApplyTransitionAsync(
+        // ── Submitted ──────────────────────────────────────────────
+        private Task ApplySubmitted(
             InvestmentOrder order,
-            UpdateOrderStatusRequest request)
+            UpdateOrderStatusDto dto,
+            string userId)
         {
-            var previousStatus = order.Status;
-            order.Status = request.NewStatus;
+            order.SubmittedDate = dto.SubmittedDate ?? DateTime.Today;
+            order.SubmittedByUserId = dto.SubmittedByUserId ?? userId;
+            return Task.CompletedTask;
+        }
 
-            if (request.Notes != null)
-                order.Notes = request.Notes;
+        // ── Confirmed ──────────────────────────────────────────────
+        private async Task<Domain.Common.Result> ApplyConfirmed(
+            InvestmentOrder order,
+            UpdateOrderStatusDto dto,
+            string userId)
+        {
+            // Validate confirmation details
+            if (dto.PurchaseNAV == null || dto.PurchaseNAV <= 0)
+                return Domain.Common.Result.Failure(
+                    "Purchase NAV is required when confirming an order.");
 
-            switch (request.NewStatus)
+            if (string.IsNullOrWhiteSpace(dto.FolioNumber))
+                return Domain.Common.Result.Failure(
+                    "Folio number is required when confirming an order.");
+
+            // Calculate units
+            var units = order.InvestedAmount / dto.PurchaseNAV.Value;
+
+            order.ConfirmedDate = dto.ConfirmedDate ?? DateTime.Today;
+            order.PurchaseNAV = dto.PurchaseNAV;
+            order.FolioNumber = dto.FolioNumber;
+            order.UnitsAllotted = dto.UnitsAllotted ?? Math.Round(units, 6);
+
+            _logger.LogInformation(
+                "Order {OrderNumber} confirmed: NAV={NAV} Units={Units} " +
+                "Folio={Folio}",
+                order.OrderNumber,
+                order.PurchaseNAV,
+                order.UnitsAllotted,
+                order.FolioNumber);
+
+            return Domain.Common.Result.Success();
+        }
+
+        // ── Active — create Holding ────────────────────────────────
+        private async Task ApplyActive(
+            InvestmentOrder order,
+            UpdateOrderStatusDto dto)
+        {
+            // Check if holding already created
+            var holdingExists = await _unitOfWork.Holdings
+                .ExistsForOrderAsync(order.Id);
+
+            if (!holdingExists)
             {
-                case OrderStatus.Submitted:
-                    order.SubmittedDate = request.SubmittedDate;
-                    order.SubmittedByUserId = request.SubmittedByUserId;
-                    break;
+                // Create the Holding record
+                var holding = new Holding
+                {
+                    OrderId = order.Id,
+                    InvestorUserId = order.InvestorUserId,
+                    InvestorName = order.InvestorName,
+                    SchemeCode = order.SchemeCode,
+                    SchemeName = order.SchemeName,
+                    FundName = order.FundName,
+                    FolioNumber = order.FolioNumber!,
+                    PurchaseDate = order.ConfirmedDate ?? DateTime.Today,
+                    PurchaseNAV = order.PurchaseNAV!.Value,
+                    InvestedAmount = order.InvestedAmount,
+                    Units = order.UnitsAllotted!.Value,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
 
-                case OrderStatus.Confirmed:
-                    order.ConfirmedDate = request.ConfirmedDate;
-                    order.PurchaseNAV = request.PurchaseNAV;
-                    order.UnitsAllotted = request.UnitsAllotted;
-                    order.FolioNumber = request.FolioNumber;
-                    break;
+                await _unitOfWork.Holdings.AddAsync(holding);
 
-                case OrderStatus.Active:
-                    // ── Create Holding automatically ───────────────
-                    // When order moves to Active, create a Holding
-                    // so daily P&L tracking starts
-                    if (!await _unitOfWork.Holdings
-                        .ExistsForOrderAsync(order.Id))
-                    {
-                        var holding = new Holding
-                        {
-                            OrderId = order.Id,
-                            InvestorUserId = order.InvestorUserId,
-                            InvestorName = order.InvestorName,
-                            SchemeCode = order.SchemeCode,
-                            SchemeName = order.SchemeName,
-                            FundName = order.FundName,
-                            FolioNumber = order.FolioNumber!,
-                            PurchaseDate = order.ConfirmedDate!.Value,
-                            PurchaseNAV = order.PurchaseNAV!.Value,
-                            InvestedAmount = order.InvestedAmount,
-                            Units = order.UnitsAllotted!.Value,
-                            IsActive = true,
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        await _unitOfWork.Holdings.AddAsync(holding);
-
-                        _logger.LogInformation(
-                            "Holding created for order {OrderNumber} — " +
-                            "Investor: {Investor}, Units: {Units}, " +
-                            "Purchase NAV: {NAV}",
-                            order.OrderNumber,
-                            order.InvestorName,
-                            holding.Units,
-                            holding.PurchaseNAV);
-                    }
-                    break;
+                _logger.LogInformation(
+                    "✅ Holding created for order {OrderNumber}: " +
+                    "{Units} units of {Scheme}",
+                    order.OrderNumber,
+                    holding.Units,
+                    holding.SchemeName);
             }
         }
 
-        // ── Map ───────────────────────────────────────────────────
-        private static OrderDto MapToDto(InvestmentOrder o) => new()
+        // ── Cancelled ──────────────────────────────────────────────
+        private Task ApplyCancelled(
+            InvestmentOrder order,
+            UpdateOrderStatusDto dto)
         {
-            Id = o.Id,
-            OrderNumber = o.OrderNumber,
-            InvestorUserId = o.InvestorUserId,
-            InvestorName = o.InvestorName,
-            SchemeCode = o.SchemeCode,
-            SchemeName = o.SchemeName,
-            FundName = o.FundName,
-            InvestedAmount = o.InvestedAmount,
-            PaymentMode = o.PaymentMode.ToString(),
-            ChequeNumber = o.ChequeNumber,
-            ChequeDate = o.ChequeDate,
-            BankName = o.BankName,
-            TransactionRef = o.TransactionRef,
-            OrderDate = o.OrderDate,
-            SubmittedDate = o.SubmittedDate,
-            ConfirmedDate = o.ConfirmedDate,
-            Status = o.Status.ToString(),
-            StatusCode = (int)o.Status,
-            PurchaseNAV = o.PurchaseNAV,
-            UnitsAllotted = o.UnitsAllotted,
-            FolioNumber = o.FolioNumber,
-            Notes = o.Notes,
-            CreatedByUserId = o.CreatedByUserId,
-            CreatedAt = o.CreatedAt,
-            UpdatedAt = o.UpdatedAt,
-            HasHolding = o.Holding != null,
-            HasStatement = o.Statement != null
-        };
+            _logger.LogWarning(
+                "Order {OrderNumber} cancelled. Reason: {Notes}",
+                order.OrderNumber, dto.Notes);
+            return Task.CompletedTask;
+        }
     }
 }

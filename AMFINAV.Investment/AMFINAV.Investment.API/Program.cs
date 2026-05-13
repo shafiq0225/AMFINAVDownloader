@@ -1,4 +1,6 @@
-﻿using AMFINAV.Investment.Application;
+﻿using AMFINAV.Investment.API.Extensions;
+using AMFINAV.Investment.API.Middleware;
+using AMFINAV.Investment.Application;
 using AMFINAV.Investment.Infrastructure;
 using AMFINAV.Investment.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +15,17 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// ── Services ──────────────────────────────────────────────────────
+// ── Application + Infrastructure ──────────────────────────────────
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+// ── JWT Authentication ─────────────────────────────────────────────
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
+// ── Controllers ───────────────────────────────────────────────────
 builder.Services.AddControllers();
+
+// ── Swagger ───────────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -25,7 +33,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "AMFINAV Investment API",
         Version = "v1",
-        Description = "Investment Order Management, Portfolio Tracking and Statements"
+        Description = "Investment Orders, Portfolio P&L, Statements"
     });
 
     c.AddSecurityDefinition("Bearer", new()
@@ -54,6 +62,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// ── CORS ──────────────────────────────────────────────────────────
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -64,7 +73,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ── Auto-migrate on startup ───────────────────────────────────────
+// ── Auto-migrate ──────────────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider
@@ -73,12 +82,15 @@ using (var scope = app.Services.CreateScope())
     Log.Information("Investment database migration applied");
 }
 
-// ── Middleware ────────────────────────────────────────────────────
+// ── Middleware Pipeline ───────────────────────────────────────────
+app.UseMiddleware<ExceptionMiddleware>();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>
-        c.SwaggerEndpoint("/swagger/v1/swagger.json",
+        c.SwaggerEndpoint(
+            "/swagger/v1/swagger.json",
             "AMFINAV Investment API v1"));
 }
 
@@ -88,5 +100,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-Log.Information("AMFINAV Investment API started on port 7003");
+Log.Information(
+    "AMFINAV Investment API started on port 7003");
 app.Run();

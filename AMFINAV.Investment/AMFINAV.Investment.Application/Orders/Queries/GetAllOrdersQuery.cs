@@ -1,20 +1,11 @@
-﻿using AMFINAV.Investment.Domain.Common;
+﻿using AMFINAV.Investment.Application.Orders.Dtos;
+using AMFINAV.Investment.Domain.Common;
 using AMFINAV.Investment.Domain.Enums;
 using AMFINAV.Investment.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace AMFINAV.Investment.Application.Orders.Queries
 {
-    // ── Filter ────────────────────────────────────────────────────
-    public class GetAllOrdersFilter
-    {
-        public OrderStatus? Status { get; set; }
-        public string? InvestorName { get; set; }
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
-    }
-
-    // ── Query ─────────────────────────────────────────────────────
     public class GetAllOrdersQuery
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -28,59 +19,40 @@ namespace AMFINAV.Investment.Application.Orders.Queries
             _logger = logger;
         }
 
-        public async Task<Result<IEnumerable<OrderSummaryDto>>>
-            ExecuteAsync(GetAllOrdersFilter? filter = null)
+        // ← Single optional filter parameter
+        public async Task<Result<IEnumerable<InvestmentOrderDto>>> ExecuteAsync(
+            string? investorIdFilter = null,
+            string? statusFilter = null)
         {
             try
             {
-                var orders = await _unitOfWork.Orders.GetAllAsync();
+                IEnumerable<Domain.Entities.InvestmentOrder> orders;
 
-                // ── Apply filters ──────────────────────────────────
-                if (filter != null)
+                if (!string.IsNullOrWhiteSpace(investorIdFilter))
                 {
-                    if (filter.Status.HasValue)
-                        orders = orders.Where(
-                            o => o.Status == filter.Status.Value);
-
-                    if (!string.IsNullOrWhiteSpace(filter.InvestorName))
-                        orders = orders.Where(o =>
-                            o.InvestorName.Contains(
-                                filter.InvestorName,
-                                StringComparison.OrdinalIgnoreCase));
-
-                    if (filter.FromDate.HasValue)
-                        orders = orders.Where(
-                            o => o.OrderDate >= filter.FromDate.Value.Date);
-
-                    if (filter.ToDate.HasValue)
-                        orders = orders.Where(
-                            o => o.OrderDate <= filter.ToDate.Value.Date);
+                    orders = await _unitOfWork.Orders
+                        .GetByInvestorAsync(investorIdFilter);
+                }
+                else if (!string.IsNullOrWhiteSpace(statusFilter) &&
+                         Enum.TryParse<OrderStatus>(
+                             statusFilter, true, out var status))
+                {
+                    orders = await _unitOfWork.Orders
+                        .GetByStatusAsync(status);
+                }
+                else
+                {
+                    orders = await _unitOfWork.Orders.GetAllAsync();
                 }
 
-                var result = orders.Select(o => new OrderSummaryDto
-                {
-                    Id = o.Id,
-                    OrderNumber = o.OrderNumber,
-                    InvestorName = o.InvestorName,
-                    SchemeName = o.SchemeName,
-                    FundName = o.FundName,
-                    InvestedAmount = o.InvestedAmount,
-                    PaymentMode = o.PaymentMode.ToString(),
-                    Status = o.Status.ToString(),
-                    StatusCode = (int)o.Status,
-                    OrderDate = o.OrderDate,
-                    HasStatement = o.Statement != null,
-                    CreatedAt = o.CreatedAt
-                });
-
-                return Result<IEnumerable<OrderSummaryDto>>
-                    .Success(result);
+                return Result<IEnumerable<InvestmentOrderDto>>
+                    .Success(OrderMapper.ToDtoList(orders));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to get all orders");
-                return Result<IEnumerable<OrderSummaryDto>>
-                    .Failure($"Failed to retrieve orders: {ex.Message}");
+                _logger.LogError(ex, "Error fetching orders");
+                return Result<IEnumerable<InvestmentOrderDto>>
+                    .Failure($"Failed to fetch orders: {ex.Message}");
             }
         }
     }

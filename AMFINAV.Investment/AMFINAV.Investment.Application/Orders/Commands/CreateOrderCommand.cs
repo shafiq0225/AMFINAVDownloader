@@ -1,4 +1,5 @@
-﻿using AMFINAV.Investment.Domain.Common;
+﻿using AMFINAV.Investment.Application.Orders.Dtos;
+using AMFINAV.Investment.Domain.Common;
 using AMFINAV.Investment.Domain.Entities;
 using AMFINAV.Investment.Domain.Enums;
 using AMFINAV.Investment.Domain.Interfaces;
@@ -6,39 +7,6 @@ using Microsoft.Extensions.Logging;
 
 namespace AMFINAV.Investment.Application.Orders.Commands
 {
-    // ── Request ───────────────────────────────────────────────────
-    public class CreateOrderRequest
-    {
-        // Who is investing
-        public string InvestorUserId { get; set; } = string.Empty;
-        public string InvestorName { get; set; } = string.Empty;
-
-        // Which scheme
-        public string SchemeCode { get; set; } = string.Empty;
-        public string SchemeName { get; set; } = string.Empty;
-        public string FundName { get; set; } = string.Empty;
-
-        // Amount
-        public decimal InvestedAmount { get; set; }
-
-        // Payment
-        public PaymentMode PaymentMode { get; set; }
-        public string? ChequeNumber { get; set; }
-        public DateTime? ChequeDate { get; set; }
-        public string? BankName { get; set; }
-        public string? TransactionRef { get; set; }
-
-        // Order date (defaults to today)
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
-
-        // Optional notes
-        public string? Notes { get; set; }
-
-        // Admin creating this order
-        public string CreatedByUserId { get; set; } = string.Empty;
-    }
-
-    // ── Command ───────────────────────────────────────────────────
     public class CreateOrderCommand
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -52,40 +20,83 @@ namespace AMFINAV.Investment.Application.Orders.Commands
             _logger = logger;
         }
 
-        public async Task<Result<OrderDto>> ExecuteAsync(
-            CreateOrderRequest request)
+        public async Task<Result<InvestmentOrderDto>> ExecuteAsync(
+            CreateOrderDto dto,
+            string createdByUserId)
         {
             try
             {
                 // ── Validate ───────────────────────────────────────
-                var validation = Validate(request);
+                var validation = Validate(dto);
                 if (!validation.IsSuccess)
-                    return Result<OrderDto>.Failure(
-                        validation.ErrorMessage!);
+                    return Result<InvestmentOrderDto>
+                        .Failure(validation.ErrorMessage!);
 
-                // ── Generate order number ──────────────────────────
+                // ── Parse PaymentMode ──────────────────────────────
+                if (!Enum.TryParse<PaymentMode>(
+                        dto.PaymentMode, true, out var paymentMode))
+                    return Result<InvestmentOrderDto>
+                        .Failure($"Invalid payment mode: {dto.PaymentMode}. " +
+                                 "Valid values: Cheque, NEFT, RTGS, IMPS, Online");
+
+                // ── Validate cheque details ────────────────────────
+                if (paymentMode == PaymentMode.Cheque)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.ChequeNumber))
+                        return Result<InvestmentOrderDto>
+                            .Failure("Cheque number is required for Cheque payments.");
+
+                    if (dto.ChequeDate == null)
+                        return Result<InvestmentOrderDto>
+                            .Failure("Cheque date is required for Cheque payments.");
+
+                    if (string.IsNullOrWhiteSpace(dto.BankName))
+                        return Result<InvestmentOrderDto>
+                            .Failure("Bank name is required for Cheque payments.");
+                }
+
+                // ── Validate NEFT/RTGS/IMPS details ───────────────
+                if (paymentMode is PaymentMode.NEFT
+                                or PaymentMode.RTGS
+                                or PaymentMode.IMPS)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.TransactionRef))
+                        return Result<InvestmentOrderDto>
+                            .Failure("Transaction reference is required " +
+                                     "for NEFT/RTGS/IMPS payments.");
+                }
+
+                // ── Generate Order Number ──────────────────────────
                 var orderNumber = await _unitOfWork.Orders
                     .GenerateOrderNumberAsync();
 
-                // ── Create entity ──────────────────────────────────
+                _logger.LogInformation(
+                    "Creating order {OrderNumber} for investor {Investor} " +
+                    "— Scheme: {Scheme} — Amount: {Amount}",
+                    orderNumber,
+                    dto.InvestorName,
+                    dto.SchemeName,
+                    dto.InvestedAmount);
+
+                // ── Create Entity ──────────────────────────────────
                 var order = new InvestmentOrder
                 {
                     OrderNumber = orderNumber,
-                    InvestorUserId = request.InvestorUserId,
-                    InvestorName = request.InvestorName,
-                    SchemeCode = request.SchemeCode,
-                    SchemeName = request.SchemeName,
-                    FundName = request.FundName,
-                    InvestedAmount = request.InvestedAmount,
-                    PaymentMode = request.PaymentMode,
-                    ChequeNumber = request.ChequeNumber,
-                    ChequeDate = request.ChequeDate,
-                    BankName = request.BankName,
-                    TransactionRef = request.TransactionRef,
-                    OrderDate = request.OrderDate.Date,
+                    InvestorUserId = dto.InvestorUserId,
+                    InvestorName = dto.InvestorName,
+                    SchemeCode = dto.SchemeCode,
+                    SchemeName = dto.SchemeName,
+                    FundName = dto.FundName,
+                    InvestedAmount = dto.InvestedAmount,
+                    PaymentMode = paymentMode,
+                    ChequeNumber = dto.ChequeNumber,
+                    ChequeDate = dto.ChequeDate,
+                    BankName = dto.BankName,
+                    TransactionRef = dto.TransactionRef,
+                    OrderDate = dto.OrderDate.Date,
                     Status = OrderStatus.Pending,
-                    Notes = request.Notes,
-                    CreatedByUserId = request.CreatedByUserId,
+                    Notes = dto.Notes,
+                    CreatedByUserId = createdByUserId,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
@@ -95,105 +106,46 @@ namespace AMFINAV.Investment.Application.Orders.Commands
                 await _unitOfWork.CompleteAsync();
 
                 _logger.LogInformation(
-                    "Investment order {OrderNumber} created for " +
-                    "investor {InvestorName} — Scheme: {SchemeName} " +
-                    "— Amount: {Amount}",
-                    orderNumber,
-                    request.InvestorName,
-                    request.SchemeName,
-                    request.InvestedAmount);
+                    "✅ Order created: {OrderNumber} (Id: {Id})",
+                    order.OrderNumber, order.Id);
 
-                return Result<OrderDto>.Success(MapToDto(order));
+                return Result<InvestmentOrderDto>
+                    .Success(OrderMapper.ToDto(order));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex,
-                    "Failed to create investment order for {Investor}",
-                    request.InvestorName);
-                return Result<OrderDto>.Failure(
-                    $"Failed to create order: {ex.Message}");
+                    "Error creating order for investor {Investor}",
+                    dto.InvestorName);
+                return Result<InvestmentOrderDto>
+                    .Failure($"Failed to create order: {ex.Message}");
             }
         }
 
-        // ── Validation ────────────────────────────────────────────
-        private Result Validate(CreateOrderRequest request)
+        // ── Private Validation ─────────────────────────────────────
+        private static Domain.Common.Result Validate(CreateOrderDto dto)
         {
-            if (string.IsNullOrWhiteSpace(request.InvestorUserId))
-                return Result.Failure("Investor is required.");
+            if (string.IsNullOrWhiteSpace(dto.InvestorUserId))
+                return Domain.Common.Result.Failure(
+                    "Investor is required.");
 
-            if (string.IsNullOrWhiteSpace(request.SchemeCode))
-                return Result.Failure("Scheme code is required.");
+            if (string.IsNullOrWhiteSpace(dto.SchemeCode))
+                return Domain.Common.Result.Failure(
+                    "Scheme code is required.");
 
-            if (string.IsNullOrWhiteSpace(request.SchemeName))
-                return Result.Failure("Scheme name is required.");
+            if (string.IsNullOrWhiteSpace(dto.SchemeName))
+                return Domain.Common.Result.Failure(
+                    "Scheme name is required.");
 
-            if (request.InvestedAmount <= 0)
-                return Result.Failure(
+            if (dto.InvestedAmount <= 0)
+                return Domain.Common.Result.Failure(
                     "Invested amount must be greater than zero.");
 
-            // Cheque-specific validation
-            if (request.PaymentMode == PaymentMode.Cheque)
-            {
-                if (string.IsNullOrWhiteSpace(request.ChequeNumber))
-                    return Result.Failure(
-                        "Cheque number is required for cheque payment.");
+            if (string.IsNullOrWhiteSpace(dto.PaymentMode))
+                return Domain.Common.Result.Failure(
+                    "Payment mode is required.");
 
-                if (request.ChequeDate == null)
-                    return Result.Failure(
-                        "Cheque date is required for cheque payment.");
-
-                if (string.IsNullOrWhiteSpace(request.BankName))
-                    return Result.Failure(
-                        "Bank name is required for cheque payment.");
-            }
-
-            // NEFT/RTGS validation
-            if (request.PaymentMode == PaymentMode.NEFT ||
-                request.PaymentMode == PaymentMode.RTGS ||
-                request.PaymentMode == PaymentMode.IMPS)
-            {
-                if (string.IsNullOrWhiteSpace(request.TransactionRef))
-                    return Result.Failure(
-                        "Transaction reference is required " +
-                        "for NEFT/RTGS/IMPS payment.");
-            }
-
-            if (string.IsNullOrWhiteSpace(request.CreatedByUserId))
-                return Result.Failure("Created by user is required.");
-
-            return Result.Success();
+            return Domain.Common.Result.Success();
         }
-
-        // ── Map Entity → DTO ──────────────────────────────────────
-        private static OrderDto MapToDto(InvestmentOrder o) => new()
-        {
-            Id = o.Id,
-            OrderNumber = o.OrderNumber,
-            InvestorUserId = o.InvestorUserId,
-            InvestorName = o.InvestorName,
-            SchemeCode = o.SchemeCode,
-            SchemeName = o.SchemeName,
-            FundName = o.FundName,
-            InvestedAmount = o.InvestedAmount,
-            PaymentMode = o.PaymentMode.ToString(),
-            ChequeNumber = o.ChequeNumber,
-            ChequeDate = o.ChequeDate,
-            BankName = o.BankName,
-            TransactionRef = o.TransactionRef,
-            OrderDate = o.OrderDate,
-            SubmittedDate = o.SubmittedDate,
-            ConfirmedDate = o.ConfirmedDate,
-            Status = o.Status.ToString(),
-            StatusCode = (int)o.Status,
-            PurchaseNAV = o.PurchaseNAV,
-            UnitsAllotted = o.UnitsAllotted,
-            FolioNumber = o.FolioNumber,
-            Notes = o.Notes,
-            CreatedByUserId = o.CreatedByUserId,
-            CreatedAt = o.CreatedAt,
-            UpdatedAt = o.UpdatedAt,
-            HasHolding = o.Holding != null,
-            HasStatement = o.Statement != null
-        };
     }
 }
