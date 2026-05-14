@@ -1,3 +1,10 @@
+<!-- Add at the top of nav.component.html -->
+<app-holiday-banner
+  *ngIf="holidayStatus"
+  [status]="holidayStatus">
+</app-holiday-banner>
+
+<!-- rest of your existing nav.component.html below unchanged -->
 <!-- Page Header -->
 <div class="page-header">
     <div>
@@ -172,6 +179,7 @@
         </table>
     </div>
 </div>
+
 <!-- Mobile Accordion (hidden on desktop via CSS) -->
 <div class="mobile-nav-wrap" *ngIf="!loading && navData">
 

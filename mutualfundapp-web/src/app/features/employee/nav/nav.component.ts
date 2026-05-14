@@ -7,6 +7,8 @@ import {
   NavHistoryDto
 } from '../../../core/models/nav.model';
 import { ToastrService } from 'ngx-toastr';
+import { HolidayStatusDto } from '../../../core/models/HolidayStatusDto';
+import { HolidayService } from '../../../core/services/holiday.service';
 
 @Component({
   selector: 'app-employee-nav',
@@ -24,17 +26,33 @@ export class EmployeeNavComponent implements OnInit {
   endDate = new FormControl('');
 
   expandedSchemes = new Set<string>();
+  holidayStatus: HolidayStatusDto | null = null;
 
   constructor(
     private navService: NavService,
+    private holidayService: HolidayService,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
+    this.loadHolidayStatus();
     this.loadDaily();
     this.searchCtrl.valueChanges
       .subscribe(() => this.applyFilter());
+  }
+
+  private loadHolidayStatus(): void {
+    this.holidayService.getStatus().subscribe({
+      next: (status) => {
+        // Only show banner if it's a holiday
+        this.holidayStatus = status.isHoliday ? status : null;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        // Silently ignore — banner simply won't show
+      }
+    });
   }
 
   loadDaily(): void {
@@ -158,15 +176,15 @@ export class EmployeeNavComponent implements OnInit {
       .toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' });
   }
 
-toggleScheme(schemeCode: string): void {
-  if (this.expandedSchemes.has(schemeCode)) {
-    this.expandedSchemes.delete(schemeCode);
-  } else {
-    this.expandedSchemes.add(schemeCode);
+  toggleScheme(schemeCode: string): void {
+    if (this.expandedSchemes.has(schemeCode)) {
+      this.expandedSchemes.delete(schemeCode);
+    } else {
+      this.expandedSchemes.add(schemeCode);
+    }
   }
-}
 
-isExpanded(schemeCode: string): boolean {
-  return this.expandedSchemes.has(schemeCode);
-}
+  isExpanded(schemeCode: string): boolean {
+    return this.expandedSchemes.has(schemeCode);
+  }
 }
