@@ -74,25 +74,49 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // ── Auto-migrate ──────────────────────────────────────────────────
+// ── Safe Migration (Only in Development OR if DB exists) ───────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider
         .GetRequiredService<InvestmentDbContext>();
-    db.Database.Migrate();
-    Log.Information("Investment database migration applied");
+
+    try
+    {
+        if (app.Environment.IsDevelopment())
+        {
+            db.Database.Migrate();
+            Log.Information("Migration applied in Development");
+        }
+        else
+        {
+            if (db.Database.CanConnect())
+            {
+                db.Database.Migrate();
+                Log.Information("Migration applied in Production (DB exists)");
+            }
+            else
+            {
+                Log.Warning("Database not reachable. Skipping migration.");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Migration failed. Skipping to avoid app crash.");
+    }
 }
 
 // ── Middleware Pipeline ───────────────────────────────────────────
 app.UseMiddleware<ExceptionMiddleware>();
 
-if (app.Environment.IsDevelopment())
+// ── Swagger (Enabled in all environments) ─────────────────────────
+app.UseSwagger();
+
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-        c.SwaggerEndpoint(
-            "/swagger/v1/swagger.json",
-            "AMFINAV Investment API v1"));
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AMFINAV Investment API v1");
+    c.RoutePrefix = "swagger"; // optional (default is already "swagger")
+});
 
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();

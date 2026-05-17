@@ -15,11 +15,21 @@ namespace AMFINAV.Investment.Infrastructure
             IConfiguration configuration)
         {
             // ── Database ───────────────────────────────────────────
+            // ── Database ───────────────────────────────────────────────────────
             services.AddDbContext<InvestmentDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
-                    sql => sql.MigrationsAssembly(
-                        typeof(InvestmentDbContext).Assembly.FullName)));
+                    sql =>
+                    {
+                        sql.MigrationsAssembly(
+                            typeof(InvestmentDbContext).Assembly.FullName);
+
+                        // ← Required for Azure SQL transient fault handling
+                        sql.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorNumbersToAdd: null);
+                    }));
 
             // ── Unit of Work + Repositories ────────────────────────
             services.AddScoped<IUnitOfWork, UnitOfWork>();
