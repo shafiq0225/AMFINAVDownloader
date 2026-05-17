@@ -1,14 +1,25 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+import { FormControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { InvestmentService } from '../../../../core/services/investment.service';
 import { SchemeService } from '../../../../core/services/scheme.service';
 import { UserService } from '../../../../core/services/user.service';
 import { InvestmentOrderDto, CreateOrderDto } from '../../../../core/models/investment-order.model';
-import { SchemeEnrollmentDto } from '../../../../core/models/scheme.model';
-import { UserDto } from '../../../../core/models/user.model';
 import { ToastrService } from 'ngx-toastr';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+// ── Scheme group: all orders for one scheme ───────────────────────
+export interface OrderSchemeGroup {
+  schemeCode: string;
+  schemeName: string;
+  fundName: string;
+  totalInvested: number;
+  orderCount: number;
+  activeCount: number;
+  pendingCount: number;
+  orders: InvestmentOrderDto[];
+  latestStatus: string;
+  latestDate: string;
+}
 
 @Component({
   selector: 'app-orders',
@@ -18,26 +29,28 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class OrdersComponent implements OnInit {
   orders: InvestmentOrderDto[] = [];
-  filtered: InvestmentOrderDto[] = [];
   loading = true;
+  submitting = false;
 
-  // Filters
   searchCtrl = new FormControl('');
   statusFilter = new FormControl('all');
 
   // Create modal
   showCreateModal = false;
-  submitting = false;
   createForm!: FormGroup;
-
-  // Dropdown data
-  users: UserDto[] = [];
-  schemes: SchemeEnrollmentDto[] = [];
-
-  // Payment mode visibility
   isChequePay = false;
   isNeftPay = false;
-  expandedOrders = new Set<number>();
+
+  // Dropdown data
+  users: any[] = [];
+  schemes: any[] = [];
+
+  // Tile selection
+  selectedSchemeCode: string | null = null;
+
+  @ViewChild('orderDetailPanel') detailPanelRef!: ElementRef;
+scheme: any;
+tile: any;
 
   constructor(
     private investmentService: InvestmentService,
@@ -52,7 +65,14 @@ export class OrdersComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadData();
-    this.setupFilters();
+    this.searchCtrl.valueChanges.subscribe(() => {
+      this.selectedSchemeCode = null;
+      this.cdr.detectChanges();
+    });
+    this.statusFilter.valueChanges.subscribe(() => {
+      this.selectedSchemeCode = null;
+      this.cdr.detectChanges();
+    });
   }
 
   initForm(): void {
@@ -72,78 +92,65 @@ export class OrdersComponent implements OnInit {
       notes: ['']
     });
 
-    // Watch payment mode changes
-    this.createForm.get('paymentMode')!.valueChanges
-      .subscribe(mode => {
-        this.isChequePay = mode === 'Cheque';
-        this.isNeftPay = ['NEFT', 'RTGS', 'IMPS'].includes(mode);
-        this.updatePaymentValidators(mode);
-      });
-
-    // Set initial state
+    this.createForm.get('paymentMode')!.valueChanges.subscribe(mode => {
+      this.isChequePay = mode === 'Cheque';
+      this.isNeftPay = ['NEFT', 'RTGS', 'IMPS'].includes(mode);
+      this.updatePaymentValidators(mode);
+    });
     this.isChequePay = true;
   }
 
   updatePaymentValidators(mode: string): void {
-    const chequeCtrl = this.createForm.get('chequeNumber')!;
-    const dateCtrl = this.createForm.get('chequeDate')!;
-    const bankCtrl = this.createForm.get('bankName')!;
-    const neftCtrl = this.createForm.get('transactionRef')!;
+    const cheque = this.createForm.get('chequeNumber')!;
+    const date = this.createForm.get('chequeDate')!;
+    const bank = this.createForm.get('bankName')!;
+    const neft = this.createForm.get('transactionRef')!;
 
-    // Reset all
-    [chequeCtrl, dateCtrl, bankCtrl, neftCtrl]
-      .forEach(c => { c.clearValidators(); c.updateValueAndValidity(); });
+    [cheque, date, bank, neft].forEach(c => {
+      c.clearValidators();
+      c.updateValueAndValidity();
+    });
 
     if (mode === 'Cheque') {
-      chequeCtrl.setValidators(Validators.required);
-      dateCtrl.setValidators(Validators.required);
-      bankCtrl.setValidators(Validators.required);
+      cheque.setValidators(Validators.required);
+      date.setValidators(Validators.required);
+      bank.setValidators(Validators.required);
     } else if (['NEFT', 'RTGS', 'IMPS'].includes(mode)) {
-      neftCtrl.setValidators(Validators.required);
+      neft.setValidators(Validators.required);
     }
 
-    [chequeCtrl, dateCtrl, bankCtrl, neftCtrl]
-      .forEach(c => c.updateValueAndValidity());
+    [cheque, date, bank, neft].forEach(c => c.updateValueAndValidity());
   }
 
   loadData(): void {
     this.loading = true;
-
     this.investmentService.getAll().subscribe({
       next: (orders) => {
         this.orders = orders;
-        this.applyFilters();
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;
         this.toastr.error('Failed to load orders.');
-        this.cdr.detectChanges();
       }
     });
 
-    // Load users for investor dropdown
     this.userService.getAll().subscribe({
       next: (users) => {
-        this.users = users.filter(u => u.statusName === 'Approved');
+        this.users = users.filter((u: any) => u.statusName === 'Approved');
       }
     });
 
-    // Load approved schemes for dropdown
     this.schemeService.getAll().subscribe({
       next: (schemes) => {
-        this.schemes = schemes.filter(s => s.isApproved);
+        this.schemes = schemes.filter((s: any) => s.isApproved);
       }
     });
   }
 
-  setupFilters(): void {
-    this.searchCtrl.valueChanges.subscribe(() => this.applyFilters());
-    this.statusFilter.valueChanges.subscribe(() => this.applyFilters());
-  }
-
-  applyFilters(): void {
+  // ── Filtered orders ───────────────────────────────────────────
+  get filteredOrders(): InvestmentOrderDto[] {
     let result = [...this.orders];
     const search = this.searchCtrl.value?.toLowerCase() || '';
     const status = this.statusFilter.value || 'all';
@@ -161,78 +168,80 @@ export class OrdersComponent implements OnInit {
         o.status.toLowerCase() === status.toLowerCase());
     }
 
-    this.filtered = result;
+    return result;
   }
 
-  // ── Scheme selection ──────────────────────────────────────────
-  onSchemeChange(schemeCode: string): void {
-    const scheme = this.schemes.find(s => s.schemeCode === schemeCode);
-    if (scheme) {
-      this.createForm.patchValue({
-        schemeName: scheme.schemeName,
-        fundName: scheme.schemeName.split(' ')[0]
-      });
-    }
-  }
+  // ── Scheme groups (tiles) ─────────────────────────────────────
+  get groupedSchemes(): OrderSchemeGroup[] {
+    const map = new Map<string, OrderSchemeGroup>();
 
-  // ── Investor selection ────────────────────────────────────────
-  onInvestorChange(userId: string): void {
-    const user = this.users.find(u => u.id === userId);
-    if (user) {
-      this.createForm.patchValue({
-        investorName: user.fullName
-      });
-    }
-  }
-
-  // ── Create ────────────────────────────────────────────────────
-  openCreateModal(): void {
-    this.createForm.reset({
-      paymentMode: 'Cheque',
-      orderDate: new Date().toISOString().split('T')[0]
-    });
-    this.isChequePay = true;
-    this.isNeftPay = false;
-    this.showCreateModal = true;
-  }
-
-  closeCreateModal(): void {
-    this.showCreateModal = false;
-  }
-
-  submitCreate(): void {
-    if (this.createForm.invalid) {
-      this.createForm.markAllAsTouched();
-      return;
-    }
-
-    this.submitting = true;
-    const dto: CreateOrderDto = this.createForm.value;
-
-    this.investmentService.create(dto).subscribe({
-      next: (order) => {
-        this.orders = [order, ...this.orders];
-        this.applyFilters();
-        this.toastr.success(
-          `Order ${order.orderNumber} created successfully.`);
-        this.closeCreateModal();
-        this.submitting = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.toastr.error(
-          err.error?.error ?? 'Failed to create order.');
-        this.submitting = false;
+    for (const o of this.filteredOrders) {
+      if (!map.has(o.schemeCode)) {
+        map.set(o.schemeCode, {
+          schemeCode: o.schemeCode,
+          schemeName: o.schemeName,
+          fundName: o.fundName,
+          totalInvested: 0,
+          orderCount: 0,
+          activeCount: 0,
+          pendingCount: 0,
+          orders: [],
+          latestStatus: o.status,
+          latestDate: o.orderDate
+        });
       }
+      const g = map.get(o.schemeCode)!;
+      g.totalInvested += o.investedAmount;
+      g.orderCount++;
+      if (o.status === 'Active') g.activeCount++;
+      if (o.status === 'Pending') g.pendingCount++;
+      g.orders.push(o);
+
+      // Track latest order date
+      if (new Date(o.orderDate) > new Date(g.latestDate)) {
+        g.latestDate = o.orderDate;
+        g.latestStatus = o.status;
+      }
+    }
+
+    return Array.from(map.values())
+      .sort((a, b) => a.schemeName.localeCompare(b.schemeName));
+  }
+
+  get selectedSchemeGroup(): OrderSchemeGroup | null {
+    if (!this.selectedSchemeCode) return null;
+    return this.groupedSchemes
+      .find(g => g.schemeCode === this.selectedSchemeCode) ?? null;
+  }
+
+  selectScheme(schemeCode: string): void {
+    const opening = this.selectedSchemeCode !== schemeCode;
+    this.selectedSchemeCode = opening ? schemeCode : null;
+
+    if (opening) {
+      this.cdr.detectChanges();
+      setTimeout(() => this.scrollToPanel(), 50);
+    }
+  }
+
+  isSchemeSelected(schemeCode: string): boolean {
+    return this.selectedSchemeCode === schemeCode;
+  }
+
+  private scrollToPanel(): void {
+    if (!this.detailPanelRef?.nativeElement) return;
+    this.detailPanelRef.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
     });
   }
 
-  viewOrder(id: number): void {
-    this.router.navigate(['/admin/orders', id]);
+  // ── Tile helpers ──────────────────────────────────────────────
+  getTileStatusClass(group: OrderSchemeGroup): string {
+    if (group.activeCount > 0) return 'tile--active';
+    if (group.pendingCount > 0) return 'tile--pending';
+    return 'tile--other';
   }
-
-  // ── Helpers ───────────────────────────────────────────────────
-  get f() { return this.createForm.controls; }
 
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
@@ -256,20 +265,68 @@ export class OrdersComponent implements OnInit {
     }
   }
 
-  get pendingCount(): number { return this.orders.filter(o => o.status === 'Pending').length; }
-  get submittedCount(): number { return this.orders.filter(o => o.status === 'Submitted').length; }
-  get activeCount(): number { return this.orders.filter(o => o.status === 'Active').length; }
+  // ── Create modal ──────────────────────────────────────────────
+  openCreateModal(): void {
+    this.createForm.reset({
+      paymentMode: 'Cheque',
+      orderDate: new Date().toISOString().split('T')[0]
+    });
+    this.isChequePay = true;
+    this.isNeftPay = false;
+    this.showCreateModal = true;
+  }
 
+  closeCreateModal(): void {
+    this.showCreateModal = false;
+  }
 
-  toggleOrder(id: number): void {
-    if (this.expandedOrders.has(id)) {
-      this.expandedOrders.delete(id);
-    } else {
-      this.expandedOrders.add(id);
+  onSchemeChange(schemeCode: string): void {
+    const scheme = this.schemes.find((s: any) => s.schemeCode === schemeCode);
+    if (scheme) {
+      this.createForm.patchValue({
+        schemeName: scheme.schemeName,
+        fundName: scheme.fundName ?? scheme.schemeName.split(' ')[0]
+      });
     }
   }
 
-  isOrderExpanded(id: number): boolean {
-    return this.expandedOrders.has(id);
+  onInvestorChange(userId: string): void {
+    const user = this.users.find((u: any) => u.id === userId);
+    if (user) {
+      this.createForm.patchValue({ investorName: user.fullName });
+    }
   }
+
+  submitCreate(): void {
+    if (this.createForm.invalid) {
+      this.createForm.markAllAsTouched();
+      return;
+    }
+    this.submitting = true;
+    const dto: CreateOrderDto = this.createForm.value;
+
+    this.investmentService.create(dto).subscribe({
+      next: (order) => {
+        this.orders = [order, ...this.orders];
+        this.toastr.success(`Order ${order.orderNumber} created successfully.`);
+        this.closeCreateModal();
+        this.submitting = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.toastr.error(err.error?.error ?? 'Failed to create order.');
+        this.submitting = false;
+      }
+    });
+  }
+
+  viewOrder(id: number): void {
+    this.router.navigate(['/admin/orders', id]);
+  }
+
+  get f() { return this.createForm.controls; }
+
+  get pendingCount(): number { return this.orders.filter(o => o.status === 'Pending').length; }
+  get submittedCount(): number { return this.orders.filter(o => o.status === 'Submitted').length; }
+  get activeCount(): number { return this.orders.filter(o => o.status === 'Active').length; }
 }

@@ -1,4 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Component, OnInit, ChangeDetectorRef,
+  ViewChildren, QueryList, ElementRef   // ← add these
+} from '@angular/core';
 import { PortfolioService } from '../../../../core/services/portfolio.service';
 import {
   FamilyPortfolioDto,
@@ -32,8 +35,11 @@ export class PortfolioOverviewComponent implements OnInit {
   snapshotRunning = false;
 
   expandedInvestor: string | null = null;
-  // Format: `${investorUserId}__${schemeCode}` — tracks which tile is open per investor
   selectedSchemeKey: string | null = null;
+
+  // ← One ref per investor's detail panel
+  @ViewChildren('schemeDetailPanel')
+  detailPanels!: QueryList<ElementRef>;
 
   private schemeGroupCache = new Map<string, SchemeGroup[]>();
 
@@ -106,13 +112,10 @@ export class PortfolioOverviewComponent implements OnInit {
     return Array.from(map.values());
   }
 
-  // ── Investor accordion ────────────────────────────────────────
+  // ── Investor accordion ─────────────────────────────────────────
   toggleInvestor(investorId: string): void {
-    if (this.expandedInvestor === investorId) {
-      this.expandedInvestor = null;
-    } else {
-      this.expandedInvestor = investorId;
-    }
+    this.expandedInvestor =
+      this.expandedInvestor === investorId ? null : investorId;
     this.selectedSchemeKey = null;
   }
 
@@ -120,14 +123,32 @@ export class PortfolioOverviewComponent implements OnInit {
     return this.expandedInvestor === investorId;
   }
 
-  // ── Scheme tile helpers ───────────────────────────────────────
+  // ── Scheme tile ────────────────────────────────────────────────
   getSchemesForInvestor(investorId: string): SchemeGroup[] {
     return this.schemeGroupCache.get(investorId) ?? [];
   }
 
   selectScheme(investorId: string, schemeCode: string): void {
     const key = `${investorId}__${schemeCode}`;
-    this.selectedSchemeKey = this.selectedSchemeKey === key ? null : key;
+    const opening = this.selectedSchemeKey !== key;
+
+    this.selectedSchemeKey = opening ? key : null;
+
+    if (opening) {
+      this.cdr.detectChanges();
+      setTimeout(() => this.scrollToPanel(), 50);
+    }
+  }
+
+  private scrollToPanel(): void {
+    // detailPanels is a QueryList — grab the first visible one
+    const panel = this.detailPanels?.first;
+    if (!panel?.nativeElement) return;
+
+    panel.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
   }
 
   isSchemeSelected(investorId: string, schemeCode: string): boolean {
@@ -142,15 +163,13 @@ export class PortfolioOverviewComponent implements OnInit {
       .find(s => s.schemeCode === schemeCode) ?? null;
   }
 
-  // ── Snapshot ──────────────────────────────────────────────────
   triggerSnapshot(): void {
     this.snapshotRunning = true;
     this.portfolioService.triggerSnapshot().subscribe({
       next: (result) => {
         this.snapshotRunning = false;
         this.toastr.success(
-          `Snapshot complete — ${result.calculated} holdings calculated.`
-        );
+          `Snapshot complete — ${result.calculated} holdings calculated.`);
         this.loadPortfolio();
       },
       error: () => {
@@ -160,7 +179,6 @@ export class PortfolioOverviewComponent implements OnInit {
     });
   }
 
-  // ── Track-by helpers ──────────────────────────────────────────
   trackByInvestor(_: number, r: PortfolioReportDto): string {
     return r.investorUserId;
   }

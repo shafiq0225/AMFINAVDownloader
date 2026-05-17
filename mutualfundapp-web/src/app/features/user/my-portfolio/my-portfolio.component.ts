@@ -1,4 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {
+  Component, OnInit, ChangeDetectorRef,
+  ViewChild, ElementRef        // ← add these
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { PortfolioService } from '../../../core/services/portfolio.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -29,6 +32,9 @@ export class MyPortfolioComponent implements OnInit {
   loading = true;
   searchCtrl = new FormControl('');
   selectedSchemeCode: string | null = null;
+
+  // ← Reference to the detail panel DOM element
+  @ViewChild('detailPanel') detailPanelRef!: ElementRef;
 
   constructor(
     private portfolioService: PortfolioService,
@@ -68,8 +74,7 @@ export class MyPortfolioComponent implements OnInit {
     return this.portfolio.holdings.filter(h =>
       h.schemeName.toLowerCase().includes(term) ||
       h.fundName.toLowerCase().includes(term) ||
-      h.schemeCode.toLowerCase().includes(term)
-    );
+      h.schemeCode.toLowerCase().includes(term));
   }
 
   get groupedSchemes(): SchemeGroup[] {
@@ -110,11 +115,28 @@ export class MyPortfolioComponent implements OnInit {
 
   get selectedScheme(): SchemeGroup | null {
     if (!this.selectedSchemeCode) return null;
-    return this.groupedSchemes.find(s => s.schemeCode === this.selectedSchemeCode) ?? null;
+    return this.groupedSchemes
+      .find(s => s.schemeCode === this.selectedSchemeCode) ?? null;
   }
 
   selectScheme(code: string): void {
-    this.selectedSchemeCode = this.selectedSchemeCode === code ? null : code;
+    const opening = this.selectedSchemeCode !== code;
+    this.selectedSchemeCode = opening ? code : null;
+
+    if (opening) {
+      // Wait for Angular to render the panel, then scroll to it
+      this.cdr.detectChanges();
+      setTimeout(() => this.scrollToPanel(), 50);
+    }
+  }
+
+  private scrollToPanel(): void {
+    if (!this.detailPanelRef?.nativeElement) return;
+
+    this.detailPanelRef.nativeElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
   }
 
   isSchemeSelected(code: string): boolean {

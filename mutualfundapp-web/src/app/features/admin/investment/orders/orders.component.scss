@@ -1,6 +1,7 @@
 @use "../../../../../styles/variables" as *;
 @use "../../../../../styles/mixins" as *;
 
+// ── Page Header ───────────────────────────────────────────────────
 .page-header {
   @include flex-between;
   margin-bottom: 24px;
@@ -51,7 +52,228 @@
   margin-left: auto;
 }
 
-// ── Table cells ───────────────────────────────────────────────────
+// ── Scheme Tiles ──────────────────────────────────────────────────
+.scheme-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scheme-tile {
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: $card-radius;
+  padding: 16px;
+  cursor: pointer;
+  transition: $transition-fast;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  user-select: none;
+
+  &:hover {
+    border-color: $primary-light;
+    box-shadow: $shadow-card;
+    transform: translateY(-1px);
+  }
+
+  &--selected {
+    border-color: $primary;
+    background: rgba($primary, 0.02);
+    box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  }
+
+  &--active {
+    border-left: 3px solid $success;
+  }
+  &--pending {
+    border-left: 3px solid $warning;
+  }
+  &--other {
+    border-left: 3px solid $border-dark;
+  }
+}
+
+.tile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.tile-scheme-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.tile-scheme-name {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-primary;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.tile-fund-name {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.tile-scheme-code {
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.tile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: $page-bg;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.tile-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tile-stat__label {
+  font-size: 9px;
+  font-weight: 700;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tile-stat__value {
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $text-primary;
+  font-family: "Courier New", monospace;
+}
+
+.tile-footer {
+  @include flex-between;
+  align-items: center;
+}
+
+.tile-date {
+  @include flex-start;
+  gap: 5px;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  i {
+    font-size: 10px;
+  }
+}
+
+.expand-icon {
+  font-size: 11px;
+  color: $text-muted;
+}
+
+// ── Order Detail Panel ────────────────────────────────────────────
+.order-detail-panel {
+  background: $surface;
+  border: 1.5px solid $primary;
+  border-radius: $card-radius;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+  margin-bottom: 16px;
+  scroll-margin-top: 80px; // ← offset for sticky nav
+}
+
+.detail-panel-header {
+  @include flex-between;
+  padding: 14px 18px;
+  background: rgba($primary, 0.04);
+  border-bottom: 1px solid rgba($primary, 0.15);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-panel-title {
+  h3 {
+    font-size: $font-size-base;
+    font-weight: 700;
+    color: $primary;
+    margin: 0 0 3px;
+  }
+}
+
+.detail-panel-sub {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  code {
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    color: $primary-light;
+    background: rgba($primary, 0.06);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+}
+
+// ── Orders Table ──────────────────────────────────────────────────
+.orders-table {
+  min-width: 900px;
+
+  thead th {
+    background: $primary;
+    color: #fff;
+    font-size: $font-size-xs;
+    font-weight: 700;
+    padding: 10px 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: none;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background 0.15s;
+    &:hover {
+      background: $hover-bg;
+    }
+    &.row-active {
+      background: rgba($success, 0.02);
+    }
+    &.row-cancelled {
+      background: rgba($danger, 0.02);
+    }
+    td {
+      padding: 10px 12px;
+      border: none;
+    }
+  }
+
+  tfoot .totals-row {
+    background: rgba($primary, 0.05);
+    border-top: 2px solid $primary;
+    td {
+      padding: 12px;
+      font-weight: 700;
+      border: none;
+    }
+  }
+}
+
 .order-code {
   font-family: "Courier New", monospace;
   font-size: 12px;
@@ -62,54 +284,32 @@
   border-radius: 5px;
 }
 
+.folio-code {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
 .investor-cell {
   @include flex-start;
-  gap: 10px;
+  gap: 8px;
 }
 
 .avatar-sm {
   @include flex-center;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
   background: rgba($primary, 0.1);
   color: $primary;
   border-radius: 50%;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.scheme-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-width: 240px;
-}
-
-.scheme-name {
-  font-size: $font-size-sm;
-  font-weight: 500;
-  color: $text-primary;
-  @include truncate;
-}
-
-.scheme-code-sm {
-  font-family: "Courier New", monospace;
   font-size: 11px;
-  color: $primary-light;
-  background: rgba($primary, 0.05);
-  padding: 1px 5px;
-  border-radius: 3px;
-  width: fit-content;
-}
-
-.amount {
   font-weight: 700;
-  color: $text-primary;
-  font-size: $font-size-sm;
 }
 
-// ── Action Buttons ────────────────────────────────────────────────
 .action-btn {
   @include flex-center;
   width: 30px;
@@ -128,6 +328,99 @@
       color: #fff;
     }
   }
+}
+
+// ── Mobile Cards ──────────────────────────────────────────────────
+.mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.order-card {
+  background: $surface;
+  border-radius: 10px;
+  border: 1px solid $border;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+
+  &--active {
+    border-left: 3px solid $success;
+  }
+  &--cancelled {
+    border-left: 3px solid $danger;
+  }
+}
+
+.order-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.oc-left {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.oc-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.oc-amount {
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $primary;
+}
+
+.order-card__details {
+  border-top: 1px solid $border;
+  padding: 14px 16px;
+  background: $page-bg;
+}
+
+.hc-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin-bottom: 0;
+}
+
+.hc-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hc-detail-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.hc-detail-value {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  font-weight: 500;
+}
+.hc-detail-code {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  width: fit-content;
 }
 
 // ── Empty State ───────────────────────────────────────────────────
@@ -169,7 +462,6 @@
   max-width: 560px;
   box-shadow: $shadow-lg;
   overflow: hidden;
-
   &-lg {
     max-width: 640px;
   }
@@ -197,7 +489,6 @@
   border-radius: 8px;
   cursor: pointer;
   color: $text-muted;
-  transition: $transition-fast;
   &:hover {
     background: $danger-light;
     color: $danger;
@@ -219,7 +510,6 @@
   justify-content: flex-end;
 }
 
-// ── Form Sections ─────────────────────────────────────────────────
 .form-section {
   background: $page-bg;
   border-radius: 10px;
@@ -241,7 +531,12 @@
   }
 }
 
-// ── Payment Options ───────────────────────────────────────────────
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
 .payment-options {
   display: flex;
   gap: 8px;
@@ -261,6 +556,7 @@
   input[type="radio"] {
     display: none;
   }
+
   &.selected {
     border-color: $primary;
     background: rgba($primary, 0.06);
@@ -269,186 +565,57 @@
   }
 }
 
-// ── Form row 2 columns ────────────────────────────────────────────
-.form-row-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-// ── Input with icon ───────────────────────────────────────────────
-.input-wrapper {
-  position: relative;
-}
-.input-icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: $text-muted;
-  font-size: 13px;
-  pointer-events: none;
-}
-.form-control {
-  padding-left: 42px !important;
-}
-.desktop-only {
-  @media (max-width: 768px) {
-    display: none;
-  }
-}
-
-.mobile-only {
-  display: none;
-  @media (max-width: 768px) {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-}
-
-.order-card {
-  background: $surface;
-  border-radius: 10px;
-  border: 1px solid $border;
-  overflow: hidden;
-  box-shadow: $shadow-sm;
-
-  &-active {
-    border-left: 3px solid $success;
-  }
-  &-cancelled {
-    border-left: 3px solid $danger;
-  }
-}
-
-.order-card__collapsed {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 14px 16px;
-  cursor: pointer;
-  gap: 12px;
-  user-select: none;
-  &:active {
-    background: $hover-bg;
-  }
-}
-
-.oc-left {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.oc-order-number {
-  font-family: "Courier New", monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: $primary;
-  background: rgba($primary, 0.06);
-  padding: 1px 6px;
-  border-radius: 4px;
-  width: fit-content;
-}
-
-.oc-scheme {
-  font-size: $font-size-sm;
-  font-weight: 600;
-  color: $text-primary;
-  line-height: 1.3;
-}
-
-.oc-investor {
-  @include flex-start;
-  gap: 5px;
-  font-size: $font-size-xs;
-  color: $text-muted;
-  i {
-    font-size: 10px;
-  }
-}
-
-.oc-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.oc-amount {
-  font-size: $font-size-base;
-  font-weight: 700;
-  color: $primary;
-  font-family: "Courier New", monospace;
-}
-
-.order-card__expanded {
-  border-top: 1px solid $border;
-  padding: 14px 16px;
-  background: $page-bg;
-  animation: slideDown 0.2s ease;
-}
-
-// Reuse same detail grid as portfolio
-.hc-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 16px;
-  margin-bottom: 0;
-}
-
-.hc-detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.hc-detail-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.hc-detail-value {
-  font-size: $font-size-sm;
-  color: $text-primary;
-  font-weight: 500;
-}
-
-.hc-detail-code {
-  font-family: "Courier New", monospace;
-  font-size: 11px;
-  color: $primary-light;
-  background: rgba($primary, 0.06);
-  padding: 1px 5px;
-  border-radius: 3px;
-  width: fit-content;
-}
-
-.expand-icon {
-  font-size: 11px;
-  color: $text-muted;
-}
+// ── Utilities ─────────────────────────────────────────────────────
 .font-mono {
   font-family: "Courier New", monospace;
 }
 .font-bold {
   font-weight: 700;
 }
-.w-full {
-  width: 100%;
+.text-right {
+  text-align: right;
+}
+.text-sm {
+  font-size: $font-size-sm;
+}
+.text-muted {
+  color: $text-muted;
+}
+.text-success {
+  color: $success;
+}
+.mt-4 {
+  margin-top: 4px;
 }
 .mt-12 {
   margin-top: 12px;
 }
-.text-success {
-  color: $success;
+.mt-16 {
+  margin-top: 16px;
+}
+.w-full {
+  width: 100%;
+}
+.mb-16 {
+  margin-bottom: 16px;
+}
+.mb-24 {
+  margin-bottom: 24px;
+}
+
+// ── Desktop / Mobile ──────────────────────────────────────────────
+.desktop-only {
+  display: block !important;
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.mobile-only {
+  display: none !important;
+  @media (max-width: 768px) {
+    display: block !important;
+  }
 }
 
 @keyframes slideDown {

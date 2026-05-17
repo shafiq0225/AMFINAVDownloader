@@ -171,7 +171,7 @@
                     <!-- end scheme-tiles-grid -->
 
                     <!-- Scheme Detail Panel -->
-                    <div class="scheme-detail-panel" *ngIf="getSelectedScheme(inv.investorUserId) as selectedScheme">
+                    <div class="scheme-detail-panel"  #schemeDetailPanel *ngIf="getSelectedScheme(inv.investorUserId) as selectedScheme">
 
                         <div class="detail-panel-header">
                             <div class="detail-panel-title">
