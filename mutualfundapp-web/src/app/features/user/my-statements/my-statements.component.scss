@@ -1,0 +1,119 @@
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
+
+.page-header {
+  margin-bottom: 24px;
+  h2 {
+    font-size: $font-size-xl;
+    color: $primary;
+    margin-bottom: 4px;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+.statements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.statement-card {
+  @include flex-start;
+  gap: 16px;
+  padding: 20px;
+  transition: $transition-fast;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.statement-icon {
+  @include flex-center;
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  background: rgba($danger, 0.08);
+  border-radius: 12px;
+  font-size: 24px;
+  color: $danger;
+}
+
+.statement-info {
+  flex: 1;
+  overflow: hidden;
+
+  h4 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 3px;
+    @include truncate;
+  }
+}
+
+.fund-name {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin: 0 0 8px;
+  @include truncate;
+}
+
+.statement-meta {
+  @include flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  span {
+    @include flex-start;
+    gap: 5px;
+    font-size: $font-size-xs;
+    color: $text-muted;
+    i {
+      font-size: 11px;
+    }
+  }
+}
+
+.order-ref {
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.view-btn {
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+
+  i {
+    font-size: 56px;
+    color: $border-dark;
+    margin-bottom: 20px;
+    display: block;
+  }
+  h3 {
+    font-size: $font-size-xl;
+    color: $text-secondary;
+    margin-bottom: 12px;
+  }
+  p {
+    font-size: $font-size-base;
+    color: $text-muted;
+    max-width: 420px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+}

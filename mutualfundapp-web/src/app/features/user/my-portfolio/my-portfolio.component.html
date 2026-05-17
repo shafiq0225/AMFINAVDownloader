@@ -1,0 +1,324 @@
+<app-loading-spinner *ngIf="loading" message="Loading your portfolio...">
+</app-loading-spinner>
+
+<div *ngIf="!loading">
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h2>My Portfolio</h2>
+            <p *ngIf="portfolio">
+                Report as of {{ portfolio.reportDate | date:'dd MMM yyyy' }}
+            </p>
+        </div>
+    </div>
+
+    <!-- No Holdings -->
+    <div class="card empty-portfolio" *ngIf="!portfolio || portfolio.totalHoldings === 0">
+        <i class="fas fa-chart-pie"></i>
+        <h3>No Investments Yet</h3>
+        <p>Your portfolio is empty. Contact Admin to record your investments.</p>
+    </div>
+
+    <ng-container *ngIf="portfolio && portfolio.totalHoldings > 0">
+
+        <!-- Summary Cards -->
+        <div class="summary-grid mb-24">
+            <div class="summary-card">
+                <span class="summary-label">Total Invested</span>
+                <span class="summary-value">
+                    ₹{{ portfolio.totalInvested | number:'1.0-0' }}
+                </span>
+            </div>
+            <div class="summary-card">
+                <span class="summary-label">Current Value</span>
+                <span class="summary-value">
+                    ₹{{ portfolio.totalCurrentValue | number:'1.0-0' }}
+                </span>
+            </div>
+            <div class="summary-card" [class.card-profit]="portfolio.isOverallProfit"
+                [class.card-loss]="!portfolio.isOverallProfit">
+                <span class="summary-label">Total P&L</span>
+                <span class="summary-value" [class.text-success]="portfolio.isOverallProfit"
+                    [class.text-danger]="!portfolio.isOverallProfit">
+                    {{ portfolio.isOverallProfit ? '+' : '' }}₹{{
+                    portfolio.totalProfitLoss | number:'1.0-0' }}
+                </span>
+            </div>
+            <div class="summary-card" [class.card-profit]="portfolio.isOverallProfit"
+                [class.card-loss]="!portfolio.isOverallProfit">
+                <span class="summary-label">Overall Return</span>
+                <span class="summary-value" [class.text-success]="portfolio.isOverallProfit"
+                    [class.text-danger]="!portfolio.isOverallProfit">
+                    {{ portfolio.isOverallProfit ? '+' : '' }}{{
+                    portfolio.overallReturnPercent | number:'1.2-2' }}%
+                </span>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="card mb-24">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="form-control search-input" placeholder="Search scheme or fund..."
+                    [formControl]="searchCtrl">
+            </div>
+        </div>
+
+        <!-- Scheme Tiles Grid -->
+        <div class="scheme-tiles-grid mb-16">
+            <div class="scheme-tile" *ngFor="let scheme of groupedSchemes"
+                [class.scheme-tile--selected]="isSchemeSelected(scheme.schemeCode)"
+                [class.scheme-tile--profit]="scheme.isProfit" [class.scheme-tile--loss]="!scheme.isProfit"
+                (click)="selectScheme(scheme.schemeCode)">
+
+                <div class="tile-header">
+                    <div class="tile-scheme-info">
+                        <span class="tile-scheme-name">{{ scheme.schemeName }}</span>
+                        <span class="tile-fund-name">{{ scheme.fundName }}</span>
+                        <code class="tile-scheme-code">{{ scheme.schemeCode }}</code>
+                    </div>
+                    <span class="pct-badge" [class.pct-up]="scheme.isProfit" [class.pct-down]="!scheme.isProfit">
+                        <i class="fas" [class.fa-arrow-up]="scheme.isProfit"
+                            [class.fa-arrow-down]="!scheme.isProfit"></i>
+                        {{ scheme.isProfit ? '+' : '' }}{{ scheme.returnPercent | number:'1.2-2' }}%
+                    </span>
+                </div>
+
+                <div class="tile-stats">
+                    <div class="tile-stat">
+                        <span class="tile-stat__label">Invested</span>
+                        <span class="tile-stat__value">
+                            ₹{{ scheme.totalInvested | number:'1.0-0' }}
+                        </span>
+                    </div>
+                    <div class="tile-stat">
+                        <span class="tile-stat__label">Current</span>
+                        <span class="tile-stat__value">
+                            ₹{{ scheme.totalCurrentValue | number:'1.0-0' }}
+                        </span>
+                    </div>
+                    <div class="tile-stat">
+                        <span class="tile-stat__label">P&L</span>
+                        <span class="tile-stat__value" [class.text-success]="scheme.isProfit"
+                            [class.text-danger]="!scheme.isProfit">
+                            {{ scheme.isProfit ? '+' : '' }}₹{{
+                            scheme.totalProfitLoss | number:'1.0-0' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="tile-footer">
+                    <span class="tile-count">
+                        <i class="fas fa-layer-group"></i>
+                        {{ scheme.holdingCount }} purchase(s)
+                    </span>
+                    <i class="fas expand-icon" [class.fa-chevron-down]="!isSchemeSelected(scheme.schemeCode)"
+                        [class.fa-chevron-up]="isSchemeSelected(scheme.schemeCode)"></i>
+                </div>
+            </div>
+        </div>
+        <!-- end scheme-tiles-grid -->
+
+        <!-- Scheme Detail Panel -->
+        <div class="scheme-detail-panel" *ngIf="selectedScheme">
+
+            <div class="detail-panel-header">
+                <div class="detail-panel-title">
+                    <h3>{{ selectedScheme.schemeName }}</h3>
+                    <span class="detail-panel-sub">
+                        {{ selectedScheme.fundName }} &middot;
+                        <code>{{ selectedScheme.schemeCode }}</code>
+                    </span>
+                </div>
+                <button class="btn btn-ghost btn-sm" (click)="selectScheme(selectedScheme.schemeCode)">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="table-container desktop-only">
+                <table class="table portfolio-table">
+                    <thead>
+                        <tr>
+                            <th>Date of Purchase</th>
+                            <th>Year</th>
+                            <th class="text-right">Invested (₹)</th>
+                            <th class="text-right">Purchase NAV</th>
+                            <th class="text-right">Units</th>
+                            <th class="text-right">Current NAV</th>
+                            <th class="text-right">Total Value (₹)</th>
+                            <th class="text-right">P&L (₹)</th>
+                            <th class="text-right">%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of selectedScheme.holdings" [class.row-profit]="row.isProfit"
+                            [class.row-loss]="!row.isProfit">
+                            <td class="text-sm">{{ row.purchaseDateText }}</td>
+                            <td class="text-sm text-center">{{ row.year }}</td>
+                            <td class="text-right font-mono">
+                                {{ row.investedAmount | number:'1.2-2' }}
+                            </td>
+                            <td class="text-right font-mono">
+                                {{ row.purchaseNAV | number:'1.4-4' }}
+                            </td>
+                            <td class="text-right font-mono">
+                                {{ row.units | number:'1.3-3' }}
+                            </td>
+                            <td class="text-right font-mono">
+                                {{ row.currentNAV | number:'1.4-4' }}
+                            </td>
+                            <td class="text-right font-mono font-bold">
+                                {{ row.totalAmount | number:'1.2-2' }}
+                            </td>
+                            <td class="text-right">
+                                <span class="font-mono font-bold" [class.text-success]="row.isProfit"
+                                    [class.text-danger]="!row.isProfit">
+                                    {{ row.isProfit ? '+' : '' }}{{ row.profitLoss | number:'1.2-2' }}
+                                </span>
+                            </td>
+                            <td class="text-right">
+                                <span class="pct-badge" [class.pct-up]="row.isProfit" [class.pct-down]="!row.isProfit">
+                                    <i class="fas" [class.fa-arrow-up]="row.isProfit"
+                                        [class.fa-arrow-down]="!row.isProfit"></i>
+                                    {{ row.percentage | number:'1.2-2' }}%
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="totals-row">
+                            <td colspan="2"><strong>TOTAL</strong></td>
+                            <td class="text-right font-mono font-bold">
+                                ₹{{ selectedScheme.totalInvested | number:'1.2-2' }}
+                            </td>
+                            <td colspan="3"></td>
+                            <td class="text-right font-mono font-bold">
+                                ₹{{ selectedScheme.totalCurrentValue | number:'1.2-2' }}
+                            </td>
+                            <td class="text-right font-mono font-bold" [class.text-success]="selectedScheme.isProfit"
+                                [class.text-danger]="!selectedScheme.isProfit">
+                                {{ selectedScheme.isProfit ? '+' : '' }}₹{{
+                                selectedScheme.totalProfitLoss | number:'1.2-2' }}
+                            </td>
+                            <td class="text-right">
+                                <span class="pct-badge" [class.pct-up]="selectedScheme.isProfit"
+                                    [class.pct-down]="!selectedScheme.isProfit">
+                                    {{ selectedScheme.isProfit ? '+' : '' }}{{
+                                    selectedScheme.returnPercent | number:'1.2-2' }}%
+                                </span>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="mobile-cards mobile-only">
+
+                <!-- Total Strip -->
+                <div class="mobile-total-strip">
+                    <div class="mobile-total-item">
+                        <span class="mt-label">Invested</span>
+                        <span class="mt-value">
+                            ₹{{ selectedScheme.totalInvested | number:'1.0-0' }}
+                        </span>
+                    </div>
+                    <div class="mobile-total-item">
+                        <span class="mt-label">Value</span>
+                        <span class="mt-value">
+                            ₹{{ selectedScheme.totalCurrentValue | number:'1.0-0' }}
+                        </span>
+                    </div>
+                    <div class="mobile-total-item">
+                        <span class="mt-label">P&L</span>
+                        <span class="mt-value" [class.text-success]="selectedScheme.isProfit"
+                            [class.text-danger]="!selectedScheme.isProfit">
+                            {{ selectedScheme.isProfit ? '+' : '' }}₹{{
+                            selectedScheme.totalProfitLoss | number:'1.0-0' }}
+                        </span>
+                    </div>
+                    <div class="mobile-total-item">
+                        <span class="mt-label">Return</span>
+                        <span class="mt-value" [class.text-success]="selectedScheme.isProfit"
+                            [class.text-danger]="!selectedScheme.isProfit">
+                            {{ selectedScheme.isProfit ? '+' : '' }}{{
+                            selectedScheme.returnPercent | number:'1.2-2' }}%
+                        </span>
+                    </div>
+                </div>
+
+                <!-- One card per holding row -->
+                <div class="holding-card" *ngFor="let row of selectedScheme.holdings"
+                    [class.holding-card-profit]="row.isProfit" [class.holding-card-loss]="!row.isProfit">
+
+                    <div class="holding-card__collapsed">
+                        <div class="hc-left">
+                            <div class="hc-date">
+                                <i class="fas fa-calendar-day"></i>
+                                {{ row.purchaseDateText }} &middot; Year {{ row.year }}
+                            </div>
+                            <code class="hc-detail-code">{{ row.folioNumber }}</code>
+                        </div>
+                        <div class="hc-right">
+                            <div class="pct-badge" [class.pct-up]="row.isProfit" [class.pct-down]="!row.isProfit">
+                                <i class="fas" [class.fa-arrow-up]="row.isProfit"
+                                    [class.fa-arrow-down]="!row.isProfit"></i>
+                                {{ row.percentage | number:'1.2-2' }}%
+                            </div>
+                            <div class="hc-pl" [class.text-success]="row.isProfit" [class.text-danger]="!row.isProfit">
+                                {{ row.isProfit ? '+' : '' }}₹{{ row.profitLoss | number:'1.0-0' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="holding-card__expanded">
+                        <div class="hc-detail-grid">
+                            <div class="hc-detail-item">
+                                <span class="hc-detail-label">Invested</span>
+                                <span class="hc-detail-value font-mono">
+                                    ₹{{ row.investedAmount | number:'1.2-2' }}
+                                </span>
+                            </div>
+                            <div class="hc-detail-item">
+                                <span class="hc-detail-label">Purchase NAV</span>
+                                <span class="hc-detail-value font-mono">
+                                    ₹{{ row.purchaseNAV | number:'1.4-4' }}
+                                </span>
+                            </div>
+                            <div class="hc-detail-item">
+                                <span class="hc-detail-label">Units</span>
+                                <span class="hc-detail-value font-mono">
+                                    {{ row.units | number:'1.3-3' }}
+                                </span>
+                            </div>
+                            <div class="hc-detail-item">
+                                <span class="hc-detail-label">Current NAV</span>
+                                <span class="hc-detail-value font-mono">
+                                    ₹{{ row.currentNAV | number:'1.4-4' }}
+                                </span>
+                            </div>
+                            <div class="hc-detail-item">
+                                <span class="hc-detail-label">Current Value</span>
+                                <span class="hc-detail-value font-mono font-bold">
+                                    ₹{{ row.totalAmount | number:'1.2-2' }}
+                                </span>
+                            </div>
+                            <div class="hc-detail-item">
+                                <span class="hc-detail-label">Folio</span>
+                                <code class="hc-detail-code">{{ row.folioNumber }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end holding-card -->
+
+            </div>
+            <!-- end mobile-cards -->
+
+        </div>
+        <!-- end scheme-detail-panel -->
+
+    </ng-container>
+</div>

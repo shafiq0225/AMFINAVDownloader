@@ -6,6 +6,8 @@ import { PermissionGuard } from '../../core/guards/permission.guard';
 import { UserDashboardComponent } from './dashboard/dashboard.component';
 import { NavViewComponent } from './nav-view/nav-view.component';
 import { FamilyViewComponent } from './family-view/family-view.component';
+import { MyPortfolioComponent } from './my-portfolio/my-portfolio.component';
+import { MyStatementsComponent } from './my-statements/my-statements.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: UserDashboardComponent },
@@ -16,14 +18,18 @@ const routes: Routes = [
     data: { permission: 'nav.read' }
   },
   { path: 'family', component: FamilyViewComponent },
+  { path: 'portfolio', component: MyPortfolioComponent },
+  { path: 'statements', component: MyStatementsComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
 @NgModule({
   declarations: [
     UserDashboardComponent,
-    NavViewComponent,        // ← only declared here
-    FamilyViewComponent
+    NavViewComponent,
+    FamilyViewComponent,
+    MyPortfolioComponent,
+    MyStatementsComponent
   ],
   imports: [
     SharedModule,

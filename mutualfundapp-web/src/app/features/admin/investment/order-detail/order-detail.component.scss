@@ -1,0 +1,403 @@
+@use "../../../../../styles/variables" as *;
+@use "../../../../../styles/mixins" as *;
+
+// ── Header ────────────────────────────────────────────────────────
+.detail-header {
+  @include flex-between;
+  margin-bottom: 20px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-left {
+  @include flex-start;
+  gap: 16px;
+  align-items: flex-start;
+
+  h2 {
+    font-size: $font-size-xl;
+    color: $primary;
+    margin: 0 0 4px;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+.header-right {
+  flex-shrink: 0;
+}
+
+.badge-lg {
+  padding: 8px 16px;
+  font-size: $font-size-base;
+  font-weight: 700;
+  border-radius: 20px;
+}
+
+// ── Action Bar ────────────────────────────────────────────────────
+.action-bar {
+  @include flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: $page-bg;
+  border-radius: $card-radius;
+  border: 1px solid $border;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+.w-full {
+  width: 100%;
+}
+.mt-16 {
+  margin-top: 16px;
+}
+
+// ── Detail Grid ───────────────────────────────────────────────────
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.left-col,
+.right-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.mb-16 {
+  margin-bottom: 16px;
+}
+
+// ── Info Rows ─────────────────────────────────────────────────────
+.info-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-row {
+  @include flex-between;
+  padding: 11px 0;
+  border-bottom: 1px solid $border;
+  gap: 12px;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.info-label {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.info-value {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  text-align: right;
+}
+
+.info-code {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: $primary;
+  background: rgba($primary, 0.06);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.amount-value {
+  font-size: $font-size-lg;
+  font-weight: 700;
+  color: $primary;
+}
+
+.font-mono {
+  font-family: "Courier New", monospace;
+}
+
+// ── Timeline ──────────────────────────────────────────────────────
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 8px 0;
+}
+
+.timeline-item {
+  @include flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  position: relative;
+
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 36px;
+    width: 2px;
+    height: calc(100% - 12px);
+    background: $border;
+  }
+
+  &.done {
+    .timeline-dot {
+      background: $success;
+      border-color: $success;
+    }
+    &::after {
+      background: $success;
+    }
+    .timeline-label {
+      color: $text-primary;
+      font-weight: 600;
+    }
+  }
+
+  &.current .timeline-dot {
+    background: $primary;
+    border-color: $primary;
+    box-shadow: 0 0 0 4px rgba($primary, 0.15);
+  }
+}
+
+.timeline-dot {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  background: $surface;
+  border: 2px solid $border;
+  transition: $transition-fast;
+}
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline-label {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.timeline-date {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+// ── Notes ─────────────────────────────────────────────────────────
+.notes-text {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  line-height: 1.6;
+  margin: 0;
+}
+
+// ── No Statement ──────────────────────────────────────────────────
+.no-statement {
+  text-align: center;
+  padding: 28px 20px;
+
+  i {
+    font-size: 36px;
+    color: $border-dark;
+    margin-bottom: 12px;
+    display: block;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+// ── Info Box ──────────────────────────────────────────────────────
+.info-box {
+  @include flex-start;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba($primary, 0.04);
+  border: 1px solid rgba($primary, 0.12);
+  border-radius: 10px;
+  padding: 14px 16px;
+
+  > i {
+    color: $primary-light;
+    font-size: 16px;
+    margin-top: 2px;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  &-success {
+    background: rgba($success, 0.04);
+    border-color: rgba($success, 0.2);
+    > i {
+      color: $success;
+    }
+  }
+
+  &-danger {
+    background: rgba($danger, 0.04);
+    border-color: rgba($danger, 0.2);
+    > i {
+      color: $danger;
+    }
+  }
+}
+
+// ── Modal ─────────────────────────────────────────────────────────
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: $z-modal;
+  @include flex-center;
+  padding: 20px;
+}
+
+.modal {
+  background: $surface;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+}
+
+.modal-header {
+  @include flex-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid $border;
+  h3 {
+    @include flex-start;
+    gap: 10px;
+    margin: 0;
+    font-size: $font-size-lg;
+    color: $primary;
+  }
+}
+
+.modal-close {
+  @include flex-center;
+  width: 32px;
+  height: 32px;
+  background: $hover-bg;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: $text-muted;
+  &:hover {
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+.modal-body {
+  padding: 24px;
+  max-height: 65vh;
+  overflow-y: auto;
+  @include custom-scrollbar;
+}
+
+.modal-footer {
+  @include flex-between;
+  padding: 16px 24px;
+  border-top: 1px solid $border;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+// ── File Upload ───────────────────────────────────────────────────
+.file-drop-area {
+  position: relative;
+}
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.file-label {
+  @include flex-center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 32px 20px;
+  border: 2px dashed $border-dark;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: $transition-fast;
+  text-align: center;
+
+  i {
+    font-size: 36px;
+    color: $danger;
+  }
+
+  span {
+    font-size: $font-size-sm;
+    color: $text-muted;
+  }
+
+  .file-selected {
+    color: $primary;
+    font-weight: 600;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: rgba($primary, 0.02);
+  }
+}
+
+// ── Input with icon ───────────────────────────────────────────────
+.input-wrapper {
+  position: relative;
+}
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $text-muted;
+  font-size: 13px;
+  pointer-events: none;
+}
+.form-control {
+  padding-left: 42px !important;
+}
+
+.required {
+  color: $danger;
+}
+.form-hint {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin: 4px 0 0;
+}

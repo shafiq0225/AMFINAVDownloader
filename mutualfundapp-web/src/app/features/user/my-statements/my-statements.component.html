@@ -1,0 +1,43 @@
+<app-loading-spinner *ngIf="loading" message="Loading statements...">
+</app-loading-spinner>
+
+<div *ngIf="!loading">
+    <div class="page-header">
+        <div>
+            <h2>My Statements</h2>
+            <p>Investment statements from Mutual Fund companies</p>
+        </div>
+    </div>
+
+    <div class="empty-state card" *ngIf="statements.length === 0">
+        <i class="fas fa-file-pdf"></i>
+        <h3>No Statements Yet</h3>
+        <p>Statements will appear here once uploaded by Admin after your investments are confirmed.</p>
+    </div>
+
+    <div class="statements-grid" *ngIf="statements.length > 0">
+        <div class="statement-card card" *ngFor="let stmt of statements">
+            <div class="statement-icon">
+                <i class="fas fa-file-pdf"></i>
+            </div>
+            <div class="statement-info">
+                <h4>{{ stmt.schemeName }}</h4>
+                <p class="fund-name">{{ stmt.fundName }}</p>
+                <div class="statement-meta">
+                    <span>
+                        <i class="fas fa-calendar"></i>
+                        {{ stmt.statementDate | date:'dd MMM yyyy' }}
+                    </span>
+                    <span>
+                        <i class="fas fa-file"></i>
+                        {{ stmt.fileSizeText }}
+                    </span>
+                    <code class="order-ref">{{ stmt.orderNumber }}</code>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-sm view-btn" (click)="viewStatement(stmt)">
+                <i class="fas fa-eye"></i> View
+            </button>
+        </div>
+    </div>
+</div>

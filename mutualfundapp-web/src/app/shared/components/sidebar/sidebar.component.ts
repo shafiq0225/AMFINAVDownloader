@@ -39,91 +39,28 @@ export class SidebarComponent implements OnInit {
   activeRoute = '';
 
   navItems: NavItem[] = [
-    {
-      label: 'Dashboard',
-      icon: 'fa-chart-pie',
-      route: '/admin/dashboard',
-      roles: ['Admin']
-    },
-    {
-      label: 'Users',
-      icon: 'fa-users',
-      route: '/admin/users',
-      roles: ['Admin']
-    },
-    {
-      label: 'Pending Approvals',
-      icon: 'fa-clock',
-      route: '/admin/users/pending',
-      roles: ['Admin']
-    },
-    {
-      label: 'Permissions',
-      icon: 'fa-key',
-      route: '/admin/permissions',
-      roles: ['Admin']
-    },
-    {
-      label: 'Family Groups',
-      icon: 'fa-people-roof',
-      route: '/admin/family',
-      roles: ['Admin']
-    },
-    {
-      label: 'Schemes',
-      icon: 'fa-building-columns',
-      route: '/admin/schemes',
-      roles: ['Admin']
-    },
-    {
-      label: 'NAV Comparison',
-      icon: 'fa-arrow-trend-up',
-      route: '/admin/nav',
-      roles: ['Admin'],
-      adminOnly: true           // ← Admin always sees this
-    },
+    // ── Admin ──────────────────────────────────────────────────
+    { label: 'Dashboard', icon: 'fa-chart-pie', route: '/admin/dashboard', roles: ['Admin'] },
+    { label: 'Users', icon: 'fa-users', route: '/admin/users', roles: ['Admin'] },
+    { label: 'Pending Approvals', icon: 'fa-clock', route: '/admin/users/pending', roles: ['Admin'] },
+    { label: 'Family Groups', icon: 'fa-people-roof', route: '/admin/family', roles: ['Admin'] },
+    { label: 'Schemes', icon: 'fa-building-columns', route: '/admin/schemes', roles: ['Admin'] },
+    { label: 'NAV Comparison', icon: 'fa-arrow-trend-up', route: '/admin/nav', roles: ['Admin'], adminOnly: true },
+    { label: 'Orders', icon: 'fa-file-invoice', route: '/admin/orders', roles: ['Admin'] },     // ← new
+    { label: 'Portfolio', icon: 'fa-chart-pie', route: '/admin/portfolio', roles: ['Admin'] },     // ← new
 
-    {
-      label: 'Dashboard',
-      icon: 'fa-chart-line',
-      route: '/employee/dashboard',
-      roles: ['Employee']
-    },
-    {
-      label: 'Schemes',
-      icon: 'fa-building-columns',
-      route: '/employee/schemes',
-      roles: ['Employee']
-    },
-    {
-      label: 'NAV Comparison',
-      icon: 'fa-arrow-trend-up',
-      route: '/employee/nav',
-      roles: ['Employee'],
-      permission: 'nav.read'    // ← only if Admin granted nav.read
-    },
+    // ── Employee ───────────────────────────────────────────────
+    { label: 'Dashboard', icon: 'fa-chart-line', route: '/employee/dashboard', roles: ['Employee'] },
+    { label: 'Schemes', icon: 'fa-building-columns', route: '/employee/schemes', roles: ['Employee'] },
+    { label: 'NAV Comparison', icon: 'fa-arrow-trend-up', route: '/employee/nav', roles: ['Employee'], permission: 'nav.read' },
 
-    {
-      label: 'Dashboard',
-      icon: 'fa-house',
-      route: '/user/dashboard',
-      roles: ['User']
-    },
-    {
-      label: 'NAV Comparison',
-      icon: 'fa-arrow-trend-up',
-      route: '/user/nav',
-      roles: ['User'],
-      permission: 'nav.read'    // ← only if Admin granted nav.read
-    },
-    {
-      label: 'My Family',
-      icon: 'fa-people-roof',
-      route: '/user/family',
-      roles: ['User']
-    },
+    // ── User ───────────────────────────────────────────────────
+    { label: 'Dashboard', icon: 'fa-house', route: '/user/dashboard', roles: ['User'] },
+    { label: 'My Portfolio', icon: 'fa-chart-pie', route: '/user/portfolio', roles: ['User'] },      // ← new
+    { label: 'NAV Comparison', icon: 'fa-arrow-trend-up', route: '/user/nav', roles: ['User'], permission: 'nav.read' },
+    { label: 'My Statements', icon: 'fa-file-pdf', route: '/user/statements', roles: ['User'] },      // ← new
+    { label: 'My Family', icon: 'fa-people-roof', route: '/user/family', roles: ['User'] },
   ];
-
 
   constructor(
     public authService: AuthService,

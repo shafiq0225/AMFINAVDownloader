@@ -1,0 +1,561 @@
+@use "../../../../../styles/variables" as *;
+@use "../../../../../styles/mixins" as *;
+
+.page-header {
+  @include flex-between;
+  margin-bottom: 24px;
+  align-items: flex-start;
+  h2 {
+    font-size: $font-size-xl;
+    color: $primary;
+    margin-bottom: 4px;
+  }
+  p {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin: 0;
+  }
+}
+
+// ── Family Summary ────────────────────────────────────────────────
+.family-summary {
+  background: linear-gradient(135deg, $primary-dark, $primary);
+  border-radius: $card-radius;
+  padding: 24px;
+  color: #fff;
+}
+
+.family-summary__header {
+  @include flex-start;
+  gap: 10px;
+  font-size: $font-size-base;
+  font-weight: 600;
+  margin-bottom: 20px;
+  opacity: 0.9;
+  i {
+    font-size: 18px;
+  }
+}
+
+.family-summary__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.fam-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fam-stat__label {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fam-stat__value {
+  font-size: $font-size-xl;
+  font-weight: 700;
+  color: #fff;
+}
+
+.pct-large {
+  font-size: $font-size-2xl;
+}
+
+// ── Investor Cards ────────────────────────────────────────────────
+.investors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.investor-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.investor-header {
+  @include flex-between;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: $transition-fast;
+  flex-wrap: wrap;
+  gap: 12px;
+  &:hover {
+    background: $hover-bg;
+  }
+}
+
+.investor-info {
+  @include flex-start;
+  gap: 12px;
+  h4 {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 2px;
+  }
+}
+
+.investor-avatar {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: $primary;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.investor-summary {
+  @include flex-start;
+  gap: 24px;
+  align-items: center;
+  i {
+    color: $text-muted;
+    font-size: 14px;
+  }
+}
+
+.inv-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.inv-stat__label {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  font-weight: 500;
+}
+
+.inv-stat__value {
+  font-size: $font-size-base;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+// ── Investor Holdings Wrapper ─────────────────────────────────────
+.investor-holdings {
+  border-top: 1px solid $border;
+  background: $page-bg;
+}
+
+// ── Scheme Tiles Grid ─────────────────────────────────────────────
+.scheme-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  padding: 16px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scheme-tile {
+  background: $surface;
+  border: 1.5px solid $border;
+  border-radius: $card-radius;
+  padding: 16px;
+  cursor: pointer;
+  transition: $transition-fast;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  user-select: none;
+
+  &:hover {
+    border-color: $primary-light;
+    box-shadow: $shadow-card;
+    transform: translateY(-1px);
+  }
+
+  &--selected {
+    border-color: $primary;
+    background: rgba($primary, 0.02);
+    box-shadow: 0 0 0 3px rgba($primary, 0.12);
+  }
+
+  &--profit {
+    border-left: 3px solid $success;
+  }
+  &--loss {
+    border-left: 3px solid $danger;
+  }
+}
+
+.tile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.tile-scheme-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.tile-scheme-name {
+  font-size: $font-size-sm;
+  font-weight: 600;
+  color: $text-primary;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.tile-fund-name {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+.tile-scheme-code {
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.tile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: $page-bg;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.tile-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tile-stat__label {
+  font-size: 9px;
+  font-weight: 700;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tile-stat__value {
+  font-size: $font-size-sm;
+  font-weight: 700;
+  color: $text-primary;
+  font-family: "Courier New", monospace;
+}
+
+.tile-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tile-count {
+  @include flex-start;
+  gap: 5px;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  i {
+    font-size: 10px;
+  }
+}
+
+// ── Scheme Detail Panel ───────────────────────────────────────────
+.scheme-detail-panel {
+  margin: 0 16px 16px;
+  background: $surface;
+  border: 1.5px solid $primary;
+  border-radius: $card-radius;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+.detail-panel-header {
+  @include flex-between;
+  padding: 14px 18px;
+  background: rgba($primary, 0.04);
+  border-bottom: 1px solid rgba($primary, 0.15);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.detail-panel-title {
+  h3 {
+    font-size: $font-size-base;
+    font-weight: 700;
+    color: $primary;
+    margin: 0 0 3px;
+  }
+}
+
+.detail-panel-sub {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  code {
+    font-family: "Courier New", monospace;
+    font-size: 11px;
+    color: $primary-light;
+    background: rgba($primary, 0.06);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+}
+
+// ── Portfolio Table ───────────────────────────────────────────────
+.portfolio-table {
+  min-width: 800px;
+
+  thead th {
+    background: $primary;
+    color: #fff;
+    font-size: $font-size-xs;
+    font-weight: 700;
+    padding: 10px 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border: none;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    &:hover {
+      background: $hover-bg;
+    }
+    &.row-profit {
+      background: rgba($success, 0.02);
+    }
+    &.row-loss {
+      background: rgba($danger, 0.02);
+    }
+    td {
+      padding: 10px 12px;
+      border: none;
+    }
+  }
+
+  tfoot .totals-row {
+    background: rgba($primary, 0.05);
+    border-top: 2px solid $primary;
+    td {
+      padding: 12px;
+      font-weight: 700;
+      border: none;
+    }
+  }
+}
+
+// ── Holding Cards (mobile detail) ────────────────────────────────
+.mobile-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.holding-card {
+  background: $surface;
+  border-radius: 10px;
+  border: 1px solid $border;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+  &-profit {
+    border-left: 3px solid $success;
+  }
+  &-loss {
+    border-left: 3px solid $danger;
+  }
+}
+
+.holding-card__collapsed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  gap: 12px;
+}
+
+.hc-left {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hc-date {
+  @include flex-start;
+  gap: 5px;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  i {
+    font-size: 10px;
+  }
+}
+
+.hc-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.hc-pl {
+  font-size: $font-size-sm;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+}
+
+.holding-card__expanded {
+  border-top: 1px solid $border;
+  padding: 14px 16px;
+  background: $page-bg;
+}
+
+.hc-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+}
+
+.hc-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hc-detail-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.hc-detail-value {
+  font-size: $font-size-sm;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.hc-detail-code {
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  color: $primary-light;
+  background: rgba($primary, 0.06);
+  padding: 1px 5px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+// ── Utilities ─────────────────────────────────────────────────────
+.pct-badge {
+  @include flex-center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: $font-size-xs;
+  font-weight: 700;
+  width: fit-content;
+  white-space: nowrap;
+  &.pct-up {
+    background: $success-light;
+    color: $success;
+  }
+  &.pct-down {
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+.expand-icon {
+  font-size: 11px;
+  color: $text-muted;
+}
+.font-mono {
+  font-family: "Courier New", monospace;
+}
+.font-bold {
+  font-weight: 700;
+}
+.text-right {
+  text-align: right;
+}
+.text-center {
+  text-align: center;
+}
+
+.empty-portfolio {
+  text-align: center;
+  padding: 80px 20px;
+  i {
+    font-size: 56px;
+    color: $border-dark;
+    margin-bottom: 20px;
+    display: block;
+  }
+  h3 {
+    font-size: $font-size-xl;
+    color: $text-secondary;
+    margin-bottom: 12px;
+  }
+  p {
+    font-size: $font-size-base;
+    color: $text-muted;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Desktop / Mobile visibility ───────────────────────────────────
+.desktop-only {
+  display: block !important;
+}
+.mobile-only {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  .mobile-only {
+    display: block !important;
+  }
+}
