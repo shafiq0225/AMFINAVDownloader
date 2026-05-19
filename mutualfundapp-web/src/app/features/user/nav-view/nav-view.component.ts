@@ -9,6 +9,7 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { HolidayStatusDto } from '../../../core/models/HolidayStatusDto';
 import { HolidayService } from '../../../core/services/holiday.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-nav-view',
@@ -28,6 +29,8 @@ export class NavViewComponent implements OnInit {
   expandedSchemes = new Set<string>();
   holidayStatus: HolidayStatusDto | null = null;
   constructor(
+    private router: Router,
+    private route: ActivatedRoute,
     private navService: NavService,
     private holidayService: HolidayService,
     private toastr: ToastrService,
@@ -186,5 +189,11 @@ export class NavViewComponent implements OnInit {
 
   isExpanded(schemeCode: string): boolean {
     return this.expandedSchemes.has(schemeCode);
+  }
+
+  viewSchemeDetails(schemeCode: string): void {
+    this.router.navigate(['scheme', schemeCode], {
+      relativeTo: this.route
+    });
   }
 }

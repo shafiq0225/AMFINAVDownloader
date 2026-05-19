@@ -8,6 +8,7 @@ import { NavViewComponent } from './nav-view/nav-view.component';
 import { FamilyViewComponent } from './family-view/family-view.component';
 import { MyPortfolioComponent } from './my-portfolio/my-portfolio.component';
 import { MyStatementsComponent } from './my-statements/my-statements.component';
+import { SchemeDetailsComponent } from './scheme-details/scheme-details.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: UserDashboardComponent },
@@ -20,6 +21,7 @@ const routes: Routes = [
   { path: 'family', component: FamilyViewComponent },
   { path: 'portfolio', component: MyPortfolioComponent },
   { path: 'statements', component: MyStatementsComponent },
+  { path: 'nav/scheme/:schemeCode', component: SchemeDetailsComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
@@ -29,7 +31,8 @@ const routes: Routes = [
     NavViewComponent,
     FamilyViewComponent,
     MyPortfolioComponent,
-    MyStatementsComponent
+    MyStatementsComponent,
+    SchemeDetailsComponent
   ],
   imports: [
     SharedModule,

@@ -6,6 +6,7 @@ import { PermissionGuard } from '../../core/guards/permission.guard';
 import { EmployeeDashboardComponent } from './dashboard/dashboard.component';
 import { EmployeeSchemesComponent } from './schemes/schemes.component';
 import { EmployeeNavComponent } from './nav/nav.component';
+import { SchemeDetailsComponent } from './scheme-details/scheme-details.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: EmployeeDashboardComponent },
@@ -16,6 +17,7 @@ const routes: Routes = [
     canActivate: [PermissionGuard],
     data: { permission: 'nav.read' }
   },
+  { path: 'nav/scheme/:schemeCode', component: SchemeDetailsComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
@@ -23,7 +25,8 @@ const routes: Routes = [
   declarations: [
     EmployeeDashboardComponent,
     EmployeeSchemesComponent,
-    EmployeeNavComponent
+    EmployeeNavComponent,
+    SchemeDetailsComponent
   ],
   imports: [
     SharedModule,            // ← this brings in CommonModule, ReactiveFormsModule,

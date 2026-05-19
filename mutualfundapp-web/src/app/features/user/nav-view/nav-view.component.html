@@ -1,7 +1,5 @@
 <!-- Add at the top of nav.component.html -->
-<app-holiday-banner
-  *ngIf="holidayStatus"
-  [status]="holidayStatus">
+<app-holiday-banner *ngIf="holidayStatus" [status]="holidayStatus">
 </app-holiday-banner>
 
 <!-- rest of your existing nav.component.html below unchanged -->
@@ -112,12 +110,15 @@
                         <span class="date-sub">{{ endDateLabel }}</span>
                     </th>
                     <th class="col-perf">Performance</th>
+                    <th class="col-action"></th> <!-- ← named class -->
                 </tr>
             </thead>
             <tbody>
                 <ng-container *ngFor="let group of groupedSchemes()">
                     <tr *ngFor="let scheme of group.schemes; let first = first" [class.row-top1]="group.rank === 1"
-                        [class.row-top2]="group.rank === 2" [class.row-top3]="group.rank === 3">
+                        [class.row-top2]="group.rank === 2" [class.row-top3]="group.rank === 3"
+                        class="scheme-row clickable" (click)="viewSchemeDetails(scheme.schemeCode)"
+                        title="Click to view scheme details">
 
                         <!-- Rank -->
                         <td class="col-rank">
@@ -172,6 +173,9 @@
                                 </i>
                                 <span>{{ getPerformance(scheme) }}%</span>
                             </div>
+                        </td>
+                        <td class="text-muted text-xs">
+                            <i class="fas fa-chevron-right"></i>
                         </td>
                     </tr>
                 </ng-container>
@@ -265,6 +269,12 @@
 
                     </div>
                     <code class="acc-scheme-code">{{ scheme.schemeCode }}</code>
+                    <button class="acc-details-btn" (click)="viewSchemeDetails(scheme.schemeCode);
+                   $event.stopPropagation()">
+                        <i class="fas fa-chart-line"></i>
+                        View Scheme Details
+                        <i class="fas fa-arrow-right acc-details-arrow"></i>
+                    </button>
                 </div>
 
             </div>

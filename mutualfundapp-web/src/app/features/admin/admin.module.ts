@@ -12,6 +12,7 @@ import { AdminNavComponent } from './nav/nav.component';
 import { OrdersComponent } from './investment/orders/orders.component';
 import { OrderDetailComponent } from './investment/order-detail/order-detail.component';
 import { PortfolioOverviewComponent } from './investment/portfolio-overview/portfolio-overview.component';
+import { SchemeDetailsComponent } from './scheme-details/scheme-details.component';
 // ← Remove NavGrowCountPipe import — it comes from SharedModule
 
 const routes: Routes = [
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'orders', component: OrdersComponent },
   { path: 'orders/:id', component: OrderDetailComponent },
   { path: 'portfolio', component: PortfolioOverviewComponent },
+  { path: 'nav/scheme/:schemeCode', component: SchemeDetailsComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];
 
@@ -37,7 +39,8 @@ const routes: Routes = [
     AdminNavComponent,
     OrdersComponent,
     OrderDetailComponent,
-    PortfolioOverviewComponent
+    PortfolioOverviewComponent,
+    SchemeDetailsComponent
   ],
   imports: [
     SharedModule,

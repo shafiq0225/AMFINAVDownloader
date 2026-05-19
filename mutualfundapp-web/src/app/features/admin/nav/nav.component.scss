@@ -1000,3 +1000,50 @@
   border-radius: 4px;
   display: inline-block;
 }
+
+// ── View Details Button (mobile) ──────────────────────────────────
+.acc-details-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba($primary, 0.06);
+  border: 1px solid rgba($primary, 0.18);
+  border-radius: 10px;
+  color: $primary;
+  font-size: $font-size-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition-fast;
+  text-align: left;
+
+  &:active {
+    background: rgba($primary, 0.12);
+  }
+
+  i:first-child {
+    font-size: 13px;
+  }
+}
+
+.acc-details-arrow {
+  margin-left: auto;
+  font-size: 11px;
+  color: $primary-light;
+}
+
+.scheme-row {
+  &.clickable {
+    cursor: pointer;
+    &:hover {
+      background: $hover-bg;
+    }
+  }
+}
+
+.col-action {
+  width: 32px;
+  text-align: center;
+}
