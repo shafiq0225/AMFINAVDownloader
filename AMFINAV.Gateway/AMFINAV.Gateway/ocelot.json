@@ -442,6 +442,250 @@
         }
       ],
       "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "scheme-nav-details",
+      "UpstreamPathTemplate": "/api/navcomparison/{schemeCode}/details",
+      "DownstreamPathTemplate": "/api/navcomparison/{schemeCode}/details",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-schemeapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      }
+    },
+    {
+      "RouteId": "investment-orders-investor",
+      "UpstreamPathTemplate": "/api/orders/investor/{userId}",
+      "DownstreamPathTemplate": "/api/orders/investor/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "investment-orders-status",
+      "UpstreamPathTemplate": "/api/orders/{id}/status",
+      "DownstreamPathTemplate": "/api/orders/{id}/status",
+      "UpstreamHttpMethod": [ "PUT" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
+      "RouteClaimsRequirement": { "role": "Admin" }
+    },
+    {
+      "RouteId": "investment-orders-get-all",
+      "UpstreamPathTemplate": "/api/orders",
+      "DownstreamPathTemplate": "/api/orders",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "investment-orders-create",
+      "UpstreamPathTemplate": "/api/orders",
+      "DownstreamPathTemplate": "/api/orders",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
+      "RouteClaimsRequirement": { "role": "Admin" }
+    },
+    {
+      "RouteId": "investment-orders-by-id",
+      "UpstreamPathTemplate": "/api/orders/{id}",
+      "DownstreamPathTemplate": "/api/orders/{id}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "portfolio-me",
+      "UpstreamPathTemplate": "/api/portfolio/me",
+      "DownstreamPathTemplate": "/api/portfolio/me",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "portfolio-family",
+      "UpstreamPathTemplate": "/api/portfolio/family",
+      "DownstreamPathTemplate": "/api/portfolio/family",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "portfolio-holdings",
+      "UpstreamPathTemplate": "/api/portfolio/holdings",
+      "DownstreamPathTemplate": "/api/portfolio/holdings",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "portfolio-investor",
+      "UpstreamPathTemplate": "/api/portfolio/investor/{userId}",
+      "DownstreamPathTemplate": "/api/portfolio/investor/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "statements-upload",
+      "UpstreamPathTemplate": "/api/statements/upload",
+      "DownstreamPathTemplate": "/api/statements/upload",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
+      "RouteClaimsRequirement": { "role": "Admin" }
+    },
+    {
+      "RouteId": "statements-investor",
+      "UpstreamPathTemplate": "/api/statements/investor/{userId}",
+      "DownstreamPathTemplate": "/api/statements/investor/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "statements-order",
+      "UpstreamPathTemplate": "/api/statements/order/{orderId}",
+      "DownstreamPathTemplate": "/api/statements/order/{orderId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "statements-view",
+      "UpstreamPathTemplate": "/api/statements/{id}/view",
+      "DownstreamPathTemplate": "/api/statements/{id}/view",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "statements-get-all",
+      "UpstreamPathTemplate": "/api/statements",
+      "DownstreamPathTemplate": "/api/statements",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "jobs-snapshot",
+      "UpstreamPathTemplate": "/api/jobs/snapshot",
+      "DownstreamPathTemplate": "/api/jobs/snapshot",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" },
+      "RouteClaimsRequirement": { "role": "Admin" }
+    },
+    {
+      "RouteId": "jobs-status",
+      "UpstreamPathTemplate": "/api/jobs/status",
+      "DownstreamPathTemplate": "/api/jobs/status",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-investmentapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
     }
   ],
   "GlobalConfiguration": {
