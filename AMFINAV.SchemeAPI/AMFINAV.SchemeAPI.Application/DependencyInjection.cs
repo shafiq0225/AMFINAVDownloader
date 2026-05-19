@@ -13,6 +13,7 @@ namespace AMFINAV.SchemeAPI.Application
             services.AddScoped<UpdateFundApprovalCommand>();
             services.AddScoped<GetSchemeEnrollmentsQuery>();
             services.AddScoped<GetNavComparisonQuery>();
+            services.AddScoped<GetSchemeDetailsQuery>();
             services.AddScoped<GetHolidayStatusQuery>(); 
             return services;
         }

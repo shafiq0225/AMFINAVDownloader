@@ -97,5 +97,16 @@ namespace AMFINAV.SchemeAPI.Infrastructure.Repositories
                 .OrderByDescending(d => d)
                 .Take(count)
                 .ToListAsync();
+
+        public async Task<IEnumerable<DetailedScheme>> GetNavHistoryBySchemeCodeAsync(string schemeCode,DateTime fromDate)
+        {
+            // Fetch all NAV records for this scheme from fromDate onwards
+            // Ordered latest first — most recent NAV at index 0
+            return await _context.DetailedSchemes
+                .Where(d => d.SchemeCode == schemeCode
+                         && d.NavDate >= fromDate)
+                .OrderByDescending(d => d.NavDate)
+                .ToListAsync();
+        }
     }
 }

@@ -11,10 +11,12 @@ namespace AMFINAV.SchemeAPI.API.Controllers
     public class NavComparisonController : ControllerBase
     {
         private readonly GetNavComparisonQuery _query;
+        private readonly GetSchemeDetailsQuery _detailsQuery;
 
-        public NavComparisonController(GetNavComparisonQuery query)
+        public NavComparisonController(GetNavComparisonQuery query, GetSchemeDetailsQuery detailsQuery)
         {
             _query = query;
+            _detailsQuery = detailsQuery;
         }
 
         [HttpGet]
@@ -34,6 +36,16 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         public async Task<IActionResult> GetDailyComparison()
         {
             var result = await _query.ExecuteDailyAsync();
+            return Ok(result);
+        }
+
+        [HttpGet("{schemeCode}/details")]
+        public async Task<IActionResult> GetSchemeDetails(string schemeCode)
+        {
+            if (string.IsNullOrWhiteSpace(schemeCode))
+                return BadRequest(new { error = "Scheme code is required." });
+
+            var result = await _detailsQuery.ExecuteAsync(schemeCode);
             return Ok(result);
         }
     }

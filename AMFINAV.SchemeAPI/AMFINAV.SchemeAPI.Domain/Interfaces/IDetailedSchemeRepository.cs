@@ -10,5 +10,6 @@ namespace AMFINAV.SchemeAPI.Domain.Interfaces
         Task<IEnumerable<string>> GetSchemeCodesByFundCodeAsync(string fundCode);
         Task<IEnumerable<DetailedScheme>> GetByDateRangeWithPreviousAsync(DateTime startDate, DateTime endDate);
         Task<List<DateTime>> GetLastTradingDatesAsync(int count);
+        Task<IEnumerable<DetailedScheme>> GetNavHistoryBySchemeCodeAsync(string schemeCode, DateTime fromDate);
     }
 }
