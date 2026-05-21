@@ -229,7 +229,6 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  border-radius: 0;
 
   .week-card--up & {
     background: $success;
@@ -298,87 +297,120 @@
   border: 1px solid rgba($success, 0.2);
 }
 
-// ── Returns Grid ──────────────────────────────────────────────────
-.returns-grid {
+// ── Period Returns Grid ───────────────────────────────────────────
+.period-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 10px;
 
+  // Desktop: all 5 in a row
+  grid-template-columns: repeat(5, 1fr);
+
+  // Tablet
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  // FIX: On small mobile (< 480px) 2 columns make each card too narrow
+  // for the canvas to receive a non-zero offsetWidth.
+  // Switch to a single column so each card is full-width and the
+  // canvas has room to paint before drawChart() is called.
   @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr; // 2-col is fine at ≥320px card width
+  }
+
+  @media (max-width: 360px) {
+    grid-template-columns: 1fr; // single column on very small phones
   }
 }
 
-.return-card {
-  @include card;
-  padding: 14px 14px 12px;
+.period-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  padding: 14px 14px 0; // zero bottom — chart sits flush
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  position: relative;
+  gap: 3px;
   overflow: hidden;
+  transition: $transition-fast;
 
+  &:hover {
+    border-color: $border-dark;
+    box-shadow: $shadow-card;
+  }
+
+  &--up {
+    border-top: 2.5px solid $success;
+  }
+  &--down {
+    border-top: 2.5px solid $danger;
+  }
   &--empty {
-    opacity: 0.4;
+    opacity: 0.45;
+    padding-bottom: 14px;
   }
 }
 
-.return-card__top-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2.5px;
-  border-radius: 2px 2px 0 0;
-
-  &.line-up {
-    background: $success;
-  }
-  &.line-down {
-    background: $danger;
-  }
-}
-
-.rc-label {
-  font-size: 9px;
+.pc-label {
+  font-size: 12px;
   font-weight: 700;
-  color: $text-muted;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-top: 4px;
+  color: $text-primary;
+  margin-bottom: 1px;
 }
 
-.rc-value {
-  font-size: 20px;
+.pc-nav {
+  font-size: 16px;
   font-weight: 700;
-  font-family: "Courier New", monospace;
+  color: $text-primary;
   line-height: 1.2;
 }
 
-.rc-pts {
-  font-size: 10px;
+.pc-pts {
+  font-size: 11px;
   font-family: "Courier New", monospace;
+  color: $text-muted;
+  margin-bottom: 2px;
 }
 
-.rc-bar-track {
-  height: 3px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 2px;
-  margin-top: 8px;
-  overflow: hidden;
+.pc-pct {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+
+  i {
+    font-size: 14px;
+  }
+
+  &--up {
+    color: $success;
+  }
+  &--down {
+    color: $danger;
+  }
 }
 
-.rc-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.4s ease;
+// Chart area — bleeds to card edges at bottom
+.pc-chart {
+  margin: 0 -14px; // bleed to card left/right padding
+  height: 52px;
+  flex-shrink: 0;
 
-  &.fill-up {
-    background: $success;
+  &--up {
+    background: rgba($success, 0.06);
   }
-  &.fill-down {
-    background: $danger;
+  &--down {
+    background: rgba($danger, 0.06);
   }
+}
+
+.pc-canvas {
+  width: 100%;
+  height: 52px;
+  display: block;
 }
 
 // ── Info Strip ────────────────────────────────────────────────────
@@ -387,7 +419,6 @@
   display: grid;
   grid-template-columns: 1fr 1px 1fr 1px 1fr;
   padding: 14px 20px;
-  gap: 0;
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
@@ -464,6 +495,7 @@
 .empty-state {
   text-align: center;
   padding: 60px 20px;
+
   i {
     font-size: 48px;
     color: $border-dark;

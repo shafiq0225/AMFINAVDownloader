@@ -32,7 +32,6 @@
             <span class="nav-hero__date">{{ scheme.currentNavDateText }}</span>
         </div>
 
-        <!-- Yesterday / Today compare strip -->
         <div class="nav-compare">
             <div class="nav-compare__item">
                 <span class="nc-label">Yesterday</span>
@@ -93,39 +92,51 @@
         <span class="annualised-badge">Annualised</span>
     </div>
 
-    <div class="returns-grid">
-        <div class="return-card" *ngFor="let p of periodReturns" [class.return-card--up]="p.isPositive"
-            [class.return-card--down]="!p.isPositive">
+    <!-- ← Replaced: market-index style cards with mini sparklines -->
+    <div class="period-grid">
+        <div class="period-card" *ngFor="let card of periodCards; let i = index"
+            [class.period-card--up]="card.period?.isPositive"
+            [class.period-card--down]="card.period && !card.period.isPositive"
+            [class.period-card--empty]="!card.period?.hasData">
 
-            <!-- Top accent line -->
-            <div class="return-card__top-line" [class.line-up]="p.isPositive" [class.line-down]="!p.isPositive">
-            </div>
+            <ng-container *ngIf="card.period?.hasData; else noData">
 
-            <div class="rc-label">{{ p.label }}</div>
+                <!-- Label -->
+                <div class="pc-label">{{ card.label }}</div>
 
-            <div class="rc-value" [class.text-success]="p.isPositive" [class.text-danger]="!p.isPositive">
-                {{ p.isPositive ? '+' : '' }}{{ p.returnPercent | number:'1.2-2' }}%
-            </div>
-
-            <div class="rc-pts text-muted">
-                {{ p.isPositive ? '+' : '' }}₹{{ p.returnPoints | number:'1.4-4' }}
-            </div>
-
-            <!-- Progress bar -->
-            <div class="rc-bar-track">
-                <div class="rc-bar-fill" [class.fill-up]="p.isPositive" [class.fill-down]="!p.isPositive"
-                    [style.width.%]="getBarWidth(p.returnPercent)">
+                <!-- Start NAV (large, like "23,618.00") -->
+                <div class="pc-nav font-mono">
+                    ₹{{ card.period!.startNAV | number:'1.2-2' }}
                 </div>
-            </div>
-        </div>
 
-        <!-- No data periods -->
-        <div class="return-card return-card--empty" *ngFor="let p of [scheme.oneMonth, scheme.threeMonth,
-                            scheme.sixMonth, scheme.oneYear,
-                            scheme.threeYear]" [hidden]="!p || p.hasData">
-            <div class="rc-label">{{ p?.label }}</div>
-            <div class="rc-value text-muted">—</div>
-            <div class="rc-pts text-muted text-xs">No data</div>
+                <!-- NAV change in pts -->
+                <div class="pc-pts text-muted">
+                    ({{ card.period!.isPositive ? '+' : '' }}{{ card.period!.returnPoints | number:'1.4-4' }})
+                </div>
+
+                <!-- % with arrow icon — coloured -->
+                <div class="pc-pct" [class.pc-pct--up]="card.period!.isPositive"
+                    [class.pc-pct--down]="!card.period!.isPositive">
+                    {{ card.period!.isPositive ? '+' : '' }}{{ card.period!.returnPercent | number:'1.2-2' }}%
+                    <i class="fas" [class.fa-circle-arrow-up]="card.period!.isPositive"
+                        [class.fa-circle-arrow-down]="!card.period!.isPositive"></i>
+                </div>
+
+                <!-- Mini sparkline flush at bottom -->
+                <div class="pc-chart" [class.pc-chart--up]="card.period!.isPositive"
+                    [class.pc-chart--down]="!card.period!.isPositive">
+                    <canvas #periodCanvas class="pc-canvas"></canvas>
+                </div>
+
+            </ng-container>
+
+            <!-- No data -->
+            <ng-template #noData>
+                <div class="pc-label">{{ card.label }}</div>
+                <div class="pc-nav text-muted">—</div>
+                <div class="pc-pts text-muted text-xs">No data</div>
+            </ng-template>
+
         </div>
     </div>
 

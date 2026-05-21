@@ -108,6 +108,9 @@ export class MyPortfolioComponent implements OnInit {
         ? (g.totalProfitLoss / g.totalInvested) * 100
         : 0;
       g.isProfit = g.totalProfitLoss >= 0;
+      g.holdings.sort((a, b) =>
+        new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()
+      );
     }
 
     return Array.from(map.values());
