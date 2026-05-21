@@ -867,8 +867,8 @@
     },
     {
       "RouteId": "family-portfolio-scheme-detail",
-      "UpstreamPathTemplate": "/api/family/portfolio/{userId}/scheme/{schemeCode}",
-      "DownstreamPathTemplate": "/api/family/portfolio/{userId}/scheme/{schemeCode}",
+      "UpstreamPathTemplate": "/api/FamilyPortfolio/{userId}/scheme/{schemeCode}",
+      "DownstreamPathTemplate": "/api/FamilyPortfolio/{userId}/scheme/{schemeCode}",
       "UpstreamHttpMethod": [ "GET" ],
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -881,8 +881,8 @@
     },
     {
       "RouteId": "family-portfolio-member",
-      "UpstreamPathTemplate": "/api/family/portfolio/{userId}",
-      "DownstreamPathTemplate": "/api/family/portfolio/{userId}",
+      "UpstreamPathTemplate": "/api/FamilyPortfolio/{userId}",
+      "DownstreamPathTemplate": "/api/FamilyPortfolio/{userId}",
       "UpstreamHttpMethod": [ "GET" ],
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -895,8 +895,8 @@
     },
     {
       "RouteId": "family-portfolio-overview",
-      "UpstreamPathTemplate": "/api/family/portfolio",
-      "DownstreamPathTemplate": "/api/family/portfolio",
+      "UpstreamPathTemplate": "/api/FamilyPortfolio",
+      "DownstreamPathTemplate": "/api/FamilyPortfolio",
       "UpstreamHttpMethod": [ "GET" ],
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [

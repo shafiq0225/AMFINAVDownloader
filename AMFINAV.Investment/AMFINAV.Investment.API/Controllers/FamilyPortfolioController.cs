@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AMFINAV.Investment.API.Controllers
 {
     [ApiController]
-    [Route("api/family/portfolio")]
+    [Route("api/[controller]")]
     [Authorize]
     public class FamilyPortfolioController : BaseController
     {
