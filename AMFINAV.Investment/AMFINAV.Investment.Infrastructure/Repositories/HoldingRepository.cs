@@ -70,5 +70,25 @@ namespace AMFINAV.Investment.Infrastructure.Repositories
             return await _context.Holdings
                 .AnyAsync(h => h.OrderId == orderId);
         }
+
+        public async Task<IEnumerable<Holding>> GetAllByInvestorActiveAsync(string investorUserId)
+        {
+            return await _context.Holdings
+                .Include(h => h.Order)
+                .Where(h => h.InvestorUserId == investorUserId
+                         && h.IsActive)
+                .OrderBy(h => h.SchemeName)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Holding>> GetAllActiveGroupedAsync()
+        {
+            return await _context.Holdings
+                .Include(h => h.Order)
+                .Where(h => h.IsActive)
+                .OrderBy(h => h.InvestorName)
+                .ThenBy(h => h.SchemeName)
+                .ToListAsync();
+        }
     }
 }

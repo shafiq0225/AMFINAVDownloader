@@ -18,5 +18,9 @@ namespace AMFINAV.Investment.Domain.Interfaces
 
         // ── Helpers ───────────────────────────────────────────────
         Task<bool> ExistsForOrderAsync(int orderId);
+
+        Task<IEnumerable<Holding>> GetAllByInvestorActiveAsync(string investorUserId);
+        Task<IEnumerable<Holding>> GetAllActiveGroupedAsync();
+
     }
 }

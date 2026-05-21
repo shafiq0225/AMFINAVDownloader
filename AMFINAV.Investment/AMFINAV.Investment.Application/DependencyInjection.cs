@@ -1,4 +1,5 @@
-﻿using AMFINAV.Investment.Application.Orders.Commands;
+﻿using AMFINAV.Investment.Application.Family.Queries;
+using AMFINAV.Investment.Application.Orders.Commands;
 using AMFINAV.Investment.Application.Orders.Queries;
 using AMFINAV.Investment.Application.Portfolio.Commands;
 using AMFINAV.Investment.Application.Portfolio.Queries;
@@ -35,6 +36,9 @@ namespace AMFINAV.Investment.Application
             // ── Statement Queries ──────────────────────────────────
             services.AddScoped<GetStatementsQuery>();
             services.AddScoped<DownloadStatementQuery>();
+
+
+            services.AddScoped<FamilyPortfolioQuery>();
 
             return services;
         }
