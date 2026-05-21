@@ -864,6 +864,48 @@
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer"
       }
+    },
+    {
+      "RouteId": "family-portfolio-scheme-detail",
+      "UpstreamPathTemplate": "/api/family/portfolio/{userId}/scheme/{schemeCode}",
+      "DownstreamPathTemplate": "/api/family/portfolio/{userId}/scheme/{schemeCode}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7003
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "family-portfolio-member",
+      "UpstreamPathTemplate": "/api/family/portfolio/{userId}",
+      "DownstreamPathTemplate": "/api/family/portfolio/{userId}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7003
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
+    },
+    {
+      "RouteId": "family-portfolio-overview",
+      "UpstreamPathTemplate": "/api/family/portfolio",
+      "DownstreamPathTemplate": "/api/family/portfolio",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7003
+        }
+      ],
+      "AuthenticationOptions": { "AuthenticationProviderKey": "Bearer" }
     }
   ],
   "GlobalConfiguration": {
