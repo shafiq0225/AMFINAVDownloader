@@ -1,26 +1,16 @@
-import {
-  Component, OnInit, ChangeDetectorRef,
-  ViewChildren, QueryList, ElementRef   // ← add these
-} from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { PortfolioService } from '../../../../core/services/portfolio.service';
 import {
-  FamilyPortfolioDto,
-  PortfolioReportDto,
-  PortfolioRowDto
+  FamilyOverviewDto,
+  MemberSummaryDto,
+  QuickReturnDto
 } from '../../../../core/models/portfolio.model';
 import { ToastrService } from 'ngx-toastr';
 
-export interface SchemeGroup {
-  schemeCode: string;
-  schemeName: string;
-  fundName: string;
-  totalInvested: number;
-  totalCurrentValue: number;
-  totalProfitLoss: number;
-  returnPercent: number;
-  isProfit: boolean;
-  holdingCount: number;
-  holdings: PortfolioRowDto[];
+interface PeriodTab {
+  key: string;
+  label: string;
 }
 
 @Component({
@@ -30,150 +20,89 @@ export interface SchemeGroup {
   standalone: false
 })
 export class PortfolioOverviewComponent implements OnInit {
-  familyPortfolio: FamilyPortfolioDto | null = null;
+  overview: FamilyOverviewDto | null = null;
   loading = true;
   snapshotRunning = false;
 
-  expandedInvestor: string | null = null;
-  selectedSchemeKey: string | null = null;
-
-  // ← One ref per investor's detail panel
-  @ViewChildren('schemeDetailPanel')
-  detailPanels!: QueryList<ElementRef>;
-
-  private schemeGroupCache = new Map<string, SchemeGroup[]>();
+  // ── Period tabs ───────────────────────────────────────────────
+  periods: PeriodTab[] = [
+    { key: 'yesterday', label: 'Yesterday' },
+    { key: 'd2', label: 'D-2' },
+    { key: '1m', label: '1M' },
+    { key: '3m', label: '3M' },
+    { key: '6m', label: '6M' },
+    { key: '1y', label: '1Y' },
+    { key: '3y', label: '3Y' },
+  ];
+  selectedPeriod = 'yesterday';
 
   constructor(
     private portfolioService: PortfolioService,
+    private router: Router,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef
   ) { }
 
-  ngOnInit(): void {
-    this.loadPortfolio();
-  }
+  ngOnInit(): void { this.loadOverview(); }
 
-  loadPortfolio(): void {
+  loadOverview(): void {
     this.loading = true;
-    this.portfolioService.getFamilyPortfolio().subscribe({
-      next: (data) => {
-        this.familyPortfolio = data;
-        this.schemeGroupCache.clear();
-        for (const inv of data.investorPortfolios) {
-          this.schemeGroupCache.set(
-            inv.investorUserId,
-            this.buildSchemeGroups(inv.holdings)
-          );
-        }
+    this.portfolioService.getFamilyOverview().subscribe({
+      next: data => {
+        this.overview = data;
         this.loading = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.loading = false;
-        this.toastr.error('Failed to load portfolio.');
+        this.toastr.error('Failed to load portfolio overview.');
         this.cdr.detectChanges();
       }
     });
   }
 
-  private buildSchemeGroups(holdings: PortfolioRowDto[]): SchemeGroup[] {
-    const map = new Map<string, SchemeGroup>();
+  // ── Period helpers ────────────────────────────────────────────
+  selectPeriod(key: string): void { this.selectedPeriod = key; }
 
-    for (const h of holdings) {
-      if (!map.has(h.schemeCode)) {
-        map.set(h.schemeCode, {
-          schemeCode: h.schemeCode,
-          schemeName: h.schemeName,
-          fundName: h.fundName,
-          totalInvested: 0,
-          totalCurrentValue: 0,
-          totalProfitLoss: 0,
-          returnPercent: 0,
-          isProfit: true,
-          holdingCount: 0,
-          holdings: []
-        });
-      }
-      const g = map.get(h.schemeCode)!;
-      g.totalInvested += h.investedAmount;
-      g.totalCurrentValue += h.totalAmount;
-      g.totalProfitLoss += h.profitLoss;
-      g.holdingCount++;
-      g.holdings.push(h);
-    }
-
-    for (const g of map.values()) {
-      g.returnPercent = g.totalInvested > 0
-        ? (g.totalProfitLoss / g.totalInvested) * 100
-        : 0;
-      g.isProfit = g.totalProfitLoss >= 0;
-      g.holdings.sort((a, b) =>
-        new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime()
-      );
-    }
-
-    return Array.from(map.values());
+  getPeriodLabel(): string {
+    return this.periods.find(p => p.key === this.selectedPeriod)?.label ?? '';
   }
 
-  // ── Investor accordion ─────────────────────────────────────────
-  toggleInvestor(investorId: string): void {
-    this.expandedInvestor =
-      this.expandedInvestor === investorId ? null : investorId;
-    this.selectedSchemeKey = null;
-  }
+  isColActive(colKey: string): boolean { return this.selectedPeriod === colKey; }
 
-  isExpanded(investorId: string): boolean {
-    return this.expandedInvestor === investorId;
-  }
-
-  // ── Scheme tile ────────────────────────────────────────────────
-  getSchemesForInvestor(investorId: string): SchemeGroup[] {
-    return this.schemeGroupCache.get(investorId) ?? [];
-  }
-
-  selectScheme(investorId: string, schemeCode: string): void {
-    const key = `${investorId}__${schemeCode}`;
-    const opening = this.selectedSchemeKey !== key;
-
-    this.selectedSchemeKey = opening ? key : null;
-
-    if (opening) {
-      this.cdr.detectChanges();
-      setTimeout(() => this.scrollToPanel(), 50);
+  /** Returns a member's QuickReturnDto for the currently selected period column. */
+  getMemberPeriodReturn(m: MemberSummaryDto): QuickReturnDto | undefined {
+    switch (this.selectedPeriod) {
+      case 'd2': return m.dayBefore;
+      case 'yesterday': return m.yesterday;
+      case '1m': return m.oneMonth;
+      case '1y': return m.oneYear;
+      case '3y': return m.threeYear;
+      default: return m.yesterday;
     }
   }
 
-  private scrollToPanel(): void {
-    // detailPanels is a QueryList — grab the first visible one
-    const panel = this.detailPanels?.first;
-    if (!panel?.nativeElement) return;
-
-    panel.nativeElement.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
+  // ── Format helpers ────────────────────────────────────────────
+  formatReturn(r?: QuickReturnDto | null): string {
+    if (!r?.hasData) return '—';
+    const sign = r.isPositive ? '+' : '';
+    return `${sign}${r.returnPercent.toFixed(2)}%`;
   }
 
-  isSchemeSelected(investorId: string, schemeCode: string): boolean {
-    return this.selectedSchemeKey === `${investorId}__${schemeCode}`;
+  // ── Navigation ────────────────────────────────────────────────
+  navigateToMember(userId: string): void {
+    this.router.navigate(['/admin/portfolio/member', userId]);
   }
 
-  getSelectedScheme(investorId: string): SchemeGroup | null {
-    if (!this.selectedSchemeKey) return null;
-    const [invId, schemeCode] = this.selectedSchemeKey.split('__');
-    if (invId !== investorId) return null;
-    return this.getSchemesForInvestor(investorId)
-      .find(s => s.schemeCode === schemeCode) ?? null;
-  }
-
+  // ── Snapshot ─────────────────────────────────────────────────
   triggerSnapshot(): void {
     this.snapshotRunning = true;
     this.portfolioService.triggerSnapshot().subscribe({
-      next: (result) => {
+      next: result => {
         this.snapshotRunning = false;
         this.toastr.success(
           `Snapshot complete — ${result.calculated} holdings calculated.`);
-        this.loadPortfolio();
+        this.loadOverview();
       },
       error: () => {
         this.snapshotRunning = false;
@@ -182,11 +111,7 @@ export class PortfolioOverviewComponent implements OnInit {
     });
   }
 
-  trackByInvestor(_: number, r: PortfolioReportDto): string {
-    return r.investorUserId;
-  }
-
-  trackByScheme(_: number, g: SchemeGroup): string {
-    return g.schemeCode;
+  trackByMember(_: number, m: MemberSummaryDto): string {
+    return m.investorUserId;
   }
 }

@@ -5,20 +5,22 @@ import { environment } from '../../../environments/environment';
 import {
     PortfolioReportDto,
     FamilyPortfolioDto,
+    FamilyOverviewDto,    // ← new
     HoldingDto
 } from '../models/portfolio.model';
 
 @Injectable({ providedIn: 'root' })
 export class PortfolioService {
     private readonly api = `${environment.apiUrl}/api/portfolio`;
+    private readonly familyApi = `${environment.apiUrl}/api/familyportfolio`; // ← new controller
 
     constructor(private http: HttpClient) { }
 
+    // ── existing methods (unchanged) ─────────────────────────────
     getMyPortfolio(asOfDate?: string): Observable<PortfolioReportDto> {
         let params = new HttpParams();
         if (asOfDate) params = params.set('asOfDate', asOfDate);
-        return this.http.get<PortfolioReportDto>(
-            `${this.api}/me`, { params });
+        return this.http.get<PortfolioReportDto>(`${this.api}/me`, { params });
     }
 
     getByInvestor(
@@ -36,8 +38,7 @@ export class PortfolioService {
     getFamilyPortfolio(asOfDate?: string): Observable<FamilyPortfolioDto> {
         let params = new HttpParams();
         if (asOfDate) params = params.set('asOfDate', asOfDate);
-        return this.http.get<FamilyPortfolioDto>(
-            `${this.api}/family`, { params });
+        return this.http.get<FamilyPortfolioDto>(`${this.api}/family`, { params });
     }
 
     getAllHoldings(): Observable<HoldingDto[]> {
@@ -48,8 +49,12 @@ export class PortfolioService {
         let params = new HttpParams();
         if (date) params = params.set('date', date);
         return this.http.post<any>(
-            `${environment.apiUrl}/api/jobs/snapshot`,
-            {},
-            { params });
+            `${environment.apiUrl}/api/jobs/snapshot`, {}, { params });
+    }
+
+    // ── NEW: Family Portfolio Controller ─────────────────────────
+    /** Screen 1 — family summary + all members overview */
+    getFamilyOverview(): Observable<FamilyOverviewDto> {
+        return this.http.get<FamilyOverviewDto>(this.familyApi);
     }
 }

@@ -25,34 +25,29 @@ namespace AMFINAV.Investment.Application.Family.Queries
             _logger = logger;
         }
 
-        // ── Screen 1: Family Overview ──────────────────────────────
         public async Task<Result<FamilyOverviewDto>> GetFamilyOverviewAsync()
         {
             try
             {
-                var holdings = await _unitOfWork.Holdings
-                    .GetAllActiveGroupedAsync();
-
+                var holdings = await _unitOfWork.Holdings.GetAllActiveGroupedAsync();
                 var holdingList = holdings.ToList();
 
                 if (!holdingList.Any())
                     return Result<FamilyOverviewDto>.Success(
-                        new FamilyOverviewDto
-                        {
-                            ReportDate = DateTime.Today
-                        });
+                        new FamilyOverviewDto { ReportDate = DateTime.Today });
 
-                // Get latest snapshots for all holdings
+                // Latest snapshots
                 var snapshotMap = await GetLatestSnapshotsAsync(
                     holdingList.Select(h => h.Id).ToList());
 
+                // NAV history for period return calculation
+                var allSchemeCodes = holdingList
+                    .Select(h => h.SchemeCode).Distinct().ToList();
+                var navHistoryMap = await GetNavHistoryAsync(allSchemeCodes);
+
                 // Group by investor
                 var memberGroups = holdingList
-                    .GroupBy(h => new
-                    {
-                        h.InvestorUserId,
-                        h.InvestorName
-                    })
+                    .GroupBy(h => new { h.InvestorUserId, h.InvestorName })
                     .ToList();
 
                 var members = new List<MemberSummaryDto>();
@@ -66,16 +61,16 @@ namespace AMFINAV.Investment.Application.Family.Queries
                     {
                         invested += h.InvestedAmount;
                         schemes.Add(h.SchemeCode);
-
-                        if (snapshotMap.TryGetValue(h.Id, out var snap))
-                            currentValue += snap.currentValue;
-                        else
-                            currentValue += h.InvestedAmount;
+                        currentValue += snapshotMap.TryGetValue(h.Id, out var snap)
+                            ? snap.currentValue
+                            : h.InvestedAmount;
                     }
 
                     var gain = currentValue - invested;
                     var gainPct = invested > 0
                         ? Math.Round((gain / invested) * 100, 4) : 0;
+
+                    var mh = group.ToList();  // member's holdings
 
                     members.Add(new MemberSummaryDto
                     {
@@ -89,36 +84,58 @@ namespace AMFINAV.Investment.Application.Family.Queries
                         IsGain = gain >= 0,
                         SchemeCount = schemes.Count,
                         HoldingCount = group.Count(),
-                        CategorySummary = GetCategorySummary(group.ToList())
+                        CategorySummary = GetCategorySummary(mh),
+
+                        // ── Period returns ────────────────────────────────
+                        DayBefore = CalcMemberPeriodReturn(
+                            "D-2", 2, mh, snapshotMap, navHistoryMap),
+                        Yesterday = CalcMemberPeriodReturn(
+                            "Yest", 1, mh, snapshotMap, navHistoryMap),
+                        OneMonth = CalcMemberPeriodReturn(
+                            "1M", 30, mh, snapshotMap, navHistoryMap),
+                        OneYear = CalcMemberPeriodReturn(
+                            "1Y", 365, mh, snapshotMap, navHistoryMap),
+                        ThreeYear = CalcMemberPeriodReturn(
+                            "3Y", 1095, mh, snapshotMap, navHistoryMap),
                     });
                 }
 
+                // Family totals
                 var totalInvested = members.Sum(m => m.TotalInvested);
                 var totalValue = members.Sum(m => m.TotalCurrentValue);
                 var totalGain = totalValue - totalInvested;
                 var totalGainPct = totalInvested > 0
                     ? Math.Round((totalGain / totalInvested) * 100, 4) : 0;
 
-                return Result<FamilyOverviewDto>.Success(
-                    new FamilyOverviewDto
-                    {
-                        TotalFamilyInvested = totalInvested,
-                        TotalFamilyCurrentValue = totalValue,
-                        TotalFamilyGain = Math.Round(totalGain, 2),
-                        TotalFamilyGainPercent = totalGainPct,
-                        IsFamilyGain = totalGain >= 0,
-                        TotalMembers = members.Count,
-                        TotalSchemes = holdingList
-                            .Select(h => h.SchemeCode).Distinct().Count(),
-                        ReportDate = DateTime.Today,
-                        Members = members.OrderBy(m => m.InvestorName)
-                    });
+                // Family-level yesterday return (across all holdings)
+                var familyYesterday = CalcMemberPeriodReturn(
+                    "Yest", 1, holdingList, snapshotMap, navHistoryMap);
+
+                // Scheme category counts
+                var (eq, dbt, hyb) = GetSchemeCategoryCounts(holdingList);
+
+                return Result<FamilyOverviewDto>.Success(new FamilyOverviewDto
+                {
+                    TotalFamilyInvested = totalInvested,
+                    TotalFamilyCurrentValue = totalValue,
+                    TotalFamilyGain = Math.Round(totalGain, 2),
+                    TotalFamilyGainPercent = totalGainPct,
+                    IsFamilyGain = totalGain >= 0,
+                    TotalMembers = members.Count,
+                    TotalSchemes = holdingList
+                        .Select(h => h.SchemeCode).Distinct().Count(),
+                    EquitySchemeCount = eq,
+                    DebtSchemeCount = dbt,
+                    HybridSchemeCount = hyb,
+                    FamilyYesterdayReturn = familyYesterday,
+                    ReportDate = DateTime.Today,
+                    Members = members.OrderBy(m => m.InvestorName)
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting family overview");
-                return Result<FamilyOverviewDto>
-                    .Failure($"Failed: {ex.Message}");
+                return Result<FamilyOverviewDto>.Failure($"Failed: {ex.Message}");
             }
         }
 
@@ -219,9 +236,7 @@ namespace AMFINAV.Investment.Application.Family.Queries
         }
 
         // ── Screen 3: Scheme Detail ────────────────────────────────
-        public async Task<Result<HoldingSchemeDetailDto>> GetSchemeDetailAsync(
-            string investorUserId,
-            string schemeCode)
+        public async Task<Result<HoldingSchemeDetailDto>> GetSchemeDetailAsync(string investorUserId,string schemeCode)
         {
             try
             {
@@ -339,6 +354,72 @@ namespace AMFINAV.Investment.Application.Family.Queries
                 return Result<HoldingSchemeDetailDto>
                     .Failure($"Failed: {ex.Message}");
             }
+        }
+
+        private QuickReturnDto CalcMemberPeriodReturn(string label, int daysBack, List<Domain.Entities.Holding> holdings, Dictionary<int, (decimal currentNAV, decimal currentValue)> snapshotMap, Dictionary<string, List<NavRecord>> navHistoryMap)
+        {
+            decimal totalCurrentValue = 0;
+            decimal totalPeriodAgoValue = 0;
+            int covered = 0;
+
+            foreach (var h in holdings)
+            {
+                totalCurrentValue += snapshotMap.TryGetValue(h.Id, out var snap)
+                    ? snap.currentValue : h.InvestedAmount;
+
+                if (!navHistoryMap.TryGetValue(h.SchemeCode, out var navList)
+                    || navList == null || !navList.Any())
+                    continue;
+
+                var targetDate = DateTime.Today.AddDays(-daysBack);
+                var record = navList
+                    .Where(n => n.NavDate.Date <= targetDate.Date)
+                    .OrderByDescending(n => n.NavDate)
+                    .FirstOrDefault();
+
+                if (record == null || record.NAV <= 0) continue;
+
+                // Period-ago portfolio value = units held × NAV then
+                totalPeriodAgoValue += h.Units * record.NAV;
+                covered++;
+            }
+
+            if (covered == 0 || totalPeriodAgoValue <= 0)
+                return new QuickReturnDto { Label = label, HasData = false };
+
+            var pct = Math.Round(
+                ((totalCurrentValue - totalPeriodAgoValue) / totalPeriodAgoValue) * 100, 4);
+
+            return new QuickReturnDto
+            {
+                Label = label,
+                ReturnPercent = pct,
+                IsPositive = pct >= 0,
+                HasData = true
+            };
+        }
+
+        private static (int equity, int debt, int hybrid) GetSchemeCategoryCounts(List<Domain.Entities.Holding> holdings)
+        {
+            var distinct = holdings
+                .GroupBy(h => h.SchemeCode)
+                .Select(g => g.First().SchemeName.ToLower());
+
+            int equity = 0, debt = 0, hybrid = 0;
+
+            foreach (var name in distinct)
+            {
+                if (name.Contains("hybrid") || name.Contains("balance"))
+                    hybrid++;
+                else if (name.Contains("debt") || name.Contains("bond") ||
+                         name.Contains("liquid") || name.Contains("gilt") ||
+                         name.Contains("psu") || name.Contains("income"))
+                    debt++;
+                else
+                    equity++;   // default
+            }
+
+            return (equity, debt, hybrid);
         }
 
         // ── Shared helpers ─────────────────────────────────────────

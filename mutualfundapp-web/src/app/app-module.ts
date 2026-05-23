@@ -19,7 +19,7 @@ import { UnauthorizedComponent } from './shared/components/unauthorized/unauthor
     // NavChartComponent,
     ConfirmDialogComponent,
     NotFoundComponent,
-    UnauthorizedComponent,
+    UnauthorizedComponent
   ],
   imports: [
     BrowserModule,
@@ -29,10 +29,10 @@ import { UnauthorizedComponent } from './shared/components/unauthorized/unauthor
     CoreModule,
     LayoutModule,
     ToastrModule.forRoot({
-      positionClass:    'toast-top-right',
-      timeOut:          3000,
-      progressBar:      true,
-      closeButton:      true,
+      positionClass: 'toast-top-right',
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true,
       preventDuplicates: true
     })
   ],

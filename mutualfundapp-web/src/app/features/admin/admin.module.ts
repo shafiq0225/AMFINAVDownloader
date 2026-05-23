@@ -13,7 +13,7 @@ import { OrdersComponent } from './investment/orders/orders.component';
 import { OrderDetailComponent } from './investment/order-detail/order-detail.component';
 import { PortfolioOverviewComponent } from './investment/portfolio-overview/portfolio-overview.component';
 import { SchemeDetailsComponent } from './scheme-details/scheme-details.component';
-// ← Remove NavGrowCountPipe import — it comes from SharedModule
+import { MemberPortfolioComponent } from './investment/member-portfolio/member-portfolio.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
@@ -24,7 +24,10 @@ const routes: Routes = [
   { path: 'nav', component: AdminNavComponent },
   { path: 'orders', component: OrdersComponent },
   { path: 'orders/:id', component: OrderDetailComponent },
+  // ── Portfolio routes (specific before generic) ──────────────
+  { path: 'portfolio/member/:userId', component: MemberPortfolioComponent }, // ← NEW
   { path: 'portfolio', component: PortfolioOverviewComponent },
+  // ────────────────────────────────────────────────────────────
   { path: 'nav/scheme/:schemeCode', component: SchemeDetailsComponent },
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
 ];
@@ -40,6 +43,7 @@ const routes: Routes = [
     OrdersComponent,
     OrderDetailComponent,
     PortfolioOverviewComponent,
+    MemberPortfolioComponent,
     SchemeDetailsComponent
   ],
   imports: [

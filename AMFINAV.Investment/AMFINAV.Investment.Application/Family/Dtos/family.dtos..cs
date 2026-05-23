@@ -14,9 +14,16 @@
         public int TotalMembers { get; set; }
         public int TotalSchemes { get; set; }
 
+        // Scheme category breakdown for KPI card
+        public int EquitySchemeCount { get; set; }
+        public int DebtSchemeCount { get; set; }
+        public int HybridSchemeCount { get; set; }
+
+        // Family-level yesterday return for KPI card
+        public QuickReturnDto? FamilyYesterdayReturn { get; set; }
+
         public DateTime ReportDate { get; set; }
 
-        // Per-member summary rows
         public IEnumerable<MemberSummaryDto> Members { get; set; }
             = new List<MemberSummaryDto>();
     }
@@ -35,9 +42,14 @@
 
         public int SchemeCount { get; set; }
         public int HoldingCount { get; set; }
-
-        // Category summary e.g. "Equity + Debt"
         public string CategorySummary { get; set; } = string.Empty;
+
+        // ── Period returns (for performance table columns) ─────────
+        public QuickReturnDto? DayBefore { get; set; }  // D-2
+        public QuickReturnDto? Yesterday { get; set; }  // Yesterday
+        public QuickReturnDto? OneMonth { get; set; }  // 1M
+        public QuickReturnDto? OneYear { get; set; }  // 1Y
+        public QuickReturnDto? ThreeYear { get; set; }  // 3Y
     }
 
     // ── Screen 2 ───────────────────────────────────────────────────
@@ -67,7 +79,6 @@
         public string FolioNumber { get; set; } = string.Empty;
         public string OrderNumber { get; set; } = string.Empty;
 
-        // My investment
         public decimal InvestedAmount { get; set; }
         public decimal Units { get; set; }
         public decimal PurchaseNAV { get; set; }
@@ -77,7 +88,6 @@
         public decimal GainPercent { get; set; }
         public bool IsGain { get; set; }
 
-        // 4 quick period returns for the mini-grid
         public QuickReturnDto? DayBefore { get; set; }
         public QuickReturnDto? OneMonth { get; set; }
         public QuickReturnDto? SixMonth { get; set; }
@@ -96,7 +106,6 @@
 
     public class HoldingSchemeDetailDto
     {
-        // Identity
         public string SchemeCode { get; set; } = string.Empty;
         public string SchemeName { get; set; } = string.Empty;
         public string FundName { get; set; } = string.Empty;
@@ -104,37 +113,29 @@
         public string OrderNumber { get; set; } = string.Empty;
         public bool IsApproved { get; set; }
 
-        // My holding
         public decimal InvestedAmount { get; set; }
         public decimal Units { get; set; }
         public decimal AvgBuyNAV { get; set; }
-        // InvestedAmount / Units
 
-        // Current value
         public decimal CurrentNAV { get; set; }
         public string CurrentNavDateText { get; set; } = string.Empty;
         public decimal CurrentValue { get; set; }
         public decimal TotalGain { get; set; }
-        // CurrentValue - InvestedAmount
         public decimal TotalGainPercent { get; set; }
         public bool IsTotalGain { get; set; }
 
-        // Daily NAV compare
         public decimal PreviousNAV { get; set; }
         public string PreviousNavDateText { get; set; } = string.Empty;
         public decimal DailyChange { get; set; }
         public decimal DailyChangePercent { get; set; }
         public bool IsDailyUp { get; set; }
 
-        // This week
         public decimal? WeekStartNAV { get; set; }
         public string WeekStartDateText { get; set; } = string.Empty;
         public decimal? WeekReturn { get; set; }
         public decimal? WeekGainAmount { get; set; }
-        // WeekReturn% × InvestedAmount / 100
         public bool IsWeekUp { get; set; }
 
-        // Period returns
         public PeriodDetailDto? OneMonth { get; set; }
         public PeriodDetailDto? ThreeMonth { get; set; }
         public PeriodDetailDto? SixMonth { get; set; }

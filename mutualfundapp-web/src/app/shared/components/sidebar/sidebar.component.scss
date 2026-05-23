@@ -1,5 +1,5 @@
-@use '../../../../styles/variables' as *;
-@use '../../../../styles/mixins' as *;
+@use "../../../../styles/variables" as *;
+@use "../../../../styles/mixins" as *;
 
 // ── Overlay ───────────────────────────────────────────────────────
 .sidebar-overlay {
@@ -9,15 +9,19 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.55);
+    background: rgba(0, 0, 0, 0.55);
     z-index: $z-sidebar - 1;
     animation: fadeIn 0.2s ease;
   }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 // ── Sidebar ───────────────────────────────────────────────────────
@@ -31,10 +35,14 @@
   display: flex;
   flex-direction: column;
   z-index: $z-sidebar;
-  transition: width 0.25s ease, transform 0.25s ease;
+  transition:
+    width 0.25s ease,
+    transform 0.25s ease;
   overflow: hidden;
 
-  &::-webkit-scrollbar { width: 0; }
+  &::-webkit-scrollbar {
+    width: 0;
+  }
 
   &.collapsed {
     width: $sidebar-collapsed;
@@ -64,7 +72,7 @@
   justify-content: space-between;
   padding: 0 16px;
   height: $topbar-height;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 
@@ -74,7 +82,7 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   color: #fff;
   font-size: 16px;
@@ -90,7 +98,8 @@
   letter-spacing: 0.5px;
 }
 
-.collapse-btn, .expand-btn {
+.collapse-btn,
+.expand-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -104,10 +113,15 @@
   transition: $transition-fast;
   flex-shrink: 0;
 
-  &:hover { background: $sidebar-hover; color: #fff; }
+  &:hover {
+    background: $sidebar-hover;
+    color: #fff;
+  }
 
   // ← Hide collapse button on mobile (no need)
-  @media (max-width: 768px) { display: none; }
+  @media (max-width: 768px) {
+    display: none;
+  }
 }
 
 .expand-btn {
@@ -139,13 +153,17 @@
   width: 38px;
   height: 38px;
   min-width: 38px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   color: #fff;
   font-size: 13px;
   font-weight: 700;
 
-  &-sm { width: 34px; height: 34px; min-width: 34px; }
+  &-sm {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
 }
 
 .user-info {
@@ -172,7 +190,7 @@
 // ── Divider ───────────────────────────────────────────────────────
 .sidebar-divider {
   height: 1px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   margin: 4px 16px;
   flex-shrink: 0;
 }
@@ -183,10 +201,18 @@
   overflow-y: auto;
   padding: 8px 0;
 
-  &::-webkit-scrollbar { width: 0; }
+  &::-webkit-scrollbar {
+    width: 0;
+  }
 
-  ul { list-style: none; padding: 0; margin: 0; }
-  li { padding: 2px 10px; }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  li {
+    padding: 2px 10px;
+  }
 }
 
 .nav-item {
@@ -207,7 +233,7 @@
   text-align: left;
 
   @media (max-width: 768px) {
-    padding: 12px 14px;  // ← bigger tap target on mobile
+    padding: 12px 14px; // ← bigger tap target on mobile
   }
 
   &:hover {
@@ -229,7 +255,9 @@
   flex-shrink: 0;
 }
 
-.nav-label { flex: 1; }
+.nav-label {
+  flex: 1;
+}
 
 .active-indicator {
   position: absolute;
@@ -249,11 +277,120 @@
 
   .logout-btn {
     margin: 4px 10px;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
 
     &:hover {
       color: #ff6b6b;
-      background: rgba(231,76,60,0.1);
+      background: rgba(231, 76, 60, 0.1);
     }
+  }
+}
+
+// ── Portfolio sub-navigation ───────────────────────────────────────
+.nav-chevron {
+  font-size: 10px;
+  margin-left: auto;
+  color: $sidebar-text;
+  transition: $transition-fast;
+}
+
+.nav-sub-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+
+  li {
+    padding: 1px 10px 1px 28px;
+  }
+}
+
+.nav-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: $sidebar-text;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: $font-family;
+  transition: $transition-fast;
+  text-align: left;
+
+  &:hover {
+    background: $sidebar-hover;
+    color: #fff;
+  }
+
+  &.active {
+    background: $sidebar-active;
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+.nav-sub-icon {
+  font-size: 13px;
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.nav-sub-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Colour-coded member initials pill
+.nav-sub-avatar {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+
+  &[data-color="0"] {
+    background: rgba(77, 145, 255, 0.2);
+    color: #4d91ff;
+  }
+  &[data-color="1"] {
+    background: rgba(167, 139, 250, 0.2);
+    color: #a78bfa;
+  }
+  &[data-color="2"] {
+    background: rgba(245, 183, 49, 0.2);
+    color: #f5b731;
+  }
+  &[data-color="3"] {
+    background: rgba(0, 204, 164, 0.2);
+    color: #00cca4;
+  }
+}
+
+.nav-sub-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: $sidebar-text;
+  opacity: 0.6;
+
+  i {
+    font-size: 11px;
   }
 }
