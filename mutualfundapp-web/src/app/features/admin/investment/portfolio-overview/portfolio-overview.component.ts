@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { PortfolioService } from '../../../../core/services/portfolio.service';
 import {
@@ -20,11 +20,12 @@ export class PortfolioOverviewComponent implements OnInit {
   overview: FamilyOverviewDto | null = null;
   loading = true;
   snapshotRunning = false;
+  viewMode: 'cards' | 'compact' = 'cards';
+  searchTerm = '';
+  sortBy = 'name';
+  expandedMember: string | null = null;
 
-  // Mobile accordion state
-  expandedMembers = new Set<string>();
-
-  // Period tabs — drive the 3rd column-group in the desktop table
+  // Period tabs
   periods: PeriodTab[] = [
     { key: 'yesterday', label: 'Yesterday' },
     { key: 'd2', label: 'D-2' },
@@ -35,7 +36,7 @@ export class PortfolioOverviewComponent implements OnInit {
   ];
   selectedPeriod = '1y';
 
-  // Mobile period rows (all periods, stacked)
+  // Mobile period rows
   readonly mobilePeriods: PeriodTab[] = [
     { key: 'yesterday', label: 'Yest' },
     { key: '1m', label: '1M' },
@@ -59,10 +60,6 @@ export class PortfolioOverviewComponent implements OnInit {
       next: data => {
         this.overview = data;
         this.loading = false;
-        // First member expanded by default on mobile
-        if (data.members?.length) {
-          this.expandedMembers.add(data.members[0].investorUserId);
-        }
         this.cdr.detectChanges();
       },
       error: () => {
@@ -98,16 +95,95 @@ export class PortfolioOverviewComponent implements OnInit {
     }
   }
 
-  // ── Format helpers ─────────────────────────────────────────────
+  // ── View mode ──────────────────────────────────────────────────
+  toggleView(): void {
+    this.viewMode = this.viewMode === 'cards' ? 'compact' : 'cards';
+  }
 
-  /** "+14.30%" or "—" */
+  // ── Search & Filter ────────────────────────────────────────────
+  getFilteredMembers(): MemberSummaryDto[] {
+    if (!this.overview?.members) return [];
+    let members = this.overview.members;
+
+    // Filter
+    if (this.searchTerm) {
+      members = members.filter(m =>
+        m.investorName.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    }
+
+    // Sort
+    switch (this.sortBy) {
+      case 'name':
+        members = members.sort((a, b) => a.investorName.localeCompare(b.investorName));
+        break;
+      case 'value':
+        members = members.sort((a, b) => b.totalCurrentValue - a.totalCurrentValue);
+        break;
+      case 'return':
+        members = members.sort((a, b) => b.totalGainPercent - a.totalGainPercent);
+        break;
+      case 'invested':
+        members = members.sort((a, b) => b.totalInvested - a.totalInvested);
+        break;
+    }
+
+    return members;
+  }
+
+  // ── Performance helpers ────────────────────────────────────────
+  isTopPerformer(member: MemberSummaryDto): boolean {
+    if (!this.overview?.members?.length) return false;
+    const sorted = [...this.overview.members].sort((a, b) => b.totalGainPercent - a.totalGainPercent);
+    return sorted[0]?.investorUserId === member.investorUserId;
+  }
+
+  isBottomPerformer(member: MemberSummaryDto): boolean {
+    if (!this.overview?.members?.length) return false;
+    const sorted = [...this.overview.members].sort((a, b) => a.totalGainPercent - b.totalGainPercent);
+    return sorted[0]?.investorUserId === member.investorUserId;
+  }
+
+  getReturnHistory(member: MemberSummaryDto): number[] {
+    // Generate mock return history for sparkline
+    // In real app, this would come from the API
+    const history = [];
+    for (let i = 0; i < 10; i++) {
+      history.push(Math.random() * 20 - 10);
+    }
+    return history;
+  }
+
+  // ── Footer stats ──────────────────────────────────────────────
+  getBestPerformer(): string {
+    if (!this.overview?.members?.length) return '—';
+    const best = this.overview.members.reduce((a, b) =>
+      a.totalGainPercent > b.totalGainPercent ? a : b
+    );
+    return `${best.investorName} (${best.totalGainPercent.toFixed(2)}%)`;
+  }
+
+  getWorstPerformer(): string {
+    if (!this.overview?.members?.length) return '—';
+    const worst = this.overview.members.reduce((a, b) =>
+      a.totalGainPercent < b.totalGainPercent ? a : b
+    );
+    return `${worst.investorName} (${worst.totalGainPercent.toFixed(2)}%)`;
+  }
+
+  getAverageReturn(): number {
+    if (!this.overview?.members?.length) return 0;
+    const sum = this.overview.members.reduce((total, m) => total + m.totalGainPercent, 0);
+    return sum / this.overview.members.length;
+  }
+
+  // ── Format helpers ─────────────────────────────────────────────
   formatReturn(r?: QuickReturnDto | null): string {
     if (!r?.hasData) return '—';
     const sign = r.isPositive ? '+' : '';
     return `${sign}${r.returnPercent.toFixed(2)}%`;
   }
 
-  /** Full rupee amount for desktop: "+₹1,55,200" */
   formatAmountFull(r?: QuickReturnDto | null): string {
     if (!r?.hasData) return '—';
     const val = r.periodGainAmount ?? 0;
@@ -116,7 +192,6 @@ export class PortfolioOverviewComponent implements OnInit {
     return `${sign}₹${abs.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
   }
 
-  /** Abbreviated amount for mobile: "+₹1.55L" */
   formatAmount(r?: QuickReturnDto | null): string {
     if (!r?.hasData) return '—';
     const val = r.periodGainAmount ?? 0;
@@ -128,33 +203,22 @@ export class PortfolioOverviewComponent implements OnInit {
     return `${sign}₹${abs.toFixed(0)}`;
   }
 
-  partialTooltip(r?: QuickReturnDto | null): string {
-    if (!r?.isPartialPeriod || !r.actualFromDate) return '';
-    return `Data available from ${r.actualFromDate}`;
+  getPercentageWidth(percent: number): number {
+    return Math.min(Math.abs(percent), 100);
   }
-
-  // ── Mobile accordion ───────────────────────────────────────────
-  toggleMember(userId: string, event: Event): void {
-    event.stopPropagation();
-    this.expandedMembers.has(userId)
-      ? this.expandedMembers.delete(userId)
-      : this.expandedMembers.add(userId);
-  }
-
-  isMemberExpanded(id: string): boolean { return this.expandedMembers.has(id); }
 
   // ── Navigation ─────────────────────────────────────────────────
   navigateToMember(userId: string): void {
     this.router.navigate(['/admin/portfolio/member', userId]);
   }
 
+  // ── Snapshot ────────────────────────────────────────────────────
   triggerSnapshot(): void {
     this.snapshotRunning = true;
     this.portfolioService.triggerSnapshot().subscribe({
       next: result => {
         this.snapshotRunning = false;
-        this.toastr.success(
-          `Snapshot complete — ${result.calculated} holdings calculated.`);
+        this.toastr.success(`Snapshot complete — ${result.calculated} holdings calculated.`);
         this.loadOverview();
       },
       error: () => {
@@ -162,6 +226,27 @@ export class PortfolioOverviewComponent implements OnInit {
         this.toastr.error('Snapshot failed.');
       }
     });
+  }
+
+  // ── Keyboard shortcuts ──────────────────────────────────────────
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboard(event: KeyboardEvent): void {
+    // 'R' for refresh
+    if (event.key === 'r' || event.key === 'R') {
+      if (!this.snapshotRunning) {
+        this.triggerSnapshot();
+      }
+    }
+    // 'V' for view toggle
+    if (event.key === 'v' || event.key === 'V') {
+      this.toggleView();
+    }
+    // Number keys 1-6 for periods
+    const periodKeys = ['yesterday', 'd2', '1m', '1y', '3y', '5y'];
+    const num = parseInt(event.key);
+    if (num >= 1 && num <= 6) {
+      this.selectPeriod(periodKeys[num - 1]);
+    }
   }
 
   trackByMember(_: number, m: MemberSummaryDto): string {
