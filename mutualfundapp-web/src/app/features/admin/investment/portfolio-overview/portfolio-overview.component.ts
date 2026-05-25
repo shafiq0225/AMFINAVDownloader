@@ -8,10 +8,7 @@ import {
 } from '../../../../core/models/portfolio.model';
 import { ToastrService } from 'ngx-toastr';
 
-interface PeriodTab {
-  key: string;
-  label: string;
-}
+interface PeriodTab { key: string; label: string; }
 
 @Component({
   selector: 'app-portfolio-overview',
@@ -24,17 +21,28 @@ export class PortfolioOverviewComponent implements OnInit {
   loading = true;
   snapshotRunning = false;
 
-  // ── Period tabs ───────────────────────────────────────────────
+  // Mobile accordion state
+  expandedMembers = new Set<string>();
+
+  // Period tabs — drive the 3rd column-group in the desktop table
   periods: PeriodTab[] = [
     { key: 'yesterday', label: 'Yesterday' },
     { key: 'd2', label: 'D-2' },
     { key: '1m', label: '1M' },
-    { key: '3m', label: '3M' },
-    { key: '6m', label: '6M' },
     { key: '1y', label: '1Y' },
     { key: '3y', label: '3Y' },
+    { key: '5y', label: '5Y' },
   ];
-  selectedPeriod = 'yesterday';
+  selectedPeriod = '1y';
+
+  // Mobile period rows (all periods, stacked)
+  readonly mobilePeriods: PeriodTab[] = [
+    { key: 'yesterday', label: 'Yest' },
+    { key: '1m', label: '1M' },
+    { key: '1y', label: '1Y' },
+    { key: '3y', label: '3Y' },
+    { key: '5y', label: '5Y' },
+  ];
 
   constructor(
     private portfolioService: PortfolioService,
@@ -51,6 +59,10 @@ export class PortfolioOverviewComponent implements OnInit {
       next: data => {
         this.overview = data;
         this.loading = false;
+        // First member expanded by default on mobile
+        if (data.members?.length) {
+          this.expandedMembers.add(data.members[0].investorUserId);
+        }
         this.cdr.detectChanges();
       },
       error: () => {
@@ -61,40 +73,81 @@ export class PortfolioOverviewComponent implements OnInit {
     });
   }
 
-  // ── Period helpers ────────────────────────────────────────────
+  // ── Period helpers ─────────────────────────────────────────────
   selectPeriod(key: string): void { this.selectedPeriod = key; }
 
   getPeriodLabel(): string {
     return this.periods.find(p => p.key === this.selectedPeriod)?.label ?? '';
   }
 
-  isColActive(colKey: string): boolean { return this.selectedPeriod === colKey; }
+  isColActive(key: string): boolean { return this.selectedPeriod === key; }
 
-  /** Returns a member's QuickReturnDto for the currently selected period column. */
   getMemberPeriodReturn(m: MemberSummaryDto): QuickReturnDto | undefined {
-    switch (this.selectedPeriod) {
+    return this.getPeriodReturn(m, this.selectedPeriod);
+  }
+
+  getPeriodReturn(m: MemberSummaryDto, key: string): QuickReturnDto | undefined {
+    switch (key) {
       case 'd2': return m.dayBefore;
       case 'yesterday': return m.yesterday;
       case '1m': return m.oneMonth;
       case '1y': return m.oneYear;
       case '3y': return m.threeYear;
-      default: return m.yesterday;
+      case '5y': return m.fiveYear;
+      default: return undefined;
     }
   }
 
-  // ── Format helpers ────────────────────────────────────────────
+  // ── Format helpers ─────────────────────────────────────────────
+
+  /** "+14.30%" or "—" */
   formatReturn(r?: QuickReturnDto | null): string {
     if (!r?.hasData) return '—';
     const sign = r.isPositive ? '+' : '';
     return `${sign}${r.returnPercent.toFixed(2)}%`;
   }
 
-  // ── Navigation ────────────────────────────────────────────────
+  /** Full rupee amount for desktop: "+₹1,55,200" */
+  formatAmountFull(r?: QuickReturnDto | null): string {
+    if (!r?.hasData) return '—';
+    const val = r.periodGainAmount ?? 0;
+    const sign = val >= 0 ? '+' : '−';
+    const abs = Math.abs(val);
+    return `${sign}₹${abs.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+  }
+
+  /** Abbreviated amount for mobile: "+₹1.55L" */
+  formatAmount(r?: QuickReturnDto | null): string {
+    if (!r?.hasData) return '—';
+    const val = r.periodGainAmount ?? 0;
+    const sign = val >= 0 ? '+' : '−';
+    const abs = Math.abs(val);
+    if (abs >= 10_00_000) return `${sign}₹${(abs / 10_00_000).toFixed(2)}Cr`;
+    if (abs >= 1_00_000) return `${sign}₹${(abs / 1_00_000).toFixed(2)}L`;
+    if (abs >= 1_000) return `${sign}₹${(abs / 1_000).toFixed(1)}K`;
+    return `${sign}₹${abs.toFixed(0)}`;
+  }
+
+  partialTooltip(r?: QuickReturnDto | null): string {
+    if (!r?.isPartialPeriod || !r.actualFromDate) return '';
+    return `Data available from ${r.actualFromDate}`;
+  }
+
+  // ── Mobile accordion ───────────────────────────────────────────
+  toggleMember(userId: string, event: Event): void {
+    event.stopPropagation();
+    this.expandedMembers.has(userId)
+      ? this.expandedMembers.delete(userId)
+      : this.expandedMembers.add(userId);
+  }
+
+  isMemberExpanded(id: string): boolean { return this.expandedMembers.has(id); }
+
+  // ── Navigation ─────────────────────────────────────────────────
   navigateToMember(userId: string): void {
     this.router.navigate(['/admin/portfolio/member', userId]);
   }
 
-  // ── Snapshot ─────────────────────────────────────────────────
   triggerSnapshot(): void {
     this.snapshotRunning = true;
     this.portfolioService.triggerSnapshot().subscribe({

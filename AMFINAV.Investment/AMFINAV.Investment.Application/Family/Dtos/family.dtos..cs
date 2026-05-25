@@ -4,7 +4,6 @@
 
     public class FamilyOverviewDto
     {
-        // Grand total
         public decimal TotalFamilyInvested { get; set; }
         public decimal TotalFamilyCurrentValue { get; set; }
         public decimal TotalFamilyGain { get; set; }
@@ -14,12 +13,10 @@
         public int TotalMembers { get; set; }
         public int TotalSchemes { get; set; }
 
-        // Scheme category breakdown for KPI card
         public int EquitySchemeCount { get; set; }
         public int DebtSchemeCount { get; set; }
         public int HybridSchemeCount { get; set; }
 
-        // Family-level yesterday return for KPI card
         public QuickReturnDto? FamilyYesterdayReturn { get; set; }
 
         public DateTime ReportDate { get; set; }
@@ -44,12 +41,13 @@
         public int HoldingCount { get; set; }
         public string CategorySummary { get; set; } = string.Empty;
 
-        // ── Period returns (for performance table columns) ─────────
-        public QuickReturnDto? DayBefore { get; set; }  // D-2
-        public QuickReturnDto? Yesterday { get; set; }  // Yesterday
-        public QuickReturnDto? OneMonth { get; set; }  // 1M
-        public QuickReturnDto? OneYear { get; set; }  // 1Y
-        public QuickReturnDto? ThreeYear { get; set; }  // 3Y
+        // ── Period returns ─────────────────────────────────────────
+        public QuickReturnDto? DayBefore { get; set; }   // D-2
+        public QuickReturnDto? Yesterday { get; set; }   // Yesterday
+        public QuickReturnDto? OneMonth { get; set; }   // 1M
+        public QuickReturnDto? OneYear { get; set; }   // 1Y
+        public QuickReturnDto? ThreeYear { get; set; }   // 3Y
+        public QuickReturnDto? FiveYear { get; set; }   // 5Y ← NEW
     }
 
     // ── Screen 2 ───────────────────────────────────────────────────
@@ -92,14 +90,27 @@
         public QuickReturnDto? OneMonth { get; set; }
         public QuickReturnDto? SixMonth { get; set; }
         public QuickReturnDto? OneYear { get; set; }
+        public QuickReturnDto? ThreeYear { get; set; }   // ← NEW
+        public QuickReturnDto? FiveYear { get; set; }   // ← NEW
     }
+
+    // ── Shared return DTO ──────────────────────────────────────────
 
     public class QuickReturnDto
     {
         public string Label { get; set; } = string.Empty;
         public decimal ReturnPercent { get; set; }
+        public decimal PeriodGainAmount { get; set; }   // ← NEW: ₹ P&L for the period
+        public decimal CagrPercent { get; set; }   // ← NEW: annualised CAGR
         public bool IsPositive { get; set; }
         public bool HasData { get; set; }
+
+        /// <summary>
+        /// True when full history was unavailable and the
+        /// earliest available NAV was used as the period start.
+        /// </summary>
+        public bool IsPartialPeriod { get; set; }   // ← NEW
+        public string ActualFromDate { get; set; } = string.Empty; // ← NEW
     }
 
     // ── Screen 3 ───────────────────────────────────────────────────
@@ -141,13 +152,18 @@
         public PeriodDetailDto? SixMonth { get; set; }
         public PeriodDetailDto? OneYear { get; set; }
         public PeriodDetailDto? ThreeYear { get; set; }
+        public PeriodDetailDto? FiveYear { get; set; }   // ← NEW
     }
 
     public class PeriodDetailDto
     {
         public string Label { get; set; } = string.Empty;
         public decimal ReturnPercent { get; set; }
+        public decimal PeriodGainAmount { get; set; }   // ← NEW
+        public decimal CagrPercent { get; set; }   // ← NEW
         public bool IsPositive { get; set; }
         public bool HasData { get; set; }
+        public bool IsPartialPeriod { get; set; }   // ← NEW
+        public string ActualFromDate { get; set; } = string.Empty; // ← NEW
     }
 }

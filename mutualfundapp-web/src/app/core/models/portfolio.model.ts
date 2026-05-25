@@ -1,13 +1,15 @@
+// ─────────────────────────────────────────────────────────────────
+// Core row / report DTOs (unchanged)
+// ─────────────────────────────────────────────────────────────────
+
 export interface PortfolioRowDto {
     schemeCode: string;
     schemeName: string;
     fundName: string;
     folioNumber: string;
-
     purchaseDate: string;
     purchaseDateText: string;
     year: number;
-
     investedAmount: number;
     purchaseNAV: number;
     units: number;
@@ -16,7 +18,6 @@ export interface PortfolioRowDto {
     profitLoss: number;
     percentage: number;
     isProfit: boolean;
-
     snapshotDate?: string;
 }
 
@@ -67,7 +68,10 @@ export interface HoldingDto {
     isActive: boolean;
 }
 
-// Shared scheme-group model (used by overview + member page)
+// ─────────────────────────────────────────────────────────────────
+// Shared scheme-group model
+// ─────────────────────────────────────────────────────────────────
+
 export interface SchemeGroup {
     schemeCode: string;
     schemeName: string;
@@ -78,26 +82,18 @@ export interface SchemeGroup {
     returnPercent: number;
     isProfit: boolean;
     holdingCount: number;
-    holdings: PortfolioRowDto[];          // PortfolioRowDto already exists in this file
+    holdings: PortfolioRowDto[];
 }
 
-/** Shared helper — call from any component instead of duplicating logic */
 export function buildSchemeGroups(holdings: PortfolioRowDto[]): SchemeGroup[] {
     const map = new Map<string, SchemeGroup>();
-
     for (const h of holdings) {
         if (!map.has(h.schemeCode)) {
             map.set(h.schemeCode, {
-                schemeCode: h.schemeCode,
-                schemeName: h.schemeName,
-                fundName: h.fundName,
-                totalInvested: 0,
-                totalCurrentValue: 0,
-                totalProfitLoss: 0,
-                returnPercent: 0,
-                isProfit: true,
-                holdingCount: 0,
-                holdings: []
+                schemeCode: h.schemeCode, schemeName: h.schemeName,
+                fundName: h.fundName, totalInvested: 0, totalCurrentValue: 0,
+                totalProfitLoss: 0, returnPercent: 0, isProfit: true,
+                holdingCount: 0, holdings: []
             });
         }
         const g = map.get(h.schemeCode)!;
@@ -107,7 +103,6 @@ export function buildSchemeGroups(holdings: PortfolioRowDto[]): SchemeGroup[] {
         g.holdingCount++;
         g.holdings.push(h);
     }
-
     for (const g of map.values()) {
         g.returnPercent = g.totalInvested > 0
             ? (g.totalProfitLoss / g.totalInvested) * 100 : 0;
@@ -115,54 +110,57 @@ export function buildSchemeGroups(holdings: PortfolioRowDto[]): SchemeGroup[] {
         g.holdings.sort((a, b) =>
             new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime());
     }
-
     return Array.from(map.values());
 }
 
-// ── ADD these interfaces to your existing portfolio.model.ts ──────
+// ─────────────────────────────────────────────────────────────────
+// Family overview DTOs
+// ─────────────────────────────────────────────────────────────────
 
 export interface QuickReturnDto {
-  label: string;
-  returnPercent: number;
-  isPositive: boolean;
-  hasData: boolean;
-  absoluteValue: number;
+    label: string;
+    returnPercent: number;
+    periodGainAmount: number;   // ← ₹ P&L for the period
+    cagrPercent: number;   // ← annualised CAGR (0 for short periods)
+    isPositive: boolean;
+    hasData: boolean;
+    isPartialPeriod: boolean;  // ← true when full history unavailable
+    actualFromDate: string;   // ← earliest NAV date used when partial
 }
 
-// ── REPLACE the existing MemberSummaryDto ────────────────────────
 export interface MemberSummaryDto {
-  investorUserId:    string;
-  investorName:      string;
-  initials:          string;
-  totalInvested:     number;
-  totalCurrentValue: number;
-  totalGain:         number;
-  totalGainPercent:  number;
-  isGain:            boolean;
-  schemeCount:       number;
-  holdingCount:      number;
-  categorySummary:   string;
-  // period returns
-  dayBefore?:  QuickReturnDto;
-  yesterday?:  QuickReturnDto;
-  oneMonth?:   QuickReturnDto;
-  oneYear?:    QuickReturnDto;
-  threeYear?:  QuickReturnDto;
+    investorUserId: string;
+    investorName: string;
+    initials: string;
+    totalInvested: number;
+    totalCurrentValue: number;
+    totalGain: number;
+    totalGainPercent: number;
+    isGain: boolean;
+    schemeCount: number;
+    holdingCount: number;
+    categorySummary: string;
+    // period returns
+    dayBefore?: QuickReturnDto;
+    yesterday?: QuickReturnDto;
+    oneMonth?: QuickReturnDto;
+    oneYear?: QuickReturnDto;
+    threeYear?: QuickReturnDto;
+    fiveYear?: QuickReturnDto;   // ← NEW
 }
 
-// ── REPLACE the existing FamilyOverviewDto ───────────────────────
 export interface FamilyOverviewDto {
-  totalFamilyInvested:     number;
-  totalFamilyCurrentValue: number;
-  totalFamilyGain:         number;
-  totalFamilyGainPercent:  number;
-  isFamilyGain:            boolean;
-  totalMembers:            number;
-  totalSchemes:            number;
-  equitySchemeCount:       number;
-  debtSchemeCount:         number;
-  hybridSchemeCount:       number;
-  familyYesterdayReturn?:  QuickReturnDto;
-  reportDate:              string;
-  members:                 MemberSummaryDto[];
+    totalFamilyInvested: number;
+    totalFamilyCurrentValue: number;
+    totalFamilyGain: number;
+    totalFamilyGainPercent: number;
+    isFamilyGain: boolean;
+    totalMembers: number;
+    totalSchemes: number;
+    equitySchemeCount: number;
+    debtSchemeCount: number;
+    hybridSchemeCount: number;
+    familyYesterdayReturn?: QuickReturnDto;
+    reportDate: string;
+    members: MemberSummaryDto[];
 }

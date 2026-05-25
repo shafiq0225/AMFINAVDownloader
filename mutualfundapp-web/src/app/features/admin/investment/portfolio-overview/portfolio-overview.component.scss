@@ -1,44 +1,146 @@
 @use "../../../../../styles/variables" as *;
 @use "../../../../../styles/mixins" as *;
 
-// ── local token (gold is not in the global palette) ──────────────
 $gold: #f5b731;
+$tbl-cols: 2.2fr 0.95fr 0.95fr 0.95fr 0.7fr 0.95fr 0.7fr 0.95fr 0.7fr;
+$active-bg: rgba($primary, 0.05);
+$active-color: $primary;
 
-// ── Page Header ───────────────────────────────────────────────────
-.page-header {
-  @include flex-between;
-  margin-bottom: 20px;
-  align-items: flex-start;
-  flex-wrap: wrap;
+// ══════════════════════════════════════════════════════════════════
+// Hero card
+// ══════════════════════════════════════════════════════════════════
+
+.hero-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  padding: 20px 24px 18px;
+  box-shadow: $shadow-card;
+}
+
+.hero-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: $text-muted;
+  margin-bottom: 10px;
+}
+
+.hero-value-row {
+  display: flex;
+  align-items: center;
   gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
 
-  &__left {
-    h2 {
-      font-size: $font-size-xl;
-      color: $primary;
-      margin-bottom: 4px;
-    }
-    p {
-      font-size: $font-size-sm;
-      color: $text-muted;
-      margin: 0;
-    }
-  }
+.hero-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: -1px;
+  line-height: 1;
+}
 
-  &__right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+.hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: "Courier New", monospace;
+  padding: 5px 14px;
+  border-radius: 20px;
+
+  &.up {
+    background: $success-light;
+    color: $success;
   }
+  &.dn {
+    background: $danger-light;
+    color: $danger;
+  }
+}
+
+.hero-divider {
+  height: 1px;
+  background: $border;
+  margin-bottom: 14px;
+}
+
+.hero-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.hero-sub-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 20px;
+}
+
+.hero-sub-lbl {
+  font-size: 11px;
+  color: $text-muted;
+}
+
+.hero-sub-val {
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.hero-sub-pct {
+  font-size: 12px;
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+}
+
+.hero-vsep {
+  width: 1px;
+  height: 36px;
+  background: $border;
+  margin: 0 20px 0 0;
+  flex-shrink: 0;
 }
 
 .recalc-btn {
   white-space: nowrap;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
-// ── Period Tabs ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Panel shell
+// ══════════════════════════════════════════════════════════════════
+
+.panel {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.panel-hdr {
+  @include flex-between;
+  padding: 13px 20px;
+  border-bottom: 1px solid $border;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.panel-title {
+  font-size: $font-size-base;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+// ── Period tabs ──────────────────────────────────────────────────
 .period-tabs {
   display: flex;
   gap: 5px;
@@ -48,8 +150,8 @@ $gold: #f5b731;
 .period-tab {
   font-size: $font-size-xs;
   font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 8px;
+  padding: 5px 12px;
+  border-radius: 7px;
   border: 1px solid $border;
   background: transparent;
   color: $text-muted;
@@ -62,160 +164,87 @@ $gold: #f5b731;
     color: $text-primary;
     border-color: $border-dark;
   }
-
   &.active {
-    background: rgba($primary, 0.12);
+    background: $active-bg;
     border-color: $primary;
     color: $primary;
+    font-weight: 700;
   }
 }
 
-// ── KPI Row ───────────────────────────────────────────────────────
-.kpi-row {
+// ══════════════════════════════════════════════════════════════════
+// Desktop performance table
+// ══════════════════════════════════════════════════════════════════
+
+.tbl-group-row,
+.tbl-head,
+.tbl-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-
-  @media (max-width: 1100px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  @media (max-width: 576px) {
-    grid-template-columns: 1fr;
-  }
+  grid-template-columns: $tbl-cols;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
-.kpi-card {
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $card-radius;
-  padding: 18px 20px 16px;
-  position: relative;
-  overflow: hidden;
+// ── Group header row ─────────────────────────────────────────────
+.tbl-group-row {
+  background: $page-bg;
+  border-bottom: 1px solid $border;
+  padding-top: 6px;
+  padding-bottom: 0;
 }
 
-.kpi-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-
-  &--teal {
-    background: $success;
-  }
-  &--blue {
-    background: $primary;
-  }
-  &--gold {
-    background: $gold;
-  }
-  &--coral {
-    background: $danger;
-  }
-}
-
-.kpi-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: $text-muted;
-  margin-bottom: 8px;
-}
-
-.kpi-value {
-  font-size: $font-size-2xl;
+.tgr {
+  font-size: 9px;
   font-weight: 700;
-  color: $text-primary;
-  font-family: "Courier New", monospace;
-  letter-spacing: -0.5px;
-  line-height: 1;
-  margin-bottom: 6px;
-}
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding-bottom: 5px;
 
-.kpi-change {
-  font-size: $font-size-xs;
-  font-family: "Courier New", monospace;
-
-  &.up {
-    color: $success;
-  }
-  &.dn {
-    color: $danger;
-  }
-  &.muted {
+  &--normal {
     color: $text-muted;
+    border-bottom: 2px solid $border-dark;
+  }
+
+  &--active {
+    color: $active-color;
+    border-bottom: 2px solid $active-color;
   }
 }
 
-// ── Panel ─────────────────────────────────────────────────────────
-.panel {
-  background: $surface;
-  border: 1px solid $border;
-  border-radius: $card-radius;
-  overflow: hidden;
-}
-
-.panel-hdr {
-  @include flex-between;
-  padding: 14px 20px;
+// ── Column header row ─────────────────────────────────────────────
+.tbl-head {
+  background: $page-bg;
   border-bottom: 1px solid $border;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
-.panel-title {
-  font-size: $font-size-base;
-  font-weight: 600;
-  color: $text-primary;
-}
-
-.panel-badge {
-  font-size: $font-size-xs;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 6px;
-  background: rgba($success, 0.1);
-  color: $success;
-}
-
-// ── Performance Table ─────────────────────────────────────────────
-// 8 columns: Member(2fr) + 7×(1fr)
-$perf-cols: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-
-.perf-head,
-.perf-row {
-  display: grid;
-  grid-template-columns: $perf-cols;
-  padding: 0 20px;
-  align-items: center;
-}
-
-.perf-head {
-  padding-top: 9px;
-  padding-bottom: 9px;
-  border-bottom: 1px solid $border;
-}
-
-.ph {
+.th {
   font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: $text-muted;
 
+  &--name {
+  }
   &--num {
     text-align: right;
   }
   &--active {
-    color: $primary;
+    color: $active-color;
   }
 }
 
-.perf-row {
+// ── Data rows ─────────────────────────────────────────────────────
+.tbl-row {
+  border-bottom: 1px solid $border;
   padding-top: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px solid $border;
+  align-items: center;
   cursor: pointer;
-  transition: $transition-fast;
+  transition: background $transition-fast;
 
   &:last-child {
     border-bottom: none;
@@ -225,75 +254,320 @@ $perf-cols: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   }
 }
 
-.pr {
+.td {
   font-size: $font-size-sm;
   color: $text-primary;
+
+  &--name {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
 
   &--num {
     text-align: right;
     font-family: "Courier New", monospace;
     font-weight: 500;
   }
-  &--name {
+
+  // Highlighted (active period) cells
+  &--active {
+    background: $active-bg;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-radius: 4px;
+    text-align: right;
+    font-family: "Courier New", monospace;
+    font-weight: 500;
+  }
+}
+
+// ── 3Y/5Y footer ─────────────────────────────────────────────────
+.tbl-footer {
+  @include flex-between;
+  padding: 9px 20px;
+  border-top: 1px solid $border;
+  background: $page-bg;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: $font-size-xs;
+    color: $text-muted;
+
+    i {
+      font-size: 11px;
+    }
+  }
+
+  &__right {
     display: flex;
     align-items: center;
     gap: 12px;
   }
 
-  &--pct {
-    font-weight: 600;
-  }
-
-  &--active {
-    font-weight: 700;
+  &__vals {
+    font-size: $font-size-xs;
+    font-family: "Courier New", monospace;
+    color: $text-secondary;
   }
 }
 
-// ── Member avatar / name ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Return pill badge (shared desktop + mobile)
+// ══════════════════════════════════════════════════════════════════
+
+.rpill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: $font-size-xs;
+  font-weight: 600;
+  font-family: "Courier New", monospace;
+  white-space: nowrap;
+
+  &.up {
+    background: $success-light;
+    color: $success;
+  }
+  &.dn {
+    background: $danger-light;
+    color: $danger;
+  }
+
+  &.sm {
+    padding: 1px 7px;
+    font-size: 10px;
+  }
+}
+
+.no-data {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  text-align: right;
+  display: block;
+}
+
+.partial-mark {
+  font-size: 10px;
+  color: $text-muted;
+  cursor: help;
+  margin-right: 2px;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Shared member avatar + name
+// ══════════════════════════════════════════════════════════════════
+
 .mem-avatar {
   width: 34px;
   height: 34px;
   min-width: 34px;
   border-radius: 50%;
-  background: rgba($primary, 0.14);
+  background: rgba($primary, 0.12);
   color: $primary;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  font-family: $font-family;
   flex-shrink: 0;
+
+  &.sm {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    font-size: 11px;
+  }
 }
 
 .mem-name {
   font-size: $font-size-sm;
   font-weight: 600;
   color: $text-primary;
-  font-family: $font-family;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .mem-sub {
   font-size: $font-size-xs;
   color: $text-muted;
-  font-family: $font-family;
 }
 
-// ── Mobile member list ────────────────────────────────────────────
-.mobile-member-list {
-  padding: 4px 0;
-}
+// ══════════════════════════════════════════════════════════════════
+// Mobile layout
+// ══════════════════════════════════════════════════════════════════
 
-.mobile-member-row {
+.mobile-wrap {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 13px 16px;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid $border;
+  border-radius: $card-radius;
+  overflow: hidden;
+  background: $surface;
+  box-shadow: $shadow-card;
+}
+
+// Mobile hero header
+.m-hero {
+  @include flex-between;
+  padding: 14px 16px;
   border-bottom: 1px solid $border;
+  background: $surface;
+  gap: 10px;
+
+  &__left {
+  }
+
+  &__title {
+    font-size: $font-size-md;
+    font-weight: 600;
+    color: $text-primary;
+    margin-bottom: 2px;
+  }
+
+  &__sub {
+    font-size: $font-size-xs;
+    color: $text-muted;
+  }
+
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  &__val {
+    font-size: $font-size-lg;
+    font-weight: 700;
+    color: $text-primary;
+  }
+}
+
+// Member card
+.m-member-card {
+  border-top: 1px solid $border;
+
+  &:first-of-type {
+    border-top: none;
+  }
+}
+
+// Card header
+.mc-hdr {
+  @include flex-between;
+  padding: 12px 16px;
   cursor: pointer;
-  gap: 12px;
-  transition: $transition-fast;
+  gap: 10px;
+  transition: background $transition-fast;
+
+  &:hover {
+    background: $hover-bg;
+  }
+
+  &__left {
+    @include flex-start;
+    gap: 10px;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  &__val {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__pills {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+.mc-chevron {
+  font-size: 10px;
+  color: $text-muted;
+  margin-top: 2px;
+}
+
+// Card body
+.mc-body {
+  border-top: 1px solid $border;
+}
+
+// 2×2 stat grid
+.mc-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.mc-stat {
+  padding: 11px 16px;
+
+  // Vertical separator between columns
+  &:nth-child(odd) {
+    border-right: 1px solid $border;
+  }
+  // Horizontal separator between rows
+  &:nth-child(-n + 2) {
+    border-bottom: 1px solid $border;
+  }
+
+  &__lbl {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $text-muted;
+    margin-bottom: 4px;
+  }
+
+  &__val {
+    font-size: $font-size-base;
+    font-weight: 600;
+    color: $text-primary;
+  }
+}
+
+// Period rows section
+.mc-periods {
+}
+
+.mc-periods__hdr {
+  @include flex-between;
+  padding: 8px 16px 7px;
+  border-top: 1px solid $border;
+  border-bottom: 1px solid $border;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+}
+
+// One row per period
+.period-row {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  padding: 9px 16px;
+  border-bottom: 1px solid $border;
+  gap: 8px;
+  cursor: pointer;
+  transition: background $transition-fast;
 
   &:last-child {
     border-bottom: none;
@@ -301,51 +575,63 @@ $perf-cols: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   &:hover {
     background: $hover-bg;
   }
+
+  &--active {
+    background: $active-bg;
+    border-left: 3px solid $primary;
+    padding-left: 13px;
+  }
+
+  &__lbl {
+    font-size: $font-size-xs;
+    font-weight: 500;
+    color: $text-muted;
+
+    &.lbl--active {
+      color: $active-color;
+      font-weight: 700;
+    }
+  }
+
+  &__amt {
+    font-size: $font-size-sm;
+    font-weight: 600;
+    font-family: "Courier New", monospace;
+    text-align: right;
+  }
+
+  &__pct {
+    text-align: right;
+    min-width: 68px;
+  }
 }
 
-.mmr-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  overflow: hidden;
-}
-
-.mmr-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 3px;
-  flex-shrink: 0;
-}
-
-.mmr-value {
-  font-size: $font-size-base;
-  font-weight: 600;
-  color: $text-primary;
-}
-
-.mmr-period {
+// Card footer
+.mc-footer {
+  @include flex-between;
+  padding: 10px 16px;
+  border-top: 1px solid $border;
   font-size: $font-size-xs;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  font-weight: 500;
+  color: $primary-light;
+  cursor: pointer;
+  background: $page-bg;
+  transition: $transition-fast;
+
+  &:hover {
+    background: rgba($primary, 0.05);
+    color: $primary;
+  }
+
+  i {
+    font-size: 10px;
+  }
 }
 
-.mmr-period-label {
-  font-size: 10px;
-  color: $text-muted;
-  font-weight: 400;
-}
+// ══════════════════════════════════════════════════════════════════
+// Empty state
+// ══════════════════════════════════════════════════════════════════
 
-.mmr-arrow {
-  font-size: 11px;
-  color: $text-muted;
-  margin-top: 2px;
-}
-
-// ── Empty state ───────────────────────────────────────────────────
 .empty-portfolio {
   text-align: center;
   padding: 80px 20px;
@@ -369,9 +655,15 @@ $perf-cols: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   }
 }
 
-// ── Utilities ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Utilities
+// ══════════════════════════════════════════════════════════════════
+
 .font-mono {
   font-family: "Courier New", monospace;
+}
+.fw-600 {
+  font-weight: 600;
 }
 
 .desktop-only {
@@ -387,5 +679,28 @@ $perf-cols: 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
   }
   .mobile-only {
     display: block !important;
+  }
+
+  .hero-card {
+    padding: 16px;
+  }
+  .hero-value {
+    font-size: 26px;
+  }
+  .hero-sub-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .hero-vsep {
+    display: none;
+  }
+  .hero-sub-item {
+    padding-right: 0;
+  }
+  .recalc-btn {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
   }
 }

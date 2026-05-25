@@ -3,225 +3,362 @@
 
 <div *ngIf="!loading">
 
-    <!-- ── Page Header ─────────────────────────────────────────── -->
-    <div class="page-header">
-        <div class="page-header__left">
-            <h2>Family Portfolio</h2>
-            <p *ngIf="overview">
-                {{ overview.totalMembers }} members
-                &nbsp;·&nbsp;
-                {{ overview.totalSchemes }} schemes
-                &nbsp;·&nbsp;
-                Last updated {{ overview.reportDate | date:'dd MMM yyyy' }}
-            </p>
+    <!-- ══ HERO CARD ═══════════════════════════════════════════════ -->
+    <div class="hero-card mb-20" *ngIf="overview">
+
+        <div class="hero-label">FAMILY PORTFOLIO VALUE</div>
+
+        <div class="hero-value-row">
+            <span class="hero-value font-mono">
+                ₹{{ overview.totalFamilyCurrentValue | number:'1.0-0' }}
+            </span>
+            <span class="hero-pill" [class.up]="overview.isFamilyGain" [class.dn]="!overview.isFamilyGain">
+                {{ overview.isFamilyGain ? '▲' : '▼' }}
+                {{ overview.isFamilyGain ? '+' : '' }}₹{{
+                overview.totalFamilyGain | number:'1.0-0' }}
+                &nbsp;
+                {{ overview.isFamilyGain ? '+' : '' }}{{
+                overview.totalFamilyGainPercent | number:'1.2-2' }}% overall
+            </span>
         </div>
 
-        <div class="page-header__right">
-            <button class="btn btn-primary btn-sm recalc-btn" (click)="triggerSnapshot()" [disabled]="snapshotRunning">
+        <div class="hero-divider"></div>
+
+        <div class="hero-sub-row">
+
+            <!-- Total invested -->
+            <div class="hero-sub-item">
+                <span class="hero-sub-lbl">Total invested</span>
+                <span class="hero-sub-val font-mono">
+                    ₹{{ overview.totalFamilyInvested | number:'1.0-0' }}
+                </span>
+            </div>
+
+            <div class="hero-vsep"></div>
+
+            <!-- Yesterday P&L -->
+            <div class="hero-sub-item" *ngIf="overview.familyYesterdayReturn?.hasData">
+                <span class="hero-sub-lbl">Yesterday P&amp;L</span>
+                <span class="hero-sub-val font-mono" [class.text-success]="overview.familyYesterdayReturn!.isPositive"
+                    [class.text-danger]="!overview.familyYesterdayReturn!.isPositive">
+                    {{ overview.familyYesterdayReturn!.isPositive ? '+' : '−' }}₹{{
+                    (overview.familyYesterdayReturn!.periodGainAmount | number:'1.0-0') }}
+                </span>
+                <span class="hero-sub-pct" [class.text-success]="overview.familyYesterdayReturn!.isPositive"
+                    [class.text-danger]="!overview.familyYesterdayReturn!.isPositive">
+                    {{ overview.familyYesterdayReturn!.isPositive ? '+' : '' }}{{
+                    overview.familyYesterdayReturn!.returnPercent | number:'1.2-2' }}%
+                </span>
+            </div>
+
+            <div class="hero-vsep" *ngIf="overview.familyYesterdayReturn?.hasData"></div>
+
+            <!-- Members & schemes -->
+            <div class="hero-sub-item">
+                <span class="hero-sub-val">
+                    {{ overview.totalMembers }} members · {{ overview.totalSchemes }} schemes
+                </span>
+                <span class="hero-sub-lbl">
+                    Last updated {{ overview.reportDate | date:'dd MMM yyyy' }}
+                </span>
+            </div>
+
+            <div class="hero-vsep"></div>
+
+            <!-- Recalculate button -->
+            <button class="btn btn-outline btn-sm recalc-btn" (click)="triggerSnapshot()" [disabled]="snapshotRunning">
                 <i class="fas fa-circle-notch fa-spin" *ngIf="snapshotRunning"></i>
                 <i class="fas fa-rotate" *ngIf="!snapshotRunning"></i>
                 {{ snapshotRunning ? 'Calculating…' : 'Recalculate P&L' }}
             </button>
 
-            <div class="period-tabs">
-                <button class="period-tab" *ngFor="let p of periods" [class.active]="selectedPeriod === p.key"
-                    (click)="selectPeriod(p.key)">
-                    {{ p.label }}
-                </button>
-            </div>
         </div>
     </div>
 
-    <!-- ── Empty State ────────────────────────────────────────── -->
+    <!-- ══ EMPTY STATE ══════════════════════════════════════════════ -->
     <div class="card empty-portfolio" *ngIf="!overview || overview.members.length === 0">
         <i class="fas fa-chart-pie"></i>
         <h3>No Active Investments</h3>
-        <p>No active holdings found. Create investment orders and mark them
-            as Active to see portfolio data.</p>
+        <p>No active holdings found. Create investment orders and mark
+            them as Active to see portfolio data.</p>
     </div>
 
     <ng-container *ngIf="overview && overview.members.length > 0">
 
-        <!-- ── KPI Row ────────────────────────────────────────────── -->
-        <div class="kpi-row mb-20">
+        <!-- ══ DESKTOP TABLE ════════════════════════════════════════════ -->
+        <div class="panel desktop-only">
 
-            <!-- Total Portfolio Value -->
-            <div class="kpi-card">
-                <div class="kpi-bar kpi-bar--teal"></div>
-                <div class="kpi-label">Total Portfolio Value</div>
-                <div class="kpi-value">
-                    ₹{{ overview.totalFamilyCurrentValue | number:'1.0-0' }}
-                </div>
-                <div class="kpi-change" [class.up]="overview.isFamilyGain" [class.dn]="!overview.isFamilyGain">
-                    <ng-container *ngIf="overview.familyYesterdayReturn?.hasData">
-                        {{ overview.familyYesterdayReturn!.isPositive ? '▲' : '▼' }}
-                        {{ overview.familyYesterdayReturn!.isPositive ? '+' : '' }}{{
-                        overview.familyYesterdayReturn!.returnPercent | number:'1.2-2' }}%
-                        yesterday
-                    </ng-container>
-                    <ng-container *ngIf="!overview.familyYesterdayReturn?.hasData">
-                        {{ overview.isFamilyGain ? '+' : '' }}{{
-                        overview.totalFamilyGainPercent | number:'1.2-2' }}% overall
-                    </ng-container>
+            <!-- Panel header: title + period tabs -->
+            <div class="panel-hdr">
+                <span class="panel-title">Member-wise Performance</span>
+                <div class="period-tabs">
+                    <button class="period-tab" *ngFor="let p of periods" [class.active]="selectedPeriod === p.key"
+                        (click)="selectPeriod(p.key)">
+                        {{ p.label }}
+                    </button>
                 </div>
             </div>
 
-            <!-- Total Invested -->
-            <div class="kpi-card">
-                <div class="kpi-bar kpi-bar--blue"></div>
-                <div class="kpi-label">Total Invested</div>
-                <div class="kpi-value">
-                    ₹{{ overview.totalFamilyInvested | number:'1.0-0' }}
-                </div>
-                <div class="kpi-change" [class.up]="overview.isFamilyGain" [class.dn]="!overview.isFamilyGain">
-                    {{ overview.isFamilyGain ? '+' : '' }}₹{{
-                    overview.totalFamilyGain | number:'1.0-0' }} overall gain
+            <!-- Group header row -->
+            <div class="tbl-group-row">
+                <div></div><!-- member spacer -->
+                <div></div><!-- invested spacer -->
+                <div></div><!-- current spacer -->
+                <div class="tgr tgr--normal" style="grid-column: span 2;">OVERALL P&amp;L</div>
+                <div class="tgr tgr--normal" style="grid-column: span 2;">YESTERDAY</div>
+                <div class="tgr tgr--active" style="grid-column: span 2;">
+                    {{ getPeriodLabel() | uppercase }}
                 </div>
             </div>
 
-            <!-- Overall Return -->
-            <div class="kpi-card">
-                <div class="kpi-bar kpi-bar--gold"></div>
-                <div class="kpi-label">Overall Return</div>
-                <div class="kpi-value" [class.text-success]="overview.isFamilyGain"
-                    [class.text-danger]="!overview.isFamilyGain">
-                    {{ overview.isFamilyGain ? '+' : '' }}{{
-                    overview.totalFamilyGainPercent | number:'1.2-2' }}%
-                </div>
-                <div class="kpi-change up">▲ since inception</div>
+            <!-- Column header row -->
+            <div class="tbl-head">
+                <div class="th th--name">MEMBER</div>
+                <div class="th th--num">INVESTED</div>
+                <div class="th th--num">CURRENT</div>
+                <div class="th th--num">₹</div>
+                <div class="th th--num">%</div>
+                <div class="th th--num">₹</div>
+                <div class="th th--num">%</div>
+                <div class="th th--num th--active">₹</div>
+                <div class="th th--num th--active">%</div>
             </div>
 
-            <!-- Schemes · Members -->
-            <div class="kpi-card">
-                <div class="kpi-bar kpi-bar--coral"></div>
-                <div class="kpi-label">Schemes &nbsp;·&nbsp; Members</div>
-                <div class="kpi-value">
-                    {{ overview.totalSchemes }} · {{ overview.totalMembers }}
+            <!-- Data rows -->
+            <div class="tbl-row" *ngFor="let m of overview.members; trackBy: trackByMember"
+                (click)="navigateToMember(m.investorUserId)" role="button"
+                [attr.aria-label]="'View ' + m.investorName + ' portfolio'">
+
+                <!-- Member -->
+                <div class="td td--name">
+                    <div class="mem-avatar">{{ m.initials }}</div>
+                    <div>
+                        <div class="mem-name">{{ m.investorName }}</div>
+                        <div class="mem-sub">{{ m.schemeCount }} schemes</div>
+                    </div>
                 </div>
-                <div class="kpi-change muted">
-                    <ng-container *ngIf="overview.equitySchemeCount">
-                        Equity {{ overview.equitySchemeCount }}
-                    </ng-container>
-                    <ng-container *ngIf="overview.debtSchemeCount">
-                        &nbsp;· Debt {{ overview.debtSchemeCount }}
-                    </ng-container>
-                    <ng-container *ngIf="overview.hybridSchemeCount">
-                        &nbsp;· Hybrid {{ overview.hybridSchemeCount }}
-                    </ng-container>
+
+                <!-- Invested -->
+                <div class="td td--num text-muted font-mono">
+                    ₹{{ m.totalInvested | number:'1.0-0' }}
+                </div>
+
+                <!-- Current -->
+                <div class="td td--num font-mono fw-600">
+                    ₹{{ m.totalCurrentValue | number:'1.0-0' }}
+                </div>
+
+                <!-- Overall P&L ₹ -->
+                <div class="td td--num font-mono" [class.text-success]="m.isGain" [class.text-danger]="!m.isGain">
+                    {{ m.isGain ? '+' : '−' }}₹{{ m.totalGain | number:'1.0-0' }}
+                </div>
+
+                <!-- Overall % -->
+                <div class="td td--num">
+                    <span class="rpill" [class.up]="m.isGain" [class.dn]="!m.isGain">
+                        {{ m.isGain ? '+' : '' }}{{ m.totalGainPercent | number:'1.2-2' }}%
+                    </span>
+                </div>
+
+                <!-- Yesterday ₹ -->
+                <div class="td td--num font-mono" [class.text-success]="m.yesterday?.isPositive"
+                    [class.text-danger]="m.yesterday?.hasData && !m.yesterday?.isPositive">
+                    {{ formatAmountFull(m.yesterday) }}
+                </div>
+
+                <!-- Yesterday % -->
+                <div class="td td--num">
+                    <span class="rpill" *ngIf="m.yesterday?.hasData" [class.up]="m.yesterday?.isPositive"
+                        [class.dn]="!m.yesterday?.isPositive">
+                        {{ formatReturn(m.yesterday) }}
+                    </span>
+                    <span class="no-data" *ngIf="!m.yesterday?.hasData">—</span>
+                </div>
+
+                <!-- Period ₹ (active, highlighted) -->
+                <div class="td td--num td--active font-mono" [class.text-success]="getMemberPeriodReturn(m)?.isPositive"
+                    [class.text-danger]="getMemberPeriodReturn(m)?.hasData
+                                  && !getMemberPeriodReturn(m)?.isPositive"
+                    [title]="partialTooltip(getMemberPeriodReturn(m))">
+                    <span class="partial-mark" *ngIf="getMemberPeriodReturn(m)?.isPartialPeriod">~</span>
+                    {{ formatAmountFull(getMemberPeriodReturn(m)) }}
+                </div>
+
+                <!-- Period % (active, highlighted) -->
+                <div class="td td--num td--active">
+                    <span class="rpill" *ngIf="getMemberPeriodReturn(m)?.hasData"
+                        [class.up]="getMemberPeriodReturn(m)?.isPositive"
+                        [class.dn]="!getMemberPeriodReturn(m)?.isPositive">
+                        {{ formatReturn(getMemberPeriodReturn(m)) }}
+                    </span>
+                    <span class="no-data" *ngIf="!getMemberPeriodReturn(m)?.hasData">—</span>
+                </div>
+
+            </div>
+            <!-- end tbl-row -->
+
+            <!-- 3Y / 5Y footer teaser -->
+            <div class="tbl-footer">
+                <div class="tbl-footer__left">
+                    <i class="fas fa-circle-info"></i>
+                    <span>3Y &amp; 5Y returns</span>
+                </div>
+                <div class="tbl-footer__right">
+                    <span class="tbl-footer__vals" *ngIf="overview.members[0] as first">
+                        3Y {{ formatReturn(first.threeYear) }}
+                        &nbsp;·&nbsp;
+                        5Y {{ formatReturn(first.fiveYear) }}
+                    </span>
+                    <button class="btn btn-ghost btn-xs" (click)="selectPeriod('3y')">
+                        View all periods
+                        <i class="fas fa-arrow-up-right-from-square" style="font-size:9px;"></i>
+                    </button>
                 </div>
             </div>
 
         </div>
-        <!-- end kpi-row -->
+        <!-- end desktop panel -->
 
-        <!-- ── Performance Table Panel ──────────────────────────── -->
-        <div class="panel">
-            <div class="panel-hdr">
-                <span class="panel-title">Member-wise Performance</span>
-                <span class="panel-badge">{{ getPeriodLabel() }} returns</span>
+        <!-- ══ MOBILE ════════════════════════════════════════════════════ -->
+        <div class="mobile-wrap mobile-only">
+
+            <!-- Mobile header -->
+            <div class="m-hero">
+                <div class="m-hero__left">
+                    <div class="m-hero__title">Family portfolio</div>
+                    <div class="m-hero__sub">
+                        {{ overview.reportDate | date:'dd MMM yyyy' }}
+                        · {{ overview.totalMembers }} members
+                    </div>
+                </div>
+                <div class="m-hero__right">
+                    <div class="m-hero__val font-mono">
+                        ₹{{ overview.totalFamilyCurrentValue | number:'1.0-0' }}
+                    </div>
+                    <span class="rpill sm" [class.up]="overview.isFamilyGain" [class.dn]="!overview.isFamilyGain">
+                        {{ overview.isFamilyGain ? '+' : '' }}{{
+                        overview.totalFamilyGainPercent | number:'1.2-2' }}% overall
+                    </span>
+                </div>
             </div>
 
-            <!-- Desktop table -->
-            <div class="perf-table desktop-only">
+            <!-- Member cards -->
+            <div class="m-member-card" *ngFor="let m of overview.members; trackBy: trackByMember">
 
-                <div class="perf-head">
-                    <div class="ph ph--name">Member</div>
-                    <div class="ph ph--num">Invested</div>
-                    <div class="ph ph--num">Current</div>
-                    <div class="ph ph--num" [class.ph--active]="isColActive('d2')">D-2</div>
-                    <div class="ph ph--num" [class.ph--active]="isColActive('yesterday')">Yesterday</div>
-                    <div class="ph ph--num" [class.ph--active]="isColActive('1m')">1M</div>
-                    <div class="ph ph--num" [class.ph--active]="isColActive('1y')">1Y</div>
-                    <div class="ph ph--num" [class.ph--active]="isColActive('3y')">3Y</div>
-                </div>
-
-                <div class="perf-row" *ngFor="let m of overview.members; trackBy: trackByMember"
-                    (click)="navigateToMember(m.investorUserId)" role="button"
-                    [attr.aria-label]="'View ' + m.investorName + ' portfolio'">
-
-                    <!-- Member name cell -->
-                    <div class="pr pr--name">
-                        <div class="mem-avatar">{{ m.initials }}</div>
+                <!-- Card header — tap to expand/collapse -->
+                <div class="mc-hdr" (click)="toggleMember(m.investorUserId, $event)">
+                    <div class="mc-hdr__left">
+                        <div class="mem-avatar sm">{{ m.initials }}</div>
                         <div>
                             <div class="mem-name">{{ m.investorName }}</div>
                             <div class="mem-sub">
-                                {{ m.schemeCount }} schemes &nbsp;·&nbsp; {{ m.categorySummary }}
+                                {{ m.schemeCount }} schemes · {{ m.categorySummary }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mc-hdr__right">
+                        <div class="mc-hdr__val font-mono">
+                            ₹{{ m.totalCurrentValue | number:'1.0-0' }}
+                        </div>
+                        <div class="mc-hdr__pills">
+                            <!-- Show yesterday loss if negative, otherwise show overall -->
+                            <span class="rpill sm" *ngIf="m.yesterday?.hasData" [class.up]="m.yesterday?.isPositive"
+                                [class.dn]="!m.yesterday?.isPositive">
+                                {{ formatAmount(m.yesterday) }} yest
+                            </span>
+                            <span class="rpill sm" *ngIf="m.oneYear?.hasData" [class.up]="m.oneYear?.isPositive"
+                                [class.dn]="!m.oneYear?.isPositive">
+                                {{ formatReturn(m.oneYear) }} 1Y
+                            </span>
+                        </div>
+                        <i class="fas mc-chevron" [class.fa-chevron-down]="!isMemberExpanded(m.investorUserId)"
+                            [class.fa-chevron-up]="isMemberExpanded(m.investorUserId)"></i>
+                    </div>
+                </div>
+
+                <!-- Expanded body -->
+                <div class="mc-body" *ngIf="isMemberExpanded(m.investorUserId)">
+
+                    <!-- 2×2 stat grid -->
+                    <div class="mc-stat-grid">
+                        <div class="mc-stat">
+                            <div class="mc-stat__lbl">Invested</div>
+                            <div class="mc-stat__val font-mono">
+                                ₹{{ m.totalInvested | number:'1.0-0' }}
+                            </div>
+                        </div>
+                        <div class="mc-stat">
+                            <div class="mc-stat__lbl">Current value</div>
+                            <div class="mc-stat__val font-mono">
+                                ₹{{ m.totalCurrentValue | number:'1.0-0' }}
+                            </div>
+                        </div>
+                        <div class="mc-stat">
+                            <div class="mc-stat__lbl">Overall P&amp;L</div>
+                            <div class="mc-stat__val font-mono" [class.text-success]="m.isGain"
+                                [class.text-danger]="!m.isGain">
+                                {{ m.isGain ? '+' : '−' }}₹{{ m.totalGain | number:'1.0-0' }}
+                            </div>
+                        </div>
+                        <div class="mc-stat">
+                            <div class="mc-stat__lbl">Overall return</div>
+                            <div class="mc-stat__val font-mono" [class.text-success]="m.isGain"
+                                [class.text-danger]="!m.isGain">
+                                {{ m.isGain ? '+' : '' }}{{ m.totalGainPercent | number:'1.2-2' }}%
                             </div>
                         </div>
                     </div>
 
-                    <!-- Monetary cells -->
-                    <div class="pr pr--num font-mono">
-                        ₹{{ m.totalInvested | number:'1.0-0' }}
-                    </div>
-                    <div class="pr pr--num font-mono">
-                        ₹{{ m.totalCurrentValue | number:'1.0-0' }}
-                    </div>
+                    <!-- Period rows -->
+                    <div class="mc-periods">
+                        <div class="mc-periods__hdr">
+                            <span>PERIOD RETURNS</span>
+                            <span>P&amp;L &amp; %</span>
+                        </div>
 
-                    <!-- Period return cells -->
-                    <div class="pr pr--num pr--pct" [class.pr--active]="isColActive('d2')"
-                        [class.text-success]="m.dayBefore?.hasData && m.dayBefore?.isPositive"
-                        [class.text-danger]="m.dayBefore?.hasData && !m.dayBefore?.isPositive">
-                        {{ formatReturn(m.dayBefore) }}
+                        <div class="period-row" *ngFor="let p of mobilePeriods"
+                            [class.period-row--active]="isColActive(p.key)"
+                            (click)="selectPeriod(p.key); $event.stopPropagation()">
+
+                            <div class="period-row__lbl" [class.lbl--active]="isColActive(p.key)">
+                                {{ p.label }}
+                            </div>
+
+                            <div class="period-row__amt font-mono"
+                                [class.text-success]="getPeriodReturn(m, p.key)?.isPositive" [class.text-danger]="getPeriodReturn(m, p.key)?.hasData
+                                        && !getPeriodReturn(m, p.key)?.isPositive">
+                                {{ formatAmount(getPeriodReturn(m, p.key)) }}
+                            </div>
+
+                            <div class="period-row__pct">
+                                <span class="rpill sm" *ngIf="getPeriodReturn(m, p.key)?.hasData"
+                                    [class.up]="getPeriodReturn(m, p.key)?.isPositive"
+                                    [class.dn]="!getPeriodReturn(m, p.key)?.isPositive">
+                                    {{ formatReturn(getPeriodReturn(m, p.key)) }}
+                                </span>
+                                <span class="no-data" *ngIf="!getPeriodReturn(m, p.key)?.hasData">—</span>
+                            </div>
+
+                        </div>
+                        <!-- end period-row -->
+
                     </div>
-                    <div class="pr pr--num pr--pct" [class.pr--active]="isColActive('yesterday')"
-                        [class.text-success]="m.yesterday?.hasData && m.yesterday?.isPositive"
-                        [class.text-danger]="m.yesterday?.hasData && !m.yesterday?.isPositive">
-                        {{ formatReturn(m.yesterday) }}
-                    </div>
-                    <div class="pr pr--num pr--pct" [class.pr--active]="isColActive('1m')"
-                        [class.text-success]="m.oneMonth?.hasData && m.oneMonth?.isPositive"
-                        [class.text-danger]="m.oneMonth?.hasData && !m.oneMonth?.isPositive">
-                        {{ formatReturn(m.oneMonth) }}
-                    </div>
-                    <div class="pr pr--num pr--pct" [class.pr--active]="isColActive('1y')"
-                        [class.text-success]="m.oneYear?.hasData && m.oneYear?.isPositive"
-                        [class.text-danger]="m.oneYear?.hasData && !m.oneYear?.isPositive">
-                        {{ formatReturn(m.oneYear) }}
-                    </div>
-                    <div class="pr pr--num pr--pct" [class.pr--active]="isColActive('3y')"
-                        [class.text-success]="m.threeYear?.hasData && m.threeYear?.isPositive"
-                        [class.text-danger]="m.threeYear?.hasData && !m.threeYear?.isPositive">
-                        {{ formatReturn(m.threeYear) }}
+                    <!-- end mc-periods -->
+
+                    <!-- Footer: tap to view detail -->
+                    <div class="mc-footer" (click)="navigateToMember(m.investorUserId)">
+                        <span>Tap to view scheme-wise breakdown</span>
+                        <i class="fas fa-chevron-right"></i>
                     </div>
 
                 </div>
-                <!-- end perf-row -->
+                <!-- end mc-body -->
 
             </div>
-            <!-- end perf-table desktop-only -->
-
-            <!-- Mobile member cards -->
-            <div class="mobile-member-list mobile-only">
-                <div class="mobile-member-row" *ngFor="let m of overview.members; trackBy: trackByMember"
-                    (click)="navigateToMember(m.investorUserId)">
-
-                    <div class="mmr-left">
-                        <div class="mem-avatar">{{ m.initials }}</div>
-                        <div>
-                            <div class="mem-name">{{ m.investorName }}</div>
-                            <div class="mem-sub">{{ m.schemeCount }} schemes · {{ m.categorySummary }}</div>
-                        </div>
-                    </div>
-
-                    <div class="mmr-right">
-                        <div class="mmr-value font-mono">
-                            ₹{{ m.totalCurrentValue | number:'1.0-0' }}
-                        </div>
-                        <div class="mmr-period font-mono" [class.text-success]="getMemberPeriodReturn(m)?.isPositive"
-                            [class.text-danger]="getMemberPeriodReturn(m)?.hasData && !getMemberPeriodReturn(m)?.isPositive">
-                            {{ formatReturn(getMemberPeriodReturn(m)) }}
-                            <span class="mmr-period-label">{{ getPeriodLabel() }}</span>
-                        </div>
-                        <i class="fas fa-chevron-right mmr-arrow"></i>
-                    </div>
-
-                </div>
-            </div>
-            <!-- end mobile-member-list -->
+            <!-- end m-member-card -->
 
         </div>
-        <!-- end panel -->
+        <!-- end mobile-wrap -->
 
     </ng-container>
 </div>
