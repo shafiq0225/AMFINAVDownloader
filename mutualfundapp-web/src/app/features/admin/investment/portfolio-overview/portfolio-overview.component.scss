@@ -2,11 +2,26 @@
 @use "../../../../../styles/mixins" as *;
 
 // ══════════════════════════════════════════════════════════════════
-// Custom Variables
+// Tokens
 // ══════════════════════════════════════════════════════════════════
 
-$gold: #f5b731;
-$primary-dark: darken($primary, 15%);
+$gold: #d4a017;
+$gold-bg: rgba(#d4a017, 0.1);
+$gain-color: $success;
+$loss-color: $danger;
+$gain-bg: rgba($success, 0.08);
+$loss-bg: rgba($danger, 0.08);
+$primary-dk: darken($primary, 12%);
+
+// ══════════════════════════════════════════════════════════════════
+// Root
+// ══════════════════════════════════════════════════════════════════
+
+.portfolio-root {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 
 // ══════════════════════════════════════════════════════════════════
 // Stats Bar
@@ -14,143 +29,226 @@ $primary-dark: darken($primary, 15%);
 
 .stats-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: 2fr 1.5fr 1.5fr 1fr;
   gap: 16px;
-  margin-bottom: 24px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-card {
   background: $surface;
   border: 1px solid $border;
   border-radius: $card-radius;
-  padding: 16px 20px;
+  padding: 20px 24px;
   box-shadow: $shadow-card;
-  transition: transform 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-
-  &.primary {
-    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
-    border-color: $primary;
-    color: white;
-
-    .stat-label {
-      color: rgba(white, 0.8);
-    }
-    .stat-value {
-      color: white;
-    }
-    .stat-change {
-      color: white;
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 
   .stat-label {
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     color: $text-muted;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.07em;
   }
 
   .stat-value {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 700;
     color: $text-primary;
-    margin: 6px 0;
+    line-height: 1.15;
   }
 
-  .stat-change {
-    font-size: 14px;
-    font-weight: 600;
-
-    &.up {
-      color: $success;
-    }
-    &.dn {
-      color: $danger;
-    }
+  .stat-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 2px;
   }
 
-  .stat-sub {
-    font-size: 12px;
-    color: $text-muted;
-    margin-top: 4px;
+  &.hero {
+    background: linear-gradient(135deg, $primary 0%, $primary-dk 100%);
+    border-color: $primary-dk;
+
+    .stat-label {
+      color: rgba(white, 0.7);
+    }
+    .stat-value {
+      color: white;
+      font-size: 30px;
+    }
   }
 
   &.action-card {
-    display: flex;
-    flex-direction: column;
+    align-items: flex-start;
     justify-content: center;
-    align-items: center;
-    text-align: center;
+    gap: 10px;
+  }
+}
+
+.stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  width: fit-content;
+
+  &.up {
+    background: $gain-bg;
+    color: $gain-color;
+  }
+  &.dn {
+    background: $loss-bg;
+    color: $loss-color;
+  }
+
+  .stat-card.hero & {
+    background: rgba(white, 0.18);
+    color: white;
+  }
+
+  i {
+    font-size: 11px;
+  }
+}
+
+.chip {
+  font-size: 11px;
+  font-weight: 500;
+  color: $text-muted;
+  background: $page-bg;
+  border: 1px solid $border;
+  border-radius: 10px;
+  padding: 2px 8px;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Buttons
+// ══════════════════════════════════════════════════════════════════
+
+.btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: $primary;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: $primary-dk;
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: $page-bg;
+  border: 1px solid $border;
+  color: $text-muted;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+    background: rgba($primary, 0.06);
   }
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Member Grid
+// Member Section
 // ══════════════════════════════════════════════════════════════════
 
-.member-grid {
+.member-section {
   background: $surface;
   border: 1px solid $border;
   border-radius: $card-radius;
-  overflow: hidden;
   box-shadow: $shadow-card;
+  overflow: hidden;
 }
 
-.grid-controls {
-  @include flex-between;
+// Controls Row
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid $border;
-  flex-wrap: wrap;
   gap: 12px;
-
-  .grid-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-
-    h2 {
-      font-size: $font-size-lg;
-      font-weight: 600;
-      color: $text-primary;
-      margin: 0;
-    }
-  }
-
-  .grid-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
+  flex-wrap: wrap;
 }
 
-// Search Box
+.controls-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.controls-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+}
+
 .search-box {
   display: flex;
   align-items: center;
+  gap: 8px;
   background: $page-bg;
   border: 1px solid $border;
   border-radius: 8px;
-  padding: 4px 12px;
+  padding: 5px 12px;
+  transition: border-color 0.15s;
+
+  &:focus-within {
+    border-color: $primary;
+  }
 
   i {
     color: $text-muted;
-    margin-right: 8px;
+    font-size: 12px;
   }
 
   input {
     border: none;
     background: transparent;
-    padding: 4px 0;
     font-size: 13px;
     outline: none;
     width: 180px;
+    color: $text-primary;
 
     &::placeholder {
       color: $text-muted;
@@ -158,16 +256,19 @@ $primary-dark: darken($primary, 15%);
   }
 }
 
-// Sort Options
-.sort-options {
-  select {
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid $border;
-    background: $surface;
-    font-size: 11px;
-    color: $text-primary;
-    cursor: pointer;
+.sort-select {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $page-bg;
+  font-size: 12px;
+  font-weight: 500;
+  color: $text-primary;
+  cursor: pointer;
+  outline: none;
+
+  &:hover {
+    border-color: $primary;
   }
 }
 
@@ -176,331 +277,373 @@ $primary-dark: darken($primary, 15%);
 // ══════════════════════════════════════════════════════════════════
 
 .member-cards {
-  padding: 16px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-
-  &.compact {
-    .member-card {
-      padding: 12px 16px;
-
-      .member-stats {
-        .stat-item {
-          min-width: 40px;
-
-          .stat-value {
-            font-size: 11px;
-          }
-        }
-      }
-
-      .period-returns {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-  }
+  gap: 12px;
 }
 
 .member-card {
   background: $surface;
   border: 1px solid $border;
-  border-radius: $card-radius;
-  padding: 16px 20px;
+  border-radius: 12px;
+  padding: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
     border-color: $primary-light;
-  }
-
-  // Card Header - All Stats
-  .card-header {
-    @include flex-between;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid $border;
-    flex-wrap: wrap;
-    gap: 12px;
-
-    .member-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      .member-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
-        position: relative;
-
-        &.green {
-          background: rgba($success, 0.12);
-          color: $success;
-        }
-        &.red {
-          background: rgba($danger, 0.12);
-          color: $danger;
-        }
-
-        .status-dot {
-          position: absolute;
-          bottom: -2px;
-          right: -2px;
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          border: 2px solid $surface;
-
-          &.online {
-            background: $success;
-          }
-          &.offline {
-            background: $danger;
-          }
-        }
-      }
-
-      .member-name {
-        font-size: $font-size-base;
-        font-weight: 600;
-        color: $text-primary;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .member-meta {
-        font-size: 12px;
-        color: $text-muted;
-      }
-    }
-
-    // Stats in header
-    .member-stats {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-
-      .stat-item {
-        text-align: right;
-        min-width: 60px;
-
-        .stat-label {
-          display: block;
-          font-size: 9px;
-          font-weight: 500;
-          color: $text-muted;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .stat-value {
-          font-size: 13px;
-          font-weight: 600;
-          color: $text-primary;
-          margin-top: 2px;
-        }
-      }
-    }
-  }
-
-  // Card Body - Only Period Returns
-  .card-body {
-    .period-returns {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      padding-top: 8px;
-
-      .period-item {
-        text-align: center;
-        padding: 6px 8px;
-        border-radius: 6px;
-        background: $page-bg;
-        transition: all 0.2s ease;
-
-        &.positive {
-          background: rgba($success, 0.08);
-        }
-        &.negative {
-          background: rgba($danger, 0.08);
-        }
-
-        .period-label {
-          font-size: 9px;
-          font-weight: 500;
-          color: $text-muted;
-          text-transform: uppercase;
-        }
-
-        .period-value {
-          font-size: 13px;
-          font-weight: 600;
-          margin-top: 2px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-
-          i {
-            font-size: 10px;
-          }
-        }
-
-        .period-amount {
-          font-size: 11px;
-          font-weight: 500;
-          margin-top: 2px;
-        }
-      }
-    }
-
-    // Yesterday section
-    .yesterday-section {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 12px;
-      padding-top: 8px;
-      margin-top: 8px;
-      border-top: 1px solid $border;
-
-      .yesterday-label {
-        font-size: 10px;
-        font-weight: 500;
-        color: $text-muted;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      .yesterday-value {
-        font-size: 14px;
-        font-weight: 600;
-      }
-
-      .yesterday-pct {
-        font-size: 12px;
-        font-weight: 500;
-      }
-    }
-  }
-
-  // Card Footer
-  .card-footer {
-    @include flex-between;
-    padding-top: 12px;
-    border-top: 1px solid $border;
-    font-size: 12px;
-    color: $primary;
-    font-weight: 500;
-
-    &:hover {
-      color: $primary-dark;
-    }
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+    transform: translateY(-1px);
   }
 }
 
-// ══════════════════════════════════════════════════════════════════
-// Member Badges
-// ══════════════════════════════════════════════════════════════════
+// ─ Top Row ─
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
 
-.member-badge {
+.avatar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+
+  &.gain {
+    background: $gain-bg;
+    color: $gain-color;
+  }
+  &.loss {
+    background: $loss-bg;
+    color: $loss-color;
+  }
+}
+
+.member-identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.member-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.member-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.member-sub {
+  font-size: 12px;
+  color: $text-muted;
+  margin-top: 2px;
+}
+
+.return-pill {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 10px;
-  border-radius: 12px;
-  font-size: 10px;
-  font-weight: 600;
-  background: rgba($gold, 0.15);
-  color: $gold;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
 
-  &.danger {
-    background: rgba($danger, 0.15);
-    color: $danger;
+  &.up {
+    background: $gain-bg;
+    color: $gain-color;
+  }
+  &.dn {
+    background: $loss-bg;
+    color: $loss-color;
   }
 
   i {
+    font-size: 11px;
+  }
+}
+
+// Badges
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &.gold {
+    background: $gold-bg;
+    color: $gold;
+  }
+  &.red {
+    background: $loss-bg;
+    color: $loss-color;
+  }
+  i {
+    font-size: 9px;
+  }
+}
+
+// ─ Money Row ─
+.money-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: $page-bg;
+  border: 1px solid $border;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.money-divider {
+  width: 1px;
+  background: $border;
+  flex-shrink: 0;
+}
+
+.money-item {
+  flex: 1;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.money-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.money-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+// ─ Period Row ─
+.period-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.period-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  background: $page-bg;
+  border: 1px solid transparent;
+  text-align: center;
+  transition: background 0.15s;
+
+  &.pos {
+    background: $gain-bg;
+    border-color: rgba($gain-color, 0.15);
+    .period-pct {
+      color: $gain-color;
+    }
+    .period-amt {
+      color: $gain-color;
+    }
+  }
+
+  &.neg {
+    background: $loss-bg;
+    border-color: rgba($loss-color, 0.15);
+    .period-pct {
+      color: $loss-color;
+    }
+    .period-amt {
+      color: $loss-color;
+    }
+  }
+}
+
+.period-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.period-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: $text-secondary;
+}
+
+.period-amt {
+  font-size: 10px;
+  font-weight: 500;
+  color: $text-muted;
+}
+
+// ─ Yesterday Strip ─
+.yesterday-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: $page-bg;
+  border: 1px solid $border;
+  margin-bottom: 12px;
+  font-size: 13px;
+
+  .yst-label {
     font-size: 10px;
+    font-weight: 700;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-right: 2px;
+  }
+
+  .yst-amount {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .yst-pct {
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+// ─ Footer Link ─
+.card-footer-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid $border;
+  font-size: 12px;
+  font-weight: 600;
+  color: $primary;
+  transition: color 0.15s;
+
+  .member-card:hover & {
+    color: $primary-dk;
   }
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Trend Chart
+// Compact Mode
 // ══════════════════════════════════════════════════════════════════
 
-.trend-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 24px;
-  padding: 2px 0;
-  margin-top: 4px;
+.member-cards.is-compact {
+  .member-card {
+    padding: 14px 18px;
 
-  .sparkline {
-    flex: 1;
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
+    .card-top {
+      margin-bottom: 12px;
+    }
+    .money-row {
+      margin-bottom: 10px;
+    }
+    .money-item {
+      padding: 8px 12px;
+    }
+    .money-value {
+      font-size: 13px;
+    }
 
-    .bar {
-      width: 100%;
-      min-height: 2px;
-      border-radius: 1px;
-      transition: height 0.3s ease;
+    .period-row {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
 
-      &.positive {
-        background: $success;
-      }
-      &.negative {
-        background: $danger;
-      }
+    .period-cell {
+      padding: 7px 6px;
+    }
+    .period-pct {
+      font-size: 12px;
+    }
+    .period-amt {
+      display: none;
     }
   }
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Grid Footer
+// Summary Footer
 // ══════════════════════════════════════════════════════════════════
 
-.grid-footer {
-  padding: 12px 20px;
+.summary-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 16px 20px;
   border-top: 1px solid $border;
   background: $page-bg;
+}
 
-  .footer-stats {
-    display: flex;
-    gap: 24px;
-    justify-content: center;
-    flex-wrap: wrap;
+.summary-divider {
+  width: 1px;
+  height: 32px;
+  background: $border;
+  margin: 0 24px;
 
-    .footer-stat {
-      text-align: center;
-
-      .stat-label {
-        display: block;
-        font-size: 10px;
-        font-weight: 500;
-        color: $text-muted;
-        text-transform: uppercase;
-      }
-
-      .stat-value {
-        font-size: 14px;
-        font-weight: 600;
-      }
-    }
+  @media (max-width: 600px) {
+    display: none;
   }
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+
+  @media (max-width: 600px) {
+    flex: 1 0 45%;
+    padding: 8px 0;
+  }
+}
+
+.sum-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sum-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: $text-primary;
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -509,46 +652,48 @@ $primary-dark: darken($primary, 15%);
 
 .empty-state {
   text-align: center;
-  padding: 60px 20px;
+  padding: 72px 24px;
   border: 2px dashed $border;
   border-radius: $card-radius;
 
   .empty-icon {
-    font-size: 48px;
+    font-size: 44px;
     color: $border-dark;
     margin-bottom: 16px;
+    display: block;
   }
 
   h3 {
-    font-size: $font-size-xl;
+    font-size: 20px;
+    font-weight: 700;
     color: $text-secondary;
     margin-bottom: 8px;
   }
 
   p {
     color: $text-muted;
-    margin-bottom: 20px;
+    font-size: 14px;
+    max-width: 380px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
   }
 }
 
 // ══════════════════════════════════════════════════════════════════
-// Utilities
+// Color Utilities
 // ══════════════════════════════════════════════════════════════════
 
-.font-mono {
-  font-family: "Courier New", monospace;
-}
-
-.text-success {
+.text-gain {
   color: $success !important;
 }
-
-.text-danger {
+.text-loss {
   color: $danger !important;
 }
-
 .text-muted {
   color: $text-muted !important;
+}
+.font-mono {
+  font-family: "Courier New", monospace;
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -556,78 +701,52 @@ $primary-dark: darken($primary, 15%);
 // ══════════════════════════════════════════════════════════════════
 
 @media (max-width: 768px) {
-  .stats-bar {
-    grid-template-columns: 1fr 1fr;
-  }
+  .card-top {
+    flex-wrap: wrap;
 
-  .stat-card.primary {
-    grid-column: 1 / -1;
-  }
-
-  .member-card {
-    .card-header {
-      flex-direction: column;
-      align-items: stretch;
-
-      .member-info {
-        justify-content: center;
-      }
-
-      .member-stats {
-        justify-content: center;
-        gap: 12px;
-      }
-    }
-
-    .card-body {
-      .period-returns {
-        grid-template-columns: repeat(3, 1fr);
-      }
+    .return-pill {
+      margin-left: auto;
     }
   }
 
-  .grid-controls {
+  .money-row {
+    flex-direction: column;
+
+    .money-divider {
+      width: auto;
+      height: 1px;
+    }
+  }
+
+  .period-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .controls-row {
     flex-direction: column;
     align-items: stretch;
+  }
 
-    .grid-title {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 8px;
-    }
-
-    .grid-actions {
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
+  .controls-left {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .search-box input {
     width: 100%;
   }
-
-  .member-cards.compact {
-    .member-card .card-body .period-returns {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
 }
 
 @media (max-width: 480px) {
-  .stats-bar {
-    grid-template-columns: 1fr;
+  .period-row {
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .member-card {
-    .card-body {
-      .period-returns {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
+  .member-cards {
+    padding: 12px;
   }
 
-  .grid-footer .footer-stats {
-    flex-direction: column;
-    gap: 12px;
+  .member-cards.is-compact .period-row {
+    grid-template-columns: repeat(3, 1fr);
   }
 }

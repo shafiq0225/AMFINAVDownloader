@@ -1,34 +1,39 @@
 <app-loading-spinner *ngIf="loading" message="Loading portfolio...">
 </app-loading-spinner>
 
-<div *ngIf="!loading">
+<div *ngIf="!loading" class="portfolio-root">
 
-    <!-- ══ TOP STATS BAR ═══════════════════════════════════════════ -->
+    <!-- ══ TOP STATS BAR ══════════════════════════════════════════════ -->
     <div class="stats-bar" *ngIf="overview">
-        <div class="stat-card primary">
+
+        <div class="stat-card hero">
             <div class="stat-label">Total Portfolio Value</div>
             <div class="stat-value font-mono">₹{{ overview.totalFamilyCurrentValue | number:'1.0-0' }}</div>
-            <div class="stat-change" [class.up]="overview.isFamilyGain" [class.dn]="!overview.isFamilyGain">
+            <div class="stat-badge" [class.up]="overview.isFamilyGain" [class.dn]="!overview.isFamilyGain">
                 <i class="fas" [class.fa-arrow-up]="overview.isFamilyGain"
                     [class.fa-arrow-down]="!overview.isFamilyGain"></i>
                 {{ overview.isFamilyGain ? '+' : '' }}{{ overview.totalFamilyGainPercent | number:'1.2-2' }}%
+                overall
             </div>
         </div>
 
         <div class="stat-card">
             <div class="stat-label">Total Invested</div>
             <div class="stat-value font-mono">₹{{ overview.totalFamilyInvested | number:'1.0-0' }}</div>
-            <div class="stat-sub">{{ overview.totalMembers }} members · {{ overview.totalSchemes }} schemes</div>
+            <div class="stat-meta">
+                <span class="chip">{{ overview.totalMembers }} members</span>
+                <span class="chip">{{ overview.totalSchemes }} schemes</span>
+            </div>
         </div>
 
         <div class="stat-card" *ngIf="overview.familyYesterdayReturn?.hasData">
-            <div class="stat-label">Yesterday P&L</div>
-            <div class="stat-value font-mono" [class.text-success]="overview.familyYesterdayReturn!.isPositive"
-                [class.text-danger]="!overview.familyYesterdayReturn!.isPositive">
+            <div class="stat-label">Yesterday P&amp;L</div>
+            <div class="stat-value font-mono" [class.text-gain]="overview.familyYesterdayReturn!.isPositive"
+                [class.text-loss]="!overview.familyYesterdayReturn!.isPositive">
                 {{ overview.familyYesterdayReturn!.isPositive ? '+' : '−' }}₹{{
-                (overview.familyYesterdayReturn!.periodGainAmount | number:'1.0-0') }}
+                overview.familyYesterdayReturn!.periodGainAmount | number:'1.0-0' }}
             </div>
-            <div class="stat-change" [class.up]="overview.familyYesterdayReturn!.isPositive"
+            <div class="stat-badge" [class.up]="overview.familyYesterdayReturn!.isPositive"
                 [class.dn]="!overview.familyYesterdayReturn!.isPositive">
                 {{ overview.familyYesterdayReturn!.isPositive ? '+' : '' }}{{
                 overview.familyYesterdayReturn!.returnPercent | number:'1.2-2' }}%
@@ -36,173 +41,148 @@
         </div>
 
         <div class="stat-card action-card">
-            <button class="btn btn-primary btn-sm" (click)="triggerSnapshot()" [disabled]="snapshotRunning">
+            <button class="btn-refresh" (click)="triggerSnapshot()" [disabled]="snapshotRunning">
                 <i class="fas fa-circle-notch fa-spin" *ngIf="snapshotRunning"></i>
                 <i class="fas fa-rotate" *ngIf="!snapshotRunning"></i>
                 {{ snapshotRunning ? 'Updating…' : 'Refresh Data' }}
             </button>
-            <div class="stat-sub text-muted">Last updated: {{ overview.reportDate | date:'dd MMM yyyy' }}</div>
+            <div class="stat-meta">Updated {{ overview.reportDate | date:'dd MMM yyyy' }}</div>
         </div>
+
     </div>
 
-    <!-- ══ EMPTY STATE ══════════════════════════════════════════════ -->
+    <!-- ══ EMPTY STATE ════════════════════════════════════════════════ -->
     <div class="empty-state" *ngIf="!overview || overview.members.length === 0">
         <i class="fas fa-chart-pie empty-icon"></i>
         <h3>No Active Investments</h3>
         <p>No active holdings found. Create investment orders and mark them as Active to see portfolio data.</p>
-        <button class="btn btn-primary" (click)="triggerSnapshot()">
+        <button class="btn-refresh" (click)="triggerSnapshot()">
             <i class="fas fa-sync"></i> Refresh Data
         </button>
     </div>
 
-    <!-- ══ MEMBER CARDS GRID ════════════════════════════════════════ -->
-    <div class="member-grid" *ngIf="overview && overview.members.length > 0">
+    <!-- ══ MEMBER SECTION ══════════════════════════════════════════════ -->
+    <div class="member-section" *ngIf="overview && overview.members.length > 0">
 
-        <!-- Grid Header with Controls -->
-        <div class="grid-controls">
-            <div class="grid-title">
-                <h2>Member Performance</h2>
+        <!-- Controls Row -->
+        <div class="controls-row">
+            <div class="controls-left">
+                <h2 class="section-title">Member Performance</h2>
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search members..." [(ngModel)]="searchTerm">
+                    <input type="text" placeholder="Search members…" [(ngModel)]="searchTerm">
                 </div>
             </div>
-            <div class="grid-actions">
-                <div class="sort-options">
-                    <select [(ngModel)]="sortBy" class="form-select form-select-sm">
-                        <option value="name">Sort by Name</option>
-                        <option value="value">Sort by Value</option>
-                        <option value="return">Sort by Return</option>
-                        <option value="invested">Sort by Invested</option>
-                    </select>
-                </div>
-                <button class="btn btn-ghost btn-sm" (click)="toggleView()">
+            <div class="controls-right">
+                <select [(ngModel)]="sortBy" class="sort-select">
+                    <option value="name">Sort: Name</option>
+                    <option value="value">Sort: Value</option>
+                    <option value="return">Sort: Return</option>
+                    <option value="invested">Sort: Invested</option>
+                </select>
+                <button class="btn-icon" (click)="toggleView()"
+                    [title]="viewMode === 'cards' ? 'Switch to compact' : 'Switch to cards'">
                     <i class="fas" [class.fa-list]="viewMode === 'cards'" [class.fa-table]="viewMode === 'compact'"></i>
-                    {{ viewMode === 'cards' ? 'Compact' : 'Cards' }}
                 </button>
             </div>
         </div>
 
         <!-- Member Cards -->
-        <div class="member-cards" [class.compact]="viewMode === 'compact'">
+        <div class="member-cards" [class.is-compact]="viewMode === 'compact'">
             <div class="member-card" *ngFor="let m of getFilteredMembers(); trackBy: trackByMember"
-                (click)="navigateToMember(m.investorUserId)" role="button">
+                (click)="navigateToMember(m.investorUserId)" role="button"
+                [attr.aria-label]="'View ' + m.investorName + ' portfolio'">
 
-                <!-- Card Header - All Stats Moved Here -->
-                <div class="card-header">
-                    <div class="member-info">
-                        <div class="member-avatar" [class.green]="m.isGain" [class.red]="!m.isGain">
-                            {{ m.initials }}
-                            <div class="status-dot" [class.online]="m.isGain" [class.offline]="!m.isGain"></div>
-                        </div>
-                        <div>
-                            <div class="member-name">
-                                {{ m.investorName }}
-                                <span class="member-badge" *ngIf="isTopPerformer(m)">
-                                    <i class="fas fa-crown"></i> Top
-                                </span>
-                                <span class="member-badge danger" *ngIf="isBottomPerformer(m)">
-                                    <i class="fas fa-arrow-down"></i> Attention
-                                </span>
-                            </div>
-                            <div class="member-meta">{{ m.schemeCount }} schemes · {{ m.categorySummary }}</div>
-                        </div>
+                <!-- ── Top Row: Avatar + Name + Return pill ── -->
+                <div class="card-top">
+                    <div class="avatar" [class.gain]="m.isGain" [class.loss]="!m.isGain">
+                        {{ m.initials }}
                     </div>
 
-                    <!-- Right side - All stats in a compact layout -->
-                    <div class="member-stats">
-                        <div class="stat-item">
-                            <span class="stat-label">Invested</span>
-                            <span class="stat-value font-mono">₹{{ m.totalInvested | number:'1.0-0' }}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Current</span>
-                            <span class="stat-value font-mono">₹{{ m.totalCurrentValue | number:'1.0-0' }}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">P&L</span>
-                            <span class="stat-value font-mono" [class.text-success]="m.isGain"
-                                [class.text-danger]="!m.isGain">
-                                {{ m.isGain ? '+' : '−' }}₹{{ m.totalGain | number:'1.0-0' }}
+                    <div class="member-identity">
+                        <div class="member-name-row">
+                            <span class="member-name">{{ m.investorName }}</span>
+                            <span class="badge gold" *ngIf="isTopPerformer(m)">
+                                <i class="fas fa-crown"></i> Top
+                            </span>
+                            <span class="badge red" *ngIf="isBottomPerformer(m)">
+                                <i class="fas fa-exclamation"></i> Attention
                             </span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Return</span>
-                            <span class="stat-value">
-                                <span class="rpill" [class.up]="m.isGain" [class.dn]="!m.isGain">
-                                    <i class="fas" [class.fa-arrow-up]="m.isGain" [class.fa-arrow-down]="!m.isGain"></i>
-                                    {{ m.isGain ? '+' : '' }}{{ m.totalGainPercent | number:'1.2-2' }}%
-                                </span>
-                            </span>
-                        </div>
+                        <div class="member-sub">{{ m.schemeCount }} schemes · {{ m.categorySummary }}</div>
+                    </div>
+
+                    <div class="return-pill" [class.up]="m.isGain" [class.dn]="!m.isGain">
+                        <i class="fas" [class.fa-arrow-up]="m.isGain" [class.fa-arrow-down]="!m.isGain"></i>
+                        {{ m.isGain ? '+' : '' }}{{ m.totalGainPercent | number:'1.2-2' }}%
                     </div>
                 </div>
 
-                <!-- Card Body - Only Period Returns -->
-                <div class="card-body">
-                    <!-- Period Returns Bar - With Profit/Loss Amount -->
-                    <div class="period-returns">
-                        <div class="period-item" *ngFor="let p of mobilePeriods"
-                            [class.positive]="getPeriodReturn(m, p.key)?.isPositive"
-                            [class.negative]="getPeriodReturn(m, p.key)?.hasData && !getPeriodReturn(m, p.key)?.isPositive">
-                            <div class="period-label">{{ p.label }}</div>
-                            <div class="period-value font-mono">
-                                <i class="fas" [class.fa-arrow-up]="getPeriodReturn(m, p.key)?.isPositive"
-                                    [class.fa-arrow-down]="!getPeriodReturn(m, p.key)?.isPositive"></i>
-                                {{ formatReturn(getPeriodReturn(m, p.key)) }}
-                            </div>
-                            <div class="period-amount font-mono"
-                                [class.text-success]="getPeriodReturn(m, p.key)?.isPositive"
-                                [class.text-danger]="getPeriodReturn(m, p.key)?.hasData && !getPeriodReturn(m, p.key)?.isPositive">
-                                {{ formatAmount(getPeriodReturn(m, p.key)) }}
-                            </div>
-                        </div>
+                <!-- ── Middle Row: 3 core money values ── -->
+                <div class="money-row">
+                    <div class="money-item">
+                        <span class="money-label">Invested</span>
+                        <span class="money-value font-mono">₹{{ m.totalInvested | number:'1.0-0' }}</span>
                     </div>
-
-                    <!-- Yesterday P&L (if available) -->
-                    <div class="yesterday-section" *ngIf="m.yesterday?.hasData">
-                        <span class="yesterday-label">Yesterday</span>
-                        <span class="yesterday-value font-mono" [class.text-success]="m.yesterday?.isPositive"
-                            [class.text-danger]="!m.yesterday?.isPositive">
-                            {{ formatAmountFull(m.yesterday) }}
-                        </span>
-                        <span class="yesterday-pct" [class.text-success]="m.yesterday?.isPositive"
-                            [class.text-danger]="!m.yesterday?.isPositive">
-                            {{ formatReturn(m.yesterday) }}
+                    <div class="money-divider"></div>
+                    <div class="money-item">
+                        <span class="money-label">Current Value</span>
+                        <span class="money-value font-mono">₹{{ m.totalCurrentValue | number:'1.0-0' }}</span>
+                    </div>
+                    <div class="money-divider"></div>
+                    <div class="money-item">
+                        <span class="money-label">Total P&amp;L</span>
+                        <span class="money-value font-mono" [class.text-gain]="m.isGain" [class.text-loss]="!m.isGain">
+                            {{ m.isGain ? '+' : '−' }}₹{{ m.totalGain | number:'1.0-0' }}
                         </span>
                     </div>
                 </div>
 
-                <!-- Card Footer -->
-                <div class="card-footer">
-                    <span><i class="fas fa-eye"></i> View detailed breakdown</span>
+                <!-- ── Period Returns Row ── -->
+                <div class="period-row">
+                    <div class="period-cell" *ngFor="let p of mobilePeriods"
+                        [class.pos]="getPeriodReturn(m, p.key)?.isPositive"
+                        [class.neg]="getPeriodReturn(m, p.key)?.hasData && !getPeriodReturn(m, p.key)?.isPositive">
+                        <span class="period-label">{{ p.label }}</span>
+                        <span class="period-pct">{{ formatReturn(getPeriodReturn(m, p.key)) }}</span>
+                        <span class="period-amt">{{ formatAmount(getPeriodReturn(m, p.key)) }}</span>
+                    </div>
+                </div>
+
+                
+
+                <!-- ── Footer ── -->
+                <div class="card-footer-link">
+                    <span>View detailed breakdown</span>
                     <i class="fas fa-chevron-right"></i>
                 </div>
+
             </div>
         </div>
 
         <!-- Summary Footer -->
-        <div class="grid-footer" *ngIf="overview.members.length > 0">
-            <div class="footer-stats">
-                <div class="footer-stat">
-                    <span class="stat-label">Best Performer</span>
-                    <span class="stat-value text-success">{{ getBestPerformer() }}</span>
-                </div>
-                <div class="footer-stat">
-                    <span class="stat-label">Worst Performer</span>
-                    <span class="stat-value text-danger">{{ getWorstPerformer() }}</span>
-                </div>
-                <div class="footer-stat">
-                    <span class="stat-label">Average Return</span>
-                    <span class="stat-value">{{ getAverageReturn() | number:'1.2-2' }}%</span>
-                </div>
-                <div class="footer-stat">
-                    <span class="stat-label">Total P&L</span>
-                    <span class="stat-value font-mono" [class.text-success]="overview.totalFamilyGain > 0"
-                        [class.text-danger]="overview.totalFamilyGain < 0">
-                        {{ overview.totalFamilyGain > 0 ? '+' : '' }}₹{{ overview.totalFamilyGain | number:'1.0-0' }}
-                    </span>
-                </div>
+        <div class="summary-footer" *ngIf="overview.members.length > 0">
+            <div class="summary-item">
+                <span class="sum-label">Best Performer</span>
+                <span class="sum-value text-gain">{{ getBestPerformer() }}</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+                <span class="sum-label">Worst Performer</span>
+                <span class="sum-value text-loss">{{ getWorstPerformer() }}</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+                <span class="sum-label">Average Return</span>
+                <span class="sum-value">{{ getAverageReturn() | number:'1.2-2' }}%</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-item">
+                <span class="sum-label">Total P&amp;L</span>
+                <span class="sum-value font-mono" [class.text-gain]="overview.totalFamilyGain > 0"
+                    [class.text-loss]="overview.totalFamilyGain < 0">
+                    {{ overview.totalFamilyGain > 0 ? '+' : '' }}₹{{ overview.totalFamilyGain | number:'1.0-0' }}
+                </span>
             </div>
         </div>
 
