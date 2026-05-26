@@ -110,7 +110,8 @@ export function buildSchemeGroups(holdings: PortfolioRowDto[]): SchemeGroup[] {
         g.holdings.sort((a, b) =>
             new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime());
     }
-    return Array.from(map.values());
+    return Array.from(map.values())
+    .sort((a, b) => b.totalInvested - a.totalInvested);
 }
 
 // ─────────────────────────────────────────────────────────────────
