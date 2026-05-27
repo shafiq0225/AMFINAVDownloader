@@ -85,7 +85,7 @@ namespace AMFINAV.Investment.Application.Family.Queries
                         CategorySummary = GetCategorySummary(mh),
 
                         DayBefore = CalcMemberPeriodReturn("D-2", 2, 0m, mh, snapshotMap, navHistoryMap),
-                        Yesterday = CalcMemberPeriodReturn("Yest", 1, 0m, mh, snapshotMap, navHistoryMap),
+                        Yesterday = CalcMemberPeriodReturn("Yest", 2, 0m, mh, snapshotMap, navHistoryMap),
                         OneMonth = CalcMemberPeriodReturn("1M", 30, 0m, mh, snapshotMap, navHistoryMap),
                         OneYear = CalcMemberPeriodReturn("1Y", 365, 1m, mh, snapshotMap, navHistoryMap),
                         ThreeYear = CalcMemberPeriodReturn("3Y", 1095, 3m, mh, snapshotMap, navHistoryMap),
@@ -100,7 +100,7 @@ namespace AMFINAV.Investment.Application.Family.Queries
                     ? Math.Round((totalGain / totalInvested) * 100, 4) : 0;
 
                 var familyYesterday = CalcMemberPeriodReturn(
-                    "Yest", 1, 0m, holdingList, snapshotMap, navHistoryMap);
+                    "Yest", 2, 0m, holdingList, snapshotMap, navHistoryMap);
                 var (eq, dbt, hyb) = GetSchemeCategoryCounts(holdingList);
 
                 return Result<FamilyOverviewDto>.Success(new FamilyOverviewDto
