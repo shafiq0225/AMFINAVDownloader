@@ -18,7 +18,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-
+builder.Services.AddMemoryCache();
 
 // ── JWT Authentication ─────────────────────────────────────────────
 var jwtSection = builder.Configuration.GetSection("JwtSettings");

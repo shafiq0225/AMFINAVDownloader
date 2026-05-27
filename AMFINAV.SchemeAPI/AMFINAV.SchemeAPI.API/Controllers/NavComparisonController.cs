@@ -2,6 +2,7 @@
 using AMFINAV.SchemeAPI.Application.UseCases.Queries;
 using AMFINAV.SchemeAPI.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AMFINAV.SchemeAPI.API.Controllers
 {
@@ -12,11 +13,15 @@ namespace AMFINAV.SchemeAPI.API.Controllers
     {
         private readonly GetNavComparisonQuery _query;
         private readonly GetSchemeDetailsQuery _detailsQuery;
+        private readonly IMemoryCache _cache;
+        private const string DAILY_CACHE_KEY = "navcomparison_daily";
+        private static string SchemeDetailKey(string code) => $"scheme_detail_{code}";
 
-        public NavComparisonController(GetNavComparisonQuery query, GetSchemeDetailsQuery detailsQuery)
+        public NavComparisonController(GetNavComparisonQuery query, GetSchemeDetailsQuery detailsQuery, IMemoryCache cache)
         {
             _query = query;
             _detailsQuery = detailsQuery;
+            _cache = cache;
         }
 
         [HttpGet]
@@ -35,8 +40,18 @@ namespace AMFINAV.SchemeAPI.API.Controllers
         [HttpGet("daily")]
         public async Task<IActionResult> GetDailyComparison()
         {
-            var result = await _query.ExecuteDailyAsync();
-            return Ok(result);
+            if (!_cache.TryGetValue(DAILY_CACHE_KEY, out object cachedResult))
+            {
+                cachedResult = await _query.ExecuteDailyAsync();
+
+                _cache.Set(DAILY_CACHE_KEY, cachedResult, new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1),
+                    SlidingExpiration = TimeSpan.FromMinutes(30),
+                    Priority = CacheItemPriority.High
+                });
+            }
+            return Ok(cachedResult);
         }
 
         [HttpGet("{schemeCode}/details")]
@@ -45,8 +60,22 @@ namespace AMFINAV.SchemeAPI.API.Controllers
             if (string.IsNullOrWhiteSpace(schemeCode))
                 return BadRequest(new { error = "Scheme code is required." });
 
-            var result = await _detailsQuery.ExecuteAsync(schemeCode);
-            return Ok(result);
+            var cacheKey = SchemeDetailKey(schemeCode);
+
+            if (!_cache.TryGetValue(cacheKey, out object cachedDetail))
+            {
+                cachedDetail = await _detailsQuery.ExecuteAsync(schemeCode);
+
+                _cache.Set(cacheKey, cachedDetail, new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1),
+                    SlidingExpiration = TimeSpan.FromMinutes(30),
+                    Priority = CacheItemPriority.Normal
+                });
+            }
+
+            return Ok(cachedDetail);
         }
+
     }
 }
