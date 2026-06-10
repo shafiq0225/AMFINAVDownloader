@@ -430,6 +430,25 @@
       "RouteClaimsRequirement": { "permissions": "nav.read" }
     },
     {
+      "RouteId": "nav-cache-refresh",
+      "UpstreamPathTemplate": "/api/navcomparison/cache/refresh",
+      "DownstreamPathTemplate": "/api/navcomparison/cache/refresh",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "app-amfinav-schemeapi.azurewebsites.net",
+          "Port": 443
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
+    },
+    {
       "RouteId": "holiday-status",
       "UpstreamPathTemplate": "/api/holiday-status",
       "DownstreamPathTemplate": "/api/holiday-status",

@@ -566,6 +566,25 @@
       }
     },
     {
+      "RouteId": "nav-cache-refresh",
+      "UpstreamPathTemplate": "/api/navcomparison/cache/refresh",
+      "DownstreamPathTemplate": "/api/navcomparison/cache/refresh",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7002
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer"
+      },
+      "RouteClaimsRequirement": {
+        "role": "Admin"
+      }
+    },
+    {
       "RouteId": "holiday-status",
       "UpstreamPathTemplate": "/api/holiday-status",
       "DownstreamPathTemplate": "/api/holiday-status",
