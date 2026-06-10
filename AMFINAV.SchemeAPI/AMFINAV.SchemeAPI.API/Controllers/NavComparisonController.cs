@@ -77,5 +77,13 @@ namespace AMFINAV.SchemeAPI.API.Controllers
             return Ok(cachedDetail);
         }
 
+        [HttpPost("daily/refresh")]
+        [Authorize(Policy = "CanWriteNav")] // stricter policy
+        public IActionResult RefreshDailyCache()
+        {
+            _cache.Remove(DAILY_CACHE_KEY);
+            return Ok(new { message = "Daily NAV cache cleared. Next request will reload from DB." });
+        }
+
     }
 }
