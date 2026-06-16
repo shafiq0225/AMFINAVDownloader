@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
     LoginDto, RegisterDto,
@@ -58,6 +58,13 @@ export class AuthService {
 
     refresh(): Observable<TokenResponseDto> {
         const refreshToken = this.getRefreshToken();
+
+        // Guard — don't attempt refresh if no token stored
+        if (!refreshToken || refreshToken === 'undefined' || refreshToken === 'null') {
+            this.logout();
+            return throwError(() => new Error('No refresh token available'));
+        }
+
         return this.http.post<TokenResponseDto>(
             `${this.api}/refresh`, { refreshToken })
             .pipe(tap(res => this.storeTokens(res)));
@@ -82,9 +89,17 @@ export class AuthService {
         return localStorage.getItem(this.REFRESH);
     }
 
-    private storeTokens(res: TokenResponseDto): void {
-        localStorage.setItem(this.TOKEN, res.accessToken);
-        localStorage.setItem(this.REFRESH, res.refreshToken);
+    private storeTokens(res: any): void {
+        const accessToken = res.accessToken ?? res.AccessToken;
+        const refreshToken = res.refreshToken ?? res.RefreshToken;
+
+        if (!accessToken || !refreshToken) {
+            console.error('Token storage failed — missing tokens in response', res);
+            return;
+        }
+
+        localStorage.setItem(this.TOKEN, accessToken);
+        localStorage.setItem(this.REFRESH, refreshToken);
         this.loadUserFromToken();
     }
 

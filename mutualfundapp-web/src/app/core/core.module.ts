@@ -9,12 +9,12 @@ import { ErrorInterceptor } from './interceptors/error.interceptor';
     providers: [
         {
             provide: HTTP_INTERCEPTORS,
-            useClass: AuthInterceptor,
+            useClass: ErrorInterceptor,  // ← first in registration
             multi: true
         },
         {
             provide: HTTP_INTERCEPTORS,
-            useClass: ErrorInterceptor,
+            useClass: AuthInterceptor,   // ← second in registration
             multi: true
         }
     ]
@@ -22,7 +22,6 @@ import { ErrorInterceptor } from './interceptors/error.interceptor';
 export class CoreModule {
     constructor(@Optional() @SkipSelf() parent: CoreModule) {
         if (parent) throw new Error(
-            'CoreModule already loaded. Import only in AppModule.'
-        );
+            'CoreModule already loaded. Import only in AppModule.');
     }
 }

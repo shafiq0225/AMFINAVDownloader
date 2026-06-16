@@ -4,17 +4,11 @@ import {
     HttpInterceptor, HttpErrorResponse
 } from '@angular/common/http';
 import { Observable, throwError, catchError } from 'rxjs';
-import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-    constructor(
-        private router: Router,
-        private toastr: ToastrService,
-        private authService: AuthService
-    ) { }
+    constructor(private toastr: ToastrService) { }
 
     intercept(
         req: HttpRequest<any>,
@@ -25,12 +19,8 @@ export class ErrorInterceptor implements HttpInterceptor {
                 const msg = error.error?.message || 'An error occurred';
 
                 switch (error.status) {
-                    case 401:
-                        this.authService.logout();
-                        this.toastr.warning('Session expired. Please login again.');
-                        break;
                     case 403:
-                        this.toastr.error('You do not have permission to perform this action.');
+                        this.toastr.error('You do not have permission.');
                         break;
                     case 404:
                         this.toastr.warning(msg);
@@ -44,8 +34,7 @@ export class ErrorInterceptor implements HttpInterceptor {
                     case 500:
                         this.toastr.error('Server error. Please try again later.');
                         break;
-                    default:
-                        this.toastr.error(msg);
+                    // 401 intentionally removed — AuthInterceptor handles it
                 }
                 return throwError(() => error);
             })

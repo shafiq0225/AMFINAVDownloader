@@ -8,11 +8,18 @@ using AMFINAV.AuthAPI.Infrastructure;
 using AMFINAV.AuthAPI.Infrastructure.Data;
 using AMFINAV.AuthAPI.API.Middleware;
 using AMFINAV.AuthAPI.API.Services;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Controllers ───────────────────────────────────────────────────
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy =
+            JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
 
 // ── Clean Architecture Layers ─────────────────────────────────────
@@ -141,7 +148,10 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowGateway", policy =>
-        policy.WithOrigins("http://localhost:5000", "https://localhost:5001")
+        policy.WithOrigins(
+                "https://localhost:7000",
+                "http://localhost:4200",
+                "https://localhost:4200")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
